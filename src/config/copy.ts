@@ -59,6 +59,15 @@ export const COPY = {
     wallFor: 'Dành riêng cho',
   },
 
+  female: {
+    // chữ trên lá thư (popup biến thành thư → vào phong bì)
+    letterTitle: 'Graduation Gala',
+    letterTo: 'Gửi',
+    letterDate: '16 · 10 · 2026',
+    // cảnh tulip: chờ khách chạm vào phong bì
+    cta: 'CHẠM VÀO THƯ ĐỂ MỞ',
+  },
+
   invitationHeader: {
     kicker: 'CHÂN THÀNH KÍNH MỜI',
     title: 'LỄ VINH DANH',

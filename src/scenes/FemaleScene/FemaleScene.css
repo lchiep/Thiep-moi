@@ -1,0 +1,220 @@
+/* ============================================================
+   NHÁNH NỮ — thư, phong bì, cảnh tulip
+   Mọi transform/opacity do GSAP điều khiển (femaleTransitionTimeline.ts); CSS chỉ bố cục tĩnh.
+   ============================================================ */
+.fem {
+  position: absolute;
+  inset: 0;
+  z-index: 30; /* trên popup: lá thư sinh ra ngay trên khung kính đang co */
+  pointer-events: none;
+  overflow: hidden;
+}
+
+/* ---------- CẢNH B: tĩnh vật tulip ---------- */
+.fem__b {
+  position: absolute;
+  inset: 0;
+  overflow: hidden;
+  background: #efe9e1;
+}
+/* "tấm ảnh" 768×1376 phủ kín màn (cover): cao = màn hình, cắt bớt 2 bên */
+.fem__plate {
+  position: absolute;
+  top: 0;
+  left: 50%;
+  height: 100%;
+  aspect-ratio: 768 / 1376;
+  translate: -50% 0;
+}
+.fem__bg {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+.fem__obj {
+  position: absolute;
+  height: auto;
+  display: block;
+}
+.fem__bouquet {
+  filter: drop-shadow(8px 12px 12px rgba(92, 62, 40, 0.2));
+}
+/* nắng từ trên-trái → bóng đổ xuống dưới-phải */
+.fem__choc { filter: drop-shadow(5px 8px 6px rgba(70, 40, 25, 0.28)); }
+.fem__petal { filter: drop-shadow(3px 5px 4px rgba(120, 70, 60, 0.18)); }
+.fem__spot {
+  position: absolute;
+  aspect-ratio: 582 / 444;
+  visibility: hidden;
+}
+/* vệt nắng ấm quét qua (screen) */
+.fem__light {
+  position: absolute;
+  inset: -10% -30%;
+  pointer-events: none;
+  mix-blend-mode: soft-light;
+  background:
+    radial-gradient(60% 40% at 30% 18%, rgba(255, 226, 180, 0.75), rgba(255, 226, 180, 0) 70%),
+    linear-gradient(118deg, rgba(255, 238, 205, 0) 30%, rgba(255, 238, 205, 0.45) 46%, rgba(255, 238, 205, 0) 60%);
+}
+
+/* ---------- PHONG BÌ ---------- */
+/* khung = THÂN phong bì; nắp nằm phía trên (tràn ra ngoài khung) */
+.fem__env {
+  position: absolute;
+  left: 12cqw;
+  top: 48cqh;
+  width: 76cqw;
+  aspect-ratio: 582 / 444;
+  pointer-events: auto;
+  cursor: pointer;
+  -webkit-tap-highlight-color: transparent;
+}
+.fem__env-float {
+  position: absolute;
+  inset: 0;
+}
+.fem__env-float > img,
+.fem__env-shadow {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+}
+.fem__env-shadow {
+  inset: 3% 2% -3% 2%;
+  width: auto;
+  height: auto;
+  border-radius: 4px;
+  background: rgba(20, 12, 6, 0.55);
+  filter: blur(14px);
+}
+.fem__env-back { z-index: 1; }
+.fem__env-letter { z-index: 2; }
+.fem__env-front { z-index: 3; }
+
+.fem__env-letter {
+  position: absolute;
+  left: 7%;
+  top: 11%;
+  width: 86%;
+}
+
+/* nắp: 2 mặt, lật quanh nếp gấp (mép dưới của nắp = mép trên thân) */
+.fem__flap {
+  position: absolute;
+  left: 0;
+  bottom: 100%;
+  width: 100%;
+  aspect-ratio: 582 / 388;
+  transform-style: preserve-3d;
+  margin-bottom: -0.4%;
+}
+.fem__flap-in,
+.fem__flap-out {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  backface-visibility: hidden;
+  -webkit-backface-visibility: hidden;
+}
+.fem__flap-out {
+  transform: rotateX(180deg);
+}
+.fem__flap-out > img:first-child {
+  width: 100%;
+  height: 100%;
+  display: block;
+}
+/* dấu sáp gần mũi nắp (sau khi gập, mũi nắp nằm dưới) */
+.fem__seal {
+  position: absolute;
+  left: 50%;
+  bottom: 9%;
+  width: 22%;
+  margin-left: -11%;
+  filter: drop-shadow(0 2px 2px rgba(60, 10, 14, 0.35));
+}
+
+/* ---------- LÁ THƯ ---------- */
+.fem-letter {
+  aspect-ratio: 800 / 575;
+  background: #f4ecdf url('/assets/female/letter.webp') center / cover no-repeat;
+  border-radius: 2px;
+  container-type: inline-size;
+  box-shadow:
+    0 1px 1px rgba(80, 55, 30, 0.18),
+    0 10px 24px rgba(60, 40, 20, 0.22);
+}
+/* thư tự do: giữa màn, chỗ popup đang co lại */
+.fem__letter {
+  position: absolute;
+  left: 14cqw;
+  top: 27cqh;
+  width: 72cqw;
+  z-index: 4;
+}
+.fem-letter__face {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 1.5cqi;
+  padding-bottom: 10cqi;
+  text-align: center;
+  color: #6e1f2a;
+}
+.fem-letter__title {
+  margin: 0;
+  font-family: var(--font-script);
+  font-size: 12.5cqi;
+  line-height: 1;
+}
+.fem-letter__to {
+  margin: 0;
+  font-family: var(--font-display, 'Cormorant Garamond', serif);
+  font-size: 4.2cqi;
+  letter-spacing: 0.08em;
+  color: #7b6346;
+}
+.fem-letter__to span {
+  font-family: var(--font-script);
+  font-size: 8.5cqi;
+  letter-spacing: 0;
+  color: #6e1f2a;
+  margin-left: 0.6cqi;
+}
+.fem-letter__date {
+  margin: 0;
+  font-family: 'Cinzel', 'Cormorant Garamond', serif;
+  font-size: 3.1cqi;
+  letter-spacing: 0.32em;
+  color: #9a7b47;
+}
+
+/* ---------- CHỮ MỜI CHẠM ---------- */
+.fem__cta {
+  position: absolute;
+  left: 0;
+  right: 0;
+  top: calc(var(--safe-top) + 3.2cqh);
+  margin: 0 auto;
+  width: max-content;
+  padding: 6px 12px;
+  border: 0;
+  background: none;
+  font-family: var(--font-ui);
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: 0.32em;
+  color: #6e1f2a;
+  text-shadow: 0 1px 6px rgba(255, 250, 240, 0.9);
+  pointer-events: auto;
+  cursor: pointer;
+}
+.fem__cta:disabled { cursor: default; }

@@ -18,6 +18,9 @@ gsap.registerPlugin(useGSAP)
 // cảnh 3D nhánh Nam: tải riêng (three.js nặng) — tải trước khi popup mở
 const loadMale = () => import('../MaleScene/MaleScene')
 const MaleScene = lazy(loadMale)
+// nhánh Nữ: nhẹ (ảnh + DOM), tải khi popup mở
+const loadFemale = () => import('../FemaleScene/FemaleScene')
+const FemaleScene = lazy(loadFemale)
 
 /**
  * Cảnh 1 + 2 dùng CHUNG một nền: cuộc gọi → vuốt nghe → popup mọc ra từ thanh trượt.
@@ -79,12 +82,16 @@ export default function CallScene() {
 
   // --- popup mọc ra từ thanh trượt ---
   const showPopup =
-    state === 'RSVP_OPEN' || state === 'RSVP_CLOSING' || state === 'RSVP_SUBMITTING' || state === 'MALE_DOCUMENT_ENTER'
+    state === 'RSVP_OPEN' || state === 'RSVP_CLOSING' || state === 'RSVP_SUBMITTING' || state === 'MALE_DOCUMENT_ENTER' ||
+    state === 'FEMALE_LETTER_TRANSFORM'
+  const showFemale = state.startsWith('FEMALE_')
+  // "cảnh A" của nhánh Nữ = nền cuộc gọi (ảnh + lớp tối), bị đẩy sang phải khi cảnh tulip đi vào
+  const sceneA = useCallback(() => [...root.current!.querySelectorAll<HTMLElement>('.call__bg, .call__shade')], [])
   const showMale =
     state.startsWith('MALE_') ||
     ((state === 'TICKET_REVEAL' || state === 'TICKET_VIEW' || state === 'INVITATION_ENTER' || state === 'INVITATION_VIEW' || state === 'INVITATION_EXIT' || state === 'TICKET_STOW') && useGuest.getState().guest?.gender === 'nam')
   useLayoutEffect(() => {
-    if (state === 'RSVP_OPEN') void loadMale()
+    if (state === 'RSVP_OPEN') { void loadMale(); void loadFemale() }
     if (state !== 'RSVP_OPEN' || !popup.current || openTl.current) return
     const origin = sliderRect.current ?? slider.current!.getBoundingClientRect()
     gsap.to(slider.current, { autoAlpha: 0, duration: 0.3, ease: 'power2.out' })
@@ -120,10 +127,6 @@ export default function CallScene() {
   }, [])
 
   const onSubmit = useCallback(async (data: GuestForm): Promise<string | null> => {
-    if (data.gender === 'nu') {
-      // nhánh Nữ làm ở Phase 8 — báo rõ thay vì im lặng
-      return 'Nhánh Nữ đang được làm (Phase 8). Chọn Nam để xem thử nhé.'
-    }
     if (!sendExperience('SUBMIT')) return null
     try {
       // lưu hồ sơ khách trên máy (ảnh nén ~600px). Phase 6: đồng bộ Supabase + mã vé chính thức.
@@ -134,6 +137,13 @@ export default function CallScene() {
       return 'Không đọc được ảnh này (có thể là ảnh HEIC). Bạn chọn ảnh JPG/PNG khác nhé.'
     }
     try {
+      if (data.gender === 'nu') {
+        // nhánh Nữ: tải code + giải mã sẵn toàn bộ ảnh (thư, phong bì, cảnh tulip) rồi mới biến hình
+        const m = await loadFemale()
+        await m.preloadFemaleAssets()
+        sendExperience('GO_FEMALE')
+        return null
+      }
       await loadMale() // chắc chắn code 3D đã tải xong trước khi biến hình
     } catch (e) {
       console.error('[RSVP] tải cảnh 3D lỗi', e)
@@ -168,6 +178,11 @@ export default function CallScene() {
       {showMale && (
         <Suspense fallback={null}>
           <MaleScene popup={popup} />
+        </Suspense>
+      )}
+      {showFemale && (
+        <Suspense fallback={null}>
+          <FemaleScene popup={popup} sceneA={sceneA} />
         </Suspense>
       )}
       {showPopup && <GlassPopup ref={popup} onCancel={onCancelPopup} onSubmit={onSubmit} />}

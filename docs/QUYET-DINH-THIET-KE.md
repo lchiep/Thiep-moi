@@ -51,3 +51,10 @@ Tách ra từ CLAUDE.md (27/09/2026) để CLAUDE.md ngắn gọn. Đây là nh�
 - Sau đó: 7 Nam · 8 Nữ · 9 Vé · 10 Thiệp · 11 Z-fold · 12 Các mục cuộn · 14 Tối ưu · 15 Test mobile + deploy
 - Dữ liệu đang **mock** (SĐT liên hệ, lời mời) — Hiệp sẽ cung cấp thật sau.
 
+
+## Nhánh Nữ — bước 1: chuyển cảnh (27/09/2026)
+- Luồng: GỬI (Nữ) → popup co lại thành LÁ THƯ đúng chỗ popup → phong bì mở trồi lên từ mép dưới → thư canh miệng phong bì, thu nhỏ nhẹ → trượt vào (thân trước che thật, 3 lớp: thân sau · thư · thân trước) → nắp gập (xoay quanh nếp, đổi lớp khi qua 90°) + dấu sáp nhún → phong bì nhấc lên → nền cuộc gọi trượt sang PHẢI, cảnh tulip vào từ trái → hoa → phong bì đáp xuống lụa → KitKat → cánh hoa → nắng quét → "CHẠM VÀO THƯ ĐỂ MỞ" (`FEMALE_WAITING_TAP`).
+- Code: `scenes/FemaleScene/` (FemaleScene.tsx, femaleAssets.ts — vị trí vật theo tấm ảnh 768×1376), `animations/gsap/femaleTransitionTimeline.ts` (1 timeline, mỗi mốc gửi DONE), chữ ở `COPY.female`.
+- Ảnh `public/assets/female/`: tách lớp từ ảnh Hiệp tạo — phong bì từ E2 (thân sau, thân trước khoét miệng, nắp 2 mặt), cảnh từ C3 (nền), hoa từ C1, KitKat + cánh hoa từ C2, giấy thư từ D. Phong bì là 1 vật duy nhất đi xuyên 2 cảnh.
+- Dùng `gsap.context` + `ctx.revert()` (StrictMode chạy effect 2 lần → phải trả transform về trước khi đo lại).
+- Chạm phong bì hiện chỉ có phản hồi nhấn; mở phong bì → vé ra trước → thư → Z-fold là bước sau.

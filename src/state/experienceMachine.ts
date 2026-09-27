@@ -16,6 +16,12 @@ export type ExperienceState =
   | 'MALE_DOCUMENT_OPEN'
   | 'MALE_WAITING_TAP'
   | 'FEMALE_LETTER_TRANSFORM'
+  | 'FEMALE_ENVELOPE_INSERT'
+  | 'FEMALE_ENVELOPE_CLOSED'
+  | 'FEMALE_SCENE_TRANSITION'
+  | 'FEMALE_SCENE_READY'
+  | 'FEMALE_WAITING_TAP'
+  | 'FEMALE_ENVELOPE_OPEN'
   | 'TICKET_REVEAL'
   | 'TICKET_VIEW'
   | 'INVITATION_ENTER'
@@ -52,6 +58,14 @@ const TRANSITIONS: Partial<Record<ExperienceState, Partial<Record<ExperienceEven
   // chạm lần 1: rút vé ra khỏi túi (bất ngờ) · chạm lần 2: sang màn thiệp
   // chạm VÀO VÉ (trang phải) → rút vé · chạm VÀO THIỆP (trang trái) → camera zoom thẳng vào thiệp
   MALE_WAITING_TAP: { TAP: 'TICKET_REVEAL', OPEN_CARD: 'INVITATION_ENTER' },
+  // nhánh Nữ: popup → lá thư → thư vào phong bì → phong bì đóng → cả cảnh trượt sang phải
+  // → cảnh tulip (hoa, phong bì, KitKat, cánh hoa lần lượt yên vị) → chờ chạm vào thư
+  FEMALE_LETTER_TRANSFORM: { DONE: 'FEMALE_ENVELOPE_INSERT' },
+  FEMALE_ENVELOPE_INSERT: { DONE: 'FEMALE_ENVELOPE_CLOSED' },
+  FEMALE_ENVELOPE_CLOSED: { DONE: 'FEMALE_SCENE_TRANSITION' },
+  FEMALE_SCENE_TRANSITION: { DONE: 'FEMALE_SCENE_READY' },
+  FEMALE_SCENE_READY: { DONE: 'FEMALE_WAITING_TAP' },
+  FEMALE_WAITING_TAP: { TAP: 'FEMALE_ENVELOPE_OPEN' },
   TICKET_REVEAL: { DONE: 'TICKET_VIEW' },
   // vuốt sang phải → trang thiệp đi vào từ bên trái
   // vuốt phải: cất vé vào túi → camera lia sang trái, zoom vào thiệp tới khi đầy màn hình
