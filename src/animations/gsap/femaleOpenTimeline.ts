@@ -5,7 +5,8 @@ import { EASE } from '../motion'
  * CHẠM VÀO THƯ (nhánh Nữ):
  *   nhấn (0.98) → cánh hoa bay tới đỡ lấy các mép phong bì → phong bì trượt ra khỏi bó hoa,
  *   được nâng lên TRƯỚC bó hoa, to ra giữa màn (nền giữ nguyên, không tối đi) → cánh hoa buông ra, chao đi
- *   → nắp mở (lật quanh nếp gấp, dấu sáp đi theo nắp) → VÉ trồi lên trước → THIỆP trồi lên sau.
+ *   → nắp mở (lật quanh nếp gấp, dấu sáp đi theo nắp) → THIỆP (viền đỏ đô) ló lên một chút rồi nằm yên
+ *   → VÉ được nâng từ từ theo đường chéo từ trái lên, dừng ở thế nằm chéo trước thiệp.
  * GSAP giữ transform/opacity. Vị trí đích đo bằng getBoundingClientRect.
  */
 export type OpenRefs = {
@@ -100,13 +101,13 @@ export function femaleOpenTimeline(o: OpenRefs, onDone: () => void) {
     .to(o.flap, { rotationX: 0, duration: 0.9, ease: 'power2.inOut' }, 'open+=0.12')
     .set(o.flap, { zIndex: 0 }, 'open+=0.57') // nắp dựng qua 90° → nằm SAU vé + thiệp
 
-  // ---------- VÉ ra trước ----------
-  tl.addLabel('ticket', 'open+=0.85')
-    // chỉ LÓ ra khỏi miệng phong bì một chút (mép trên nhô ~10% thân phong bì)
-    .to(o.ticket, { yPercent: -80, xPercent: -1, rotation: -5, duration: 1.0, ease: 'power3.out' }, 'ticket')
-  // ---------- THIỆP ra sau ----------
-  tl.addLabel('letter', 'ticket+=0.7')
-    .to(o.letter, { yPercent: -66, xPercent: 2, rotation: -2, duration: 1.1, ease: 'power3.out' }, 'letter')
+  // ---------- THIỆP ló lên trước một chút (viền đỏ đô) — rồi nằm yên ----------
+  tl.addLabel('letter', 'open+=0.8')
+    .to(o.letter, { yPercent: -36, rotation: -1, duration: 1.0, ease: 'power2.out' }, 'letter')
+  // ---------- VÉ được nâng từ từ, chéo từ trái lên, rồi nằm chéo trước thiệp ----------
+  tl.addLabel('ticket', 'letter+=0.9')
+    .fromTo(o.ticket, { xPercent: -7, yPercent: 6, rotation: 2 },
+      { xPercent: 4, yPercent: -64, rotation: -13, duration: 2.1, ease: 'power2.inOut' }, 'ticket')
 
   return tl
 }

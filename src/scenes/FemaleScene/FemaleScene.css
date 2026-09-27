@@ -162,7 +162,15 @@
   bottom: auto;
   height: auto;
 }
-.fem__env-float > .fem__card-letter { left: 8%; top: 18%; width: 84%; border-radius: 2px; }
+.fem__env-float > .fem__card-letter {
+  left: 8%;
+  top: 18%;
+  width: 84%;
+  border-radius: 2px;
+  /* viền đỏ đô in sát mép thiệp */
+  outline: 1.5px solid #7a1f2b;
+  outline-offset: -6px;
+}
 .fem__env-float > .fem__card-ticket { left: 3%; top: 34%; width: 94%; }
 /* ánh sáng ấm trong túi phong bì lúc hạt sáng bay vào (lộ ra qua miệng túi) */
 .fem__env-glow {
