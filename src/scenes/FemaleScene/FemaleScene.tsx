@@ -104,7 +104,7 @@ export default function FemaleScene({ popup, sceneA }: Props) {
         envSun: q('.fem__env-sun'), envClosed: q('.fem__env-closed'), pocket: q('.fem__env-pocket'),
         inner: [...el.querySelectorAll<HTMLElement>('.fem__env-back, .fem__env-front, .fem__env-letter, .fem__env-glow')],
         wall: q('.fem__env-wall'), flap: q('.fem__flap'), ticket: q('.fem__card-ticket'), letter: q('.fem__card-letter'),
-        carry: [...el.querySelectorAll<HTMLElement>('.fem__carry img')], veil: q('.fem__veil'), cta: q('.fem__cta'),
+        carry: [...el.querySelectorAll<HTMLElement>('.fem__carry img')], cta: q('.fem__cta'),
       }, () => sendExperience('DONE')) // → FEMALE_CARDS_READY
       if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) t.timeScale(2)
       if (QA) (window as unknown as { __femaleOpenTl: unknown }).__femaleOpenTl = t
@@ -180,8 +180,6 @@ export default function FemaleScene({ popup, sceneA }: Props) {
         ))}
       </div>
 
-      {/* nền tối nhẹ khi phong bì được nâng lên trước bó hoa */}
-      <div className="fem__veil" aria-hidden />
       {/* cánh hoa bay tới "đỡ" phong bì lên */}
       <div className="fem__carry" aria-hidden>
         {Array.from({ length: 8 }, (_, i) => (

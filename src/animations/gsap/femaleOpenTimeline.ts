@@ -4,7 +4,7 @@ import { EASE } from '../motion'
 /**
  * CHẠM VÀO THƯ (nhánh Nữ):
  *   nhấn (0.98) → cánh hoa bay tới đỡ lấy các mép phong bì → phong bì trượt ra khỏi bó hoa,
- *   được nâng lên TRƯỚC bó hoa, to ra giữa màn (nền tối nhẹ lại cho nổi) → cánh hoa buông ra, chao đi
+ *   được nâng lên TRƯỚC bó hoa, to ra giữa màn (nền giữ nguyên, không tối đi) → cánh hoa buông ra, chao đi
  *   → nắp mở (lật quanh nếp gấp, dấu sáp đi theo nắp) → VÉ trồi lên trước → THIỆP trồi lên sau.
  * GSAP giữ transform/opacity. Vị trí đích đo bằng getBoundingClientRect.
  */
@@ -22,7 +22,6 @@ export type OpenRefs = {
   ticket: HTMLElement
   letter: HTMLElement
   carry: HTMLElement[]
-  veil: HTMLElement
   cta: HTMLElement
 }
 
@@ -76,7 +75,6 @@ export function femaleOpenTimeline(o: OpenRefs, onDone: () => void) {
     .to(o.env, { x: out.x, y: out.y, rotation: 2, duration: 0.45, ease: 'power2.inOut' }, 'lift')
     .to(o.envShadow, { autoAlpha: 0.35, y: 22, scale: 1.08, duration: 0.45 }, 'lift')
     .set(o.env, { zIndex: 40 }, 'lift+=0.45') // đã ra khỏi bó hoa → nằm trên mọi thứ
-    .to(o.veil, { autoAlpha: 1, duration: 0.8, ease: 'power1.inOut' }, 'lift+=0.4')
     .to(o.env, { x: cur.x + (C.x - Rc.x), y: cur.y + (C.y - Rc.y), scale: sNew, rotation: 0, duration: 1.1, ease: 'power3.inOut' }, 'lift+=0.45')
   // cánh hoa đi cùng phong bì (giữ đúng điểm đỡ, to theo)
   const k = sNew / cur.s
@@ -104,10 +102,11 @@ export function femaleOpenTimeline(o: OpenRefs, onDone: () => void) {
 
   // ---------- VÉ ra trước ----------
   tl.addLabel('ticket', 'open+=0.85')
-    .to(o.ticket, { yPercent: -62, xPercent: -2, rotation: -9, duration: 1.0, ease: 'power3.out' }, 'ticket')
+    // chỉ LÓ ra khỏi miệng phong bì một chút (mép trên nhô ~10% thân phong bì)
+    .to(o.ticket, { yPercent: -80, xPercent: -1, rotation: -5, duration: 1.0, ease: 'power3.out' }, 'ticket')
   // ---------- THIỆP ra sau ----------
   tl.addLabel('letter', 'ticket+=0.7')
-    .to(o.letter, { yPercent: -88, xPercent: 3, rotation: -2, duration: 1.1, ease: 'power3.out' }, 'letter')
+    .to(o.letter, { yPercent: -66, xPercent: 2, rotation: -2, duration: 1.1, ease: 'power3.out' }, 'letter')
 
   return tl
 }
