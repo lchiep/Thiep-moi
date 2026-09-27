@@ -6,9 +6,9 @@
  * Bó hoa + cánh hoa: ảnh tách nền Hiệp gửi. KitKat: tách từ C2. Phong bì: E2 (mở) + E1 (đóng).
  */
 import { drawTicket, TICKET_FONTS } from '../../components/Ticket/drawTicket'
-import { fontsReady, makeCanvas, text } from '../../utils/paperCanvas'
+import { drawInvitationCard, CARD_SIZE } from '../../components/DocumentFolder/drawInvitationCard'
+import { fontsReady, makeCanvas } from '../../utils/paperCanvas'
 import { loadImage } from '../../utils/image'
-import { COPY } from '../../config/copy'
 import { ticketFromGuest, type Guest } from '../../state/guestStore'
 
 const F = '/assets/female/'
@@ -74,11 +74,11 @@ export const pct = (b: Box) => ({
  */
 /**
  * Thiệp trong phong bì — thiết kế riêng cho khổ phong bì (theo ảnh tham khảo phong bì đỏ Hiệp gửi):
- * nền = chính giấy dó của tờ thiệp (khúc có 2 nhành lá vàng), chữ header thu NHỎ lại cho thoáng,
- * viền đỏ đô 2 nét. Nội dung chung với thiệp nhánh Nam (COPY.invitationHeader, họ tên, "Chị + tên").
+ * nền = giấy dó của tờ thiệp, khối chữ = NGUYÊN header tờ thiệp (như thiệp nhánh Nam) thu nhỏ còn ~56% bề ngang,
+ * đặt phía trên cho thoáng · viền đỏ đô 2 nét. Nội dung chung với thiệp nhánh Nam (COPY.invitationHeader, họ tên, "Chị + tên").
  */
 const PAPER = '/assets/invitation/paper.webp'
-const LETTER = { w: 852, h: 613, srcY: 210 } // khúc giấy 852×613 (y 210→823): 2 nhành lá ôm 3 dòng tên khách
+const LETTER = { w: 852, h: 613 }
 let cards: { ticket: string; letter: string } = { ticket: '', letter: '' }
 export const getCards = () => cards
 
@@ -88,16 +88,25 @@ export async function buildCards(guest: Guest) {
   const ticket = await drawTicket(t)
 
   const { canvas: c, ctx: g } = makeCanvas(LETTER.w, LETTER.h)
-  g.drawImage(await loadImage(PAPER), 0, LETTER.srcY, LETTER.w, LETTER.h, 0, 0, LETTER.w, LETTER.h)
-  const cx = LETTER.w / 2
-  const ink = '#1c1a18', gold = '#a88a4a'
-  const H = COPY.invitationHeader
-  text(g, 'CHÂN THÀNH KÍNH MỜI', { font: '600 21px "Cormorant Garamond"', color: ink, x: cx, y: 74, align: 'center', spacing: 4 })
-  text(g, H.title, { font: '700 50px "Cormorant Garamond"', color: ink, x: cx, y: 126, align: 'center', spacing: 1 })
-  text(g, H.subtitle, { font: '700 32px "Cormorant Garamond"', color: ink, x: cx, y: 166, align: 'center', spacing: 1 })
-  text(g, H.guestLabel, { font: '700 21px "Cormorant Garamond"', color: gold, x: cx, y: 226, align: 'center', spacing: 3 })
-  text(g, t.guestFullName.toLocaleUpperCase('vi'), { font: '700 25px "Cormorant Garamond"', color: gold, x: cx, y: 264, align: 'center', spacing: 1.5, maxWidth: LETTER.w * 0.56 })
-  text(g, t.guestAddress, { font: '400 58px "Luxurious Script"', color: gold, x: cx, y: 326, align: 'center', maxWidth: LETTER.w * 0.56 })
+  // nền: khúc giấy trơn đầu tờ (không có nhành lá) giãn ra cho đủ khổ thiệp
+  g.drawImage(await loadImage(PAPER), 0, 0, LETTER.w, 380, 0, 0, LETTER.w, LETTER.h)
+  // chữ: dùng NGUYÊN khối header của tờ thiệp (y hệt thiệp nhánh Nam: chữ C thư pháp, 2 nhành lá ôm tên khách),
+  // thu nhỏ đặt phía trên — mép khối làm mờ dần để hoà vào giấy nền
+  const card = await drawInvitationCard(t.guestFullName, t.guestAddress)
+  const sy = Math.round(CARD_SIZE.h * 0.068), sh = Math.round(CARD_SIZE.h * (0.352 - 0.068))
+  const blk = makeCanvas(CARD_SIZE.w, sh)
+  blk.ctx.drawImage(card, 0, sy, CARD_SIZE.w, sh, 0, 0, CARD_SIZE.w, sh)
+  blk.ctx.globalCompositeOperation = 'destination-in'
+  const fx = blk.ctx.createLinearGradient(0, 0, CARD_SIZE.w, 0)
+  fx.addColorStop(0, 'rgba(0,0,0,0)'); fx.addColorStop(0.06, '#000'); fx.addColorStop(0.94, '#000'); fx.addColorStop(1, 'rgba(0,0,0,0)')
+  blk.ctx.fillStyle = fx
+  blk.ctx.fillRect(0, 0, CARD_SIZE.w, sh)
+  const fy = blk.ctx.createLinearGradient(0, 0, 0, sh)
+  fy.addColorStop(0, 'rgba(0,0,0,0)'); fy.addColorStop(0.08, '#000'); fy.addColorStop(0.92, '#000'); fy.addColorStop(1, 'rgba(0,0,0,0)')
+  blk.ctx.fillStyle = fy
+  blk.ctx.fillRect(0, 0, CARD_SIZE.w, sh)
+  const bw = LETTER.w * 0.56, bh = (bw / CARD_SIZE.w) * sh
+  g.drawImage(blk.canvas, (LETTER.w - bw) / 2, 36, bw, bh)
   // viền đỏ đô 2 nét
   g.strokeStyle = 'rgba(122,31,43,0.85)'
   g.lineWidth = 3
