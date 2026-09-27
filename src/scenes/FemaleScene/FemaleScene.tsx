@@ -3,12 +3,13 @@ import { gsap } from 'gsap'
 import { animate } from 'animejs'
 import { COPY } from '../../config/copy'
 import { sendExperience, useExperience } from '../../state/experienceMachine'
-import { envelopePress, femaleIdle, femaleTransitionTimeline } from '../../animations/gsap/femaleTransitionTimeline'
+import { femaleIdle, femaleTransitionTimeline } from '../../animations/gsap/femaleTransitionTimeline'
+import { femaleOpenTimeline } from '../../animations/gsap/femaleOpenTimeline'
 import { sealSparkle } from '../../animations/anime/microInteractions'
-import { ENVELOPE_SPOT, FEMALE_IMG, PLACE, pct } from './femaleAssets'
+import { ENVELOPE_SPOT, FEMALE_IMG, PLACE, getCards, pct } from './femaleAssets'
 import './FemaleScene.css'
 
-export { preloadFemaleAssets } from './femaleAssets'
+export { preloadFemaleAssets, buildCards } from './femaleAssets'
 
 const QA = new URLSearchParams(location.search).has('qa')
 
@@ -89,11 +90,32 @@ export default function FemaleScene({ popup, sceneA }: Props) {
     return () => { a.revert() }
   }, [state])
 
+  // CHẠM THƯ → cánh hoa nâng phong bì lên trước bó hoa → mở nắp → vé ra trước → thiệp ra sau
+  const openCtx = useRef<gsap.Context | null>(null)
+  useEffect(() => () => { openCtx.current?.revert() }, []) // chỉ dọn khi rời cảnh (không dọn lúc đổi state)
+  useLayoutEffect(() => {
+    if (state !== 'FEMALE_ENVELOPE_OPEN' || openCtx.current) return
+    const el = root.current!
+    const q = (s: string) => el.querySelector<HTMLElement>(s)!
+    idle.current?.kill() // thôi "thở" — từ giờ GSAP mở phong bì giữ các thuộc tính này
+    openCtx.current = gsap.context(() => {
+      const t = femaleOpenTimeline({
+        stage: el, env: q('.fem__env'), envFloat: q('.fem__env-float'), envShadow: q('.fem__env-shadow'),
+        envSun: q('.fem__env-sun'), envClosed: q('.fem__env-closed'), pocket: q('.fem__env-pocket'),
+        inner: [...el.querySelectorAll<HTMLElement>('.fem__env-back, .fem__env-front, .fem__env-letter, .fem__env-glow')],
+        wall: q('.fem__env-wall'), flap: q('.fem__flap'), ticket: q('.fem__card-ticket'), letter: q('.fem__card-letter'),
+        carry: [...el.querySelectorAll<HTMLElement>('.fem__carry img')], veil: q('.fem__veil'), cta: q('.fem__cta'),
+      }, () => sendExperience('DONE')) // → FEMALE_CARDS_READY
+      if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) t.timeScale(2)
+      if (QA) (window as unknown as { __femaleOpenTl: unknown }).__femaleOpenTl = t
+    })
+  }, [state])
+
   const onTapEnvelope = () => {
     if (useExperience.getState().state !== 'FEMALE_WAITING_TAP') return
-    envelopePress(root.current!.querySelector<HTMLElement>('.fem__env-float')!)
-    // Bước tiếp theo (mở phong bì → vé ra trước → thư → Z-fold) làm ở phần sau.
+    sendExperience('TAP') // → FEMALE_ENVELOPE_OPEN
   }
+  const cards = getCards()
 
   return (
     <div className="fem" data-scene="female" ref={root}>
@@ -115,11 +137,16 @@ export default function FemaleScene({ popup, sceneA }: Props) {
         <div className="fem__env-float">
           <div className="fem__env-shadow" />
           <img className="fem__env-back" src={FEMALE_IMG.envBack} alt="" />
+          {/* lúc mở phong bì: vách trong · thiệp · vé · túi trước (V) — vé + thiệp nằm sẵn trong túi */}
+          <div className="fem__env-wall" />
+          <img className="fem__card fem__card-letter" src={cards.letter} alt="" />
+          <img className="fem__card fem__card-ticket" src={cards.ticket} alt="" />
           {/* giấy thư "đọng" lại trong túi khi hạt sáng bay vào (chỉ thấy mặt giấy qua miệng túi) */}
           <div className="fem__env-letter fem-letter" />
           <div className="fem__env-glow" />
           <img className="fem__env-front" src={FEMALE_IMG.envFront} alt="" />
           <img className="fem__env-closed" src={FEMALE_IMG.envClosed} alt="" />
+          <img className="fem__env-pocket" src={FEMALE_IMG.envPocket} alt="" />
           <div className="fem__flap">
             <img className="fem__flap-in" src={FEMALE_IMG.flapIn} alt="" />
             <img className="fem__flap-out" src={FEMALE_IMG.flapOut} alt="" />
@@ -150,6 +177,15 @@ export default function FemaleScene({ popup, sceneA }: Props) {
         {FLURRY.map((f, i) => (
           <img key={i} src={f.src} alt="" className={f.depth < 0.3 ? 'is-near' : f.depth > 0.75 ? 'is-far' : ''}
             style={{ top: `${f.top}%`, width: `${f.size}cqw` }} />
+        ))}
+      </div>
+
+      {/* nền tối nhẹ khi phong bì được nâng lên trước bó hoa */}
+      <div className="fem__veil" aria-hidden />
+      {/* cánh hoa bay tới "đỡ" phong bì lên */}
+      <div className="fem__carry" aria-hidden>
+        {Array.from({ length: 8 }, (_, i) => (
+          <img key={i} src={[FEMALE_IMG.petal1, FEMALE_IMG.petal2, FEMALE_IMG.petal3][i % 3]} alt="" style={{ width: `${8 + (i % 3) * 2}cqw` }} />
         ))}
       </div>
 

@@ -22,6 +22,7 @@ export type ExperienceState =
   | 'FEMALE_SCENE_READY'
   | 'FEMALE_WAITING_TAP'
   | 'FEMALE_ENVELOPE_OPEN'
+  | 'FEMALE_CARDS_READY'
   | 'TICKET_REVEAL'
   | 'TICKET_VIEW'
   | 'INVITATION_ENTER'
@@ -65,7 +66,9 @@ const TRANSITIONS: Partial<Record<ExperienceState, Partial<Record<ExperienceEven
   FEMALE_ENVELOPE_CLOSED: { DONE: 'FEMALE_SCENE_TRANSITION' },
   FEMALE_SCENE_TRANSITION: { DONE: 'FEMALE_SCENE_READY' },
   FEMALE_SCENE_READY: { DONE: 'FEMALE_WAITING_TAP' },
+  // chạm thư: cánh hoa nâng phong bì lên TRƯỚC bó hoa → nắp mở → VÉ ra trước → thiệp ra sau
   FEMALE_WAITING_TAP: { TAP: 'FEMALE_ENVELOPE_OPEN' },
+  FEMALE_ENVELOPE_OPEN: { DONE: 'FEMALE_CARDS_READY' },
   TICKET_REVEAL: { DONE: 'TICKET_VIEW' },
   // vuốt sang phải → trang thiệp đi vào từ bên trái
   // vuốt phải: cất vé vào túi → camera lia sang trái, zoom vào thiệp tới khi đầy màn hình

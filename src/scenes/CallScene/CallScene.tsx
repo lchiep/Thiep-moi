@@ -140,7 +140,8 @@ export default function CallScene() {
       if (data.gender === 'nu') {
         // nhánh Nữ: tải code + giải mã sẵn toàn bộ ảnh (thư, phong bì, cảnh tulip) rồi mới biến hình
         const m = await loadFemale()
-        await m.preloadFemaleAssets()
+        // ảnh cảnh + vẽ sẵn vé và thiệp (nội dung chung với nhánh Nam) để lúc mở phong bì có ngay
+        await Promise.all([m.preloadFemaleAssets(), m.buildCards(useGuest.getState().guest!)])
         sendExperience('GO_FEMALE')
         return null
       }
