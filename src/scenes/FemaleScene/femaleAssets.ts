@@ -5,6 +5,9 @@
  * · KitKat dưới-phải · cánh hoa rải trên-phải và dưới.
  * Bó hoa + cánh hoa: ảnh tách nền Hiệp gửi. KitKat: tách từ C2. Phong bì: E2 (mở) + E1 (đóng).
  */
+import { drawInvitationCard, CARD_SIZE } from '../../components/DocumentFolder/drawInvitationCard'
+import { fontsReady } from '../../utils/paperCanvas'
+
 const F = '/assets/female/'
 
 export const FEMALE_IMG = {
@@ -19,7 +22,6 @@ export const FEMALE_IMG = {
   envClosed: F + 'env-closed.webp',
   flapIn: F + 'env-flap-in.webp',
   flapOut: F + 'env-flap-out.webp',
-  letter: F + 'letter.webp',
 } as const
 
 export const PLATE = { w: 768, h: 1376 }
@@ -29,14 +31,37 @@ export type Box = readonly [number, number, number, number]
 
 export const PLACE: Record<'bouquet' | 'choc' | 'petal1' | 'petal2' | 'petal3', Box> = {
   bouquet: [-150, 290, 450, 1236],
-  choc: [410, 900, 724, 1392],
+  // KitKat nằm TRÊN tấm lụa (dưới, giữa-trái), không nằm trên đá
+  choc: [190, 880, 504, 1372],
   petal1: [520, 300, 640, 409],
   petal2: [636, 430, 722, 560],
-  petal3: [300, 1180, 396, 1288],
+  petal3: [585, 1120, 681, 1228],
 }
 
-/** Chỗ phong bì nằm (khung THÂN phong bì, tỉ lệ 582×435) — to, giữa-phải, nằm DƯỚI bó hoa. */
-export const ENVELOPE_SPOT: Box = [290, 560, 690, 859]
+/** Chỗ phong bì nằm (khung THÂN phong bì, tỉ lệ 582×435) — to, giữa-phải, luồn SÂU dưới bó hoa. */
+export const ENVELOPE_SPOT: Box = [204, 560, 694, 926]
+
+/**
+ * LÁ THƯ = phần đầu của chính tờ thiệp (giấy dó + CHÂN THÀNH KÍNH MỜI · LỄ VINH DANH · GRADUATION GALA 2026
+ * · TRÂN TRỌNG KÍNH MỜI · HỌ TÊN · "Chị + tên") — vẽ bằng drawInvitationCard (dùng chung nhánh Nam), cắt khúc đầu.
+ */
+export const LETTER_CROP = { y0: 0.062, y1: 0.366 } // theo chiều cao tờ giấy
+export const LETTER_ASPECT = CARD_SIZE.w / (CARD_SIZE.h * (LETTER_CROP.y1 - LETTER_CROP.y0))
+let letterSrc = ''
+export const getLetterSrc = () => letterSrc
+
+export async function buildLetterImage(fullName: string, address: string) {
+  await fontsReady(['400 150px "Luxurious Script"', '700 40px "Cormorant Garamond"', '600 32px "Cormorant Garamond"'])
+  const card = await drawInvitationCard(fullName, address)
+  const sy = Math.round(CARD_SIZE.h * LETTER_CROP.y0)
+  const sh = Math.round(CARD_SIZE.h * (LETTER_CROP.y1 - LETTER_CROP.y0))
+  const c = document.createElement('canvas')
+  c.width = CARD_SIZE.w
+  c.height = sh
+  c.getContext('2d')!.drawImage(card, 0, sy, CARD_SIZE.w, sh, 0, 0, CARD_SIZE.w, sh)
+  letterSrc = c.toDataURL('image/webp', 0.92)
+  return letterSrc
+}
 
 /** Tải + giải mã trước toàn bộ ảnh (gọi lúc khách bấm GỬI) → cảnh không bị hiện dần từng ảnh. */
 export function preloadFemaleAssets() {

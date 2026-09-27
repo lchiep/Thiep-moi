@@ -8,10 +8,10 @@ import { EASE } from '../motion'
  *   → phong bì mở trồi lên từ mép dưới
  *   → thư canh miệng phong bì, thu nhỏ nhẹ → TRƯỢT VÀO (bị thân phong bì che thật, không mờ dần)
  *   → nắp gập xuống quanh nếp gấp (mặt ngoài có dấu sáp ở mũi nắp) → phong bì nhún
- *   → LẬT TRANG: phong bì được nhấc lên, cả cảnh cuộc gọi lật đi như một trang sách (bản lề mép phải,
- *     tối dần khi nghiêng khỏi nắng, đổ bóng lên cảnh mới) → cảnh tulip lộ ra bên dưới, camera lùi nhẹ về
- *   → phong bì xoay nhẹ, đáp xuống lụa · bó hoa được đặt lên, đè mép trái phong bì · KitKat
- *   → cánh hoa rơi chao nghiêng xuống · nắng quét · "CHẠM VÀO THƯ ĐỂ MỞ"
+ *   → CƠN GIÓ CÁNH HOA: phong bì được nhấc lên, một đợt cánh tulip cuộn từ trái sang phải (gần–xa, nhoè
+ *     theo chiều sâu); mép đợt gió "cuốn" cảnh cuộc gọi đi (mặt nạ mềm chạy theo), để lộ sẵn bàn tĩnh vật:
+ *     lụa + bó hoa + KitKat đã nằm đó
+ *   → phong bì chao xuống, luồn dưới bó hoa · nắng quét · "CHẠM VÀO THƯ ĐỂ MỞ"
  *
  * GSAP là chủ duy nhất của transform/opacity các vật này. Vị trí đích đo bằng getBoundingClientRect
  * (không hard-code pixel). State machine đi tiếp từng bước bằng callback ở các mốc (onStep).
@@ -19,9 +19,10 @@ import { EASE } from '../motion'
 export type FemaleRefs = {
   stage: HTMLElement
   popup: HTMLElement | null
-  sceneA: HTMLElement[] // nền cảnh cuộc gọi (ảnh + lớp tối) — "trang" bị lật đi
+  sceneA: HTMLElement[] // nền cảnh cuộc gọi (ảnh + lớp tối) — bị gió cuốn đi
   sceneB: HTMLElement[] // 2 "tấm ảnh" của cảnh tulip (lớp sau + lớp bó hoa) — camera lùi nhẹ
-  turnShadow: HTMLElement
+  frontPlate: HTMLElement // lớp bó hoa (nằm trên phong bì) — lộ ra cùng mép gió
+  flurry: HTMLElement[] // cánh hoa bay trong cơn gió
   letter: HTMLElement // lá thư "tự do" (sinh ra từ popup)
   env: HTMLElement // phong bì: vị trí/xoay/scale
   envFloat: HTMLElement // lớp trong: nhún khi thư chạm đáy / khi nắp đóng
@@ -59,8 +60,13 @@ export function femaleTransitionTimeline(o: FemaleRefs, onStep: (step: FemaleSte
 
   // ---------- trạng thái đầu ----------
   // nền cuộc gọi nằm TRÊN cảnh tulip (cảnh tulip đã sẵn bên dưới, chờ trang lật)
-  gsap.set(o.sceneA, { zIndex: (i) => 2 + i, transformOrigin: '100% 50%', transformPerspective: 1300, backfaceVisibility: 'hidden' })
-  gsap.set(o.sceneB, { scale: 1.08, transformOrigin: '50% 55%' })
+  gsap.set(o.sceneA, { zIndex: (i) => 2 + i })
+  gsap.set(o.sceneB, { scale: 1.05, transformOrigin: '50% 55%' })
+  // mặt nạ mềm theo mép gió: cảnh cũ mất dần từ trái sang phải, lớp bó hoa hiện ra đúng theo mép đó
+  const WIPE = { '--wipe': '-20%' }
+  gsap.set(o.sceneA, { ...WIPE, maskImage: 'linear-gradient(90deg, transparent calc(var(--wipe) - 16%), #000 var(--wipe))', webkitMaskImage: 'linear-gradient(90deg, transparent calc(var(--wipe) - 16%), #000 var(--wipe))' })
+  gsap.set(o.frontPlate, { ...WIPE, maskImage: 'linear-gradient(90deg, #000 calc(var(--wipe) - 16%), transparent var(--wipe))', webkitMaskImage: 'linear-gradient(90deg, #000 calc(var(--wipe) - 16%), transparent var(--wipe))' })
+  gsap.set(o.flurry, { autoAlpha: 0 })
   // dưới mép màn: cộng cả chiều cao nắp đang mở (nắp nằm trên thân) để không ló mũi nắp
   gsap.set(o.env, { y: stageR.bottom - E.top + flapH + 30, rotation: 5, transformOrigin: '50% 50%' })
   gsap.set(o.envShadow, { autoAlpha: 0.55 })
@@ -68,7 +74,7 @@ export function femaleTransitionTimeline(o: FemaleRefs, onStep: (step: FemaleSte
   gsap.set(o.envClosed, { autoAlpha: 0 })
   gsap.set(o.letter, { autoAlpha: 0, scale: 1.05, transformOrigin: '50% 50%' })
   gsap.set(o.flap, { rotationX: 0, transformPerspective: 900, transformOrigin: '50% 100%', zIndex: 0 })
-  gsap.set([o.bouquet, o.choc, ...o.petals, o.light, o.cta], { autoAlpha: 0 })
+  gsap.set([o.light, o.cta], { autoAlpha: 0 })
 
   const tl = gsap.timeline()
 
@@ -108,43 +114,50 @@ export function femaleTransitionTimeline(o: FemaleRefs, onStep: (step: FemaleSte
     .to(o.flap, { rotationX: -180, duration: 0.95, ease: 'power2.inOut' }, 'close')
     .set(o.flap, { zIndex: 5 }, 'close+=0.47') // qua 90° → nắp nằm TRÊN thân trước + lá thư
     // nắp nằm hẳn → thân phong bì hoàn chỉnh (mặt sau đã đóng); nhún nhẹ như vừa ấn dấu sáp
-    .to(o.envClosed, { autoAlpha: 1, duration: 0.18, ease: 'none' }, 'close+=0.9')
+    .to(o.envClosed, { autoAlpha: 1, duration: 0.22, ease: 'power1.in' }, 'close+=0.52')
     .to(o.envFloat, { scale: 0.985, duration: 0.12, ease: 'power2.out' }, 'close+=0.92')
     .to(o.envFloat, { scale: 1, duration: 0.35, ease: EASE.settle }, 'close+=1.04')
     .call(() => onStep('closed'), [], 'close+=1.05') // → FEMALE_ENVELOPE_CLOSED
 
-  // ---------- 6. LẬT TRANG ----------
+  // ---------- 6. CƠN GIÓ CÁNH HOA ----------
   tl.addLabel('lift', 'close+=1.3')
     // phong bì được nhấc lên về phía người xem (to hơn, bóng loang rộng ra)
-    .to(o.env, { y: -24, scale: 1.08, rotation: -4, duration: 0.7, ease: 'power2.out' }, 'lift')
-    .to(o.envShadow, { autoAlpha: 0.3, y: 26, scale: 1.08, duration: 0.7, ease: 'power2.out' }, 'lift')
+    .to(o.env, { y: -30, scale: 1.1, rotation: -5, duration: 0.8, ease: 'power2.out' }, 'lift')
+    .to(o.envShadow, { autoAlpha: 0.28, y: 28, scale: 1.1, duration: 0.8, ease: 'power2.out' }, 'lift')
     .call(() => onStep('pan'), [], 'lift+=0.3') // → FEMALE_SCENE_TRANSITION
 
-  tl.addLabel('turn', 'lift+=0.35')
-    // trang (nền cuộc gọi) lật quanh mép phải, nghiêng khỏi nắng thì tối dần
-    .to(o.sceneA, { rotationY: -118, xPercent: 8, duration: 1.7, ease: 'power2.inOut' }, 'turn')
-    .to(o.sceneA[0], { filter: 'brightness(0.45)', duration: 1.1, ease: 'power1.in' }, 'turn')
-    // bóng của trang đổ lên cảnh mới: đậm lúc trang còn gần, nhạt dần khi trang lật qua
-    .fromTo(o.turnShadow, { autoAlpha: 0.9 }, { autoAlpha: 0, duration: 1.5, ease: 'power2.in' }, 'turn+=0.15')
+  const W = stageR.width, H = stageR.height
+  tl.addLabel('gust', 'lift+=0.35')
+  o.flurry.forEach((p, i) => {
+    const near = p.classList.contains('is-near'), far = p.classList.contains('is-far')
+    const speed = near ? 1.25 : far ? 2.1 : 1.65 // gần máy quay bay nhanh hơn
+    const t0 = (i / o.flurry.length) * 0.9
+    const pw = p.getBoundingClientRect().width || W * 0.12
+    tl.fromTo(p,
+      { autoAlpha: 1, x: -pw - W * 0.15, y: 0, rotation: (i * 57) % 360, scale: near ? 1.5 : far ? 0.7 : 1 },
+      { x: W * 1.15, y: ((i % 5) - 2) * H * 0.05, rotation: `+=${near ? 260 : 420}`, duration: speed, ease: 'power1.inOut' }, `gust+=${t0}`)
+      .to(p, { yPercent: i % 2 ? 60 : -60, duration: speed / 2, ease: 'sine.inOut', yoyo: true, repeat: 1 }, `gust+=${t0}`)
+  })
+  tl
+    // mép gió chạy qua màn hình, cảnh cũ bị cuốn đi, bàn tĩnh vật lộ ra (đã bày sẵn)
+    .to([...o.sceneA, o.frontPlate], { '--wipe': '130%', duration: 1.9, ease: 'power1.inOut' }, 'gust+=0.15')
+    // phong bì chao theo gió
+    .to(o.env, { rotation: 4, x: 10, y: -40, duration: 0.9, ease: 'sine.inOut' }, 'gust')
+    .to(o.env, { rotation: -2, x: 0, y: -26, duration: 0.9, ease: 'sine.inOut' }, 'gust+=0.9')
     // camera lùi nhẹ về, cảnh mới "mở ra"
-    .to(o.sceneB, { scale: 1, duration: 2.2, ease: 'power3.out' }, 'turn')
-    .call(() => onStep('ready'), [], 'turn+=1.7') // → FEMALE_SCENE_READY
+    .to(o.sceneB, { scale: 1, duration: 2.6, ease: 'power3.out' }, 'gust+=0.2')
+    .call(() => onStep('ready'), [], 'gust+=2.1') // → FEMALE_SCENE_READY
+    // gió qua hẳn: cảnh cũ đã khuất → ẩn hẳn rồi mới gỡ mặt nạ (khỏi tốn công vẽ mặt nạ mỗi khung)
+    .set(o.sceneA, { autoAlpha: 0 }, 'gust+=2.2')
+    .set([...o.sceneA, o.frontPlate], { clearProps: 'maskImage,webkitMaskImage' }, 'gust+=2.2')
 
-  // ---------- 7. cảnh tulip vào lần lượt ----------
-  tl.addLabel('enter', 'turn+=0.75')
-    // phong bì xoay nửa vòng nhẹ rồi đáp xuống lụa đúng chỗ đã chừa (đo từ khung đích)
-    .to(o.env, { x: Tc.x - Ec.x, y: Tc.y - Ec.y, scale: T.width / E.width, rotation: -3, duration: 1.4, ease: 'power3.inOut' }, 'enter')
-    .to(o.envShadow, { autoAlpha: 0.55, x: 5, y: 8, scale: 1, duration: 1.4, ease: 'power3.inOut' }, 'enter')
-    // bó hoa được đặt xuống từ bên trái, đè lên mép trái phong bì
-    .fromTo(o.bouquet, { autoAlpha: 0, xPercent: -22, yPercent: 6, rotation: -9, scale: 1.06 },
-      { autoAlpha: 1, xPercent: 0, yPercent: 0, rotation: 0, scale: 1, duration: 1.3, ease: 'power3.out' }, 'enter+=0.9')
-    .fromTo(o.choc, { autoAlpha: 0, scale: 0.96 }, { autoAlpha: 1, scale: 1, duration: 0.6, ease: EASE.paper }, 'enter+=1.5')
-    // cánh hoa rơi: chao nghiêng qua lại rồi nằm yên
-    .fromTo(o.petals, { autoAlpha: 0, yPercent: -140, xPercent: 25, rotation: -70 },
-      { autoAlpha: 1, yPercent: 0, xPercent: 0, rotation: 0, duration: 1.9, ease: 'power2.out', stagger: 0.28 }, 'enter+=1.6')
-    .fromTo(o.light, { autoAlpha: 0, xPercent: -35 }, { autoAlpha: 1, xPercent: 0, duration: 1.8, ease: 'power2.out' }, 'enter+=1.9')
-    .fromTo(o.cta, { autoAlpha: 0, y: 6 }, { autoAlpha: 1, y: 0, duration: 0.6, ease: EASE.ui }, 'enter+=2.9')
-    .call(() => onStep('waiting'), [], 'enter+=3.2') // → FEMALE_WAITING_TAP
+  // ---------- 7. phong bì đáp xuống, luồn dưới bó hoa ----------
+  tl.addLabel('land', 'gust+=1.5')
+    .to(o.env, { x: Tc.x - Ec.x, y: Tc.y - Ec.y, scale: T.width / E.width, rotation: -4, duration: 1.5, ease: 'power3.inOut' }, 'land')
+    .to(o.envShadow, { autoAlpha: 0.55, x: 5, y: 8, scale: 1, duration: 1.5, ease: 'power3.inOut' }, 'land')
+    .fromTo(o.light, { autoAlpha: 0, xPercent: -35 }, { autoAlpha: 1, xPercent: 0, duration: 1.8, ease: 'power2.out' }, 'land+=0.6')
+    .fromTo(o.cta, { autoAlpha: 0, y: 6 }, { autoAlpha: 1, y: 0, duration: 0.6, ease: EASE.ui }, 'land+=1.5')
+    .call(() => onStep('waiting'), [], 'land+=1.8') // → FEMALE_WAITING_TAP
 
   return tl
 }

@@ -3,12 +3,11 @@ import { gsap } from 'gsap'
 import { animate } from 'animejs'
 import { COPY } from '../../config/copy'
 import { sendExperience, useExperience } from '../../state/experienceMachine'
-import { guestAddress, useGuest } from '../../state/guestStore'
 import { envelopePress, femaleIdle, femaleTransitionTimeline } from '../../animations/gsap/femaleTransitionTimeline'
-import { ENVELOPE_SPOT, FEMALE_IMG, PLACE, pct } from './femaleAssets'
+import { ENVELOPE_SPOT, FEMALE_IMG, PLACE, getLetterSrc, pct } from './femaleAssets'
 import './FemaleScene.css'
 
-export { preloadFemaleAssets } from './femaleAssets'
+export { preloadFemaleAssets, buildLetterImage } from './femaleAssets'
 
 const QA = new URLSearchParams(location.search).has('qa')
 
@@ -18,27 +17,23 @@ type Props = {
   sceneA: () => HTMLElement[]
 }
 
-/** Mặt chữ của lá thư (dùng cho cả thư tự do lẫn thư trong phong bì — cùng một lá). */
-function LetterFace({ to }: { to: string }) {
-  return (
-    <div className="fem-letter__face">
-      <p className="fem-letter__title">{COPY.female.letterTitle}</p>
-      <p className="fem-letter__to">
-        {COPY.female.letterTo} <span>{to}</span>
-      </p>
-      <p className="fem-letter__date">{COPY.female.letterDate}</p>
-    </div>
-  )
+/** Lá thư = khúc đầu tờ thiệp (vẽ sẵn lúc bấm GỬI) — cùng 1 ảnh cho thư tự do lẫn thư trong phong bì. */
+function LetterFace() {
+  return <img className="fem-letter__img" src={getLetterSrc()} alt="" />
 }
+
+/** Cánh hoa bay trong cơn gió chuyển cảnh: vị trí/cỡ/độ nhoè ngẫu nhiên nhưng CỐ ĐỊNH (seed) → lần nào cũng đẹp như nhau. */
+const FLURRY = Array.from({ length: 26 }, (_, i) => {
+  const r = (n: number) => { const x = Math.sin(i * 12.9898 + n * 78.233) * 43758.5453; return x - Math.floor(x) }
+  return { src: [FEMALE_IMG.petal1, FEMALE_IMG.petal2, FEMALE_IMG.petal3][i % 3], top: r(1) * 100, size: 9 + r(2) * 13, depth: r(3) }
+})
 
 /**
  * NHÁNH NỮ (Phase 8, bước 1): popup → thư → phong bì → cảnh trượt → cảnh tulip → chờ chạm.
  * Phong bì là 1 vật duy nhất đi xuyên 2 cảnh (không có phong bì thứ hai trong ảnh nền).
  */
 export default function FemaleScene({ popup, sceneA }: Props) {
-  const guest = useGuest((s) => s.guest)
   const state = useExperience((s) => s.state)
-  const to = guest ? guestAddress(guest) : ''
 
   const root = useRef<HTMLDivElement>(null)
   const tl = useRef<gsap.core.Timeline | null>(null)
@@ -53,7 +48,8 @@ export default function FemaleScene({ popup, sceneA }: Props) {
       popup: popup.current,
       sceneA: sceneA(),
       sceneB: [...el.querySelectorAll<HTMLElement>('.fem__b .fem__plate')],
-      turnShadow: q('.fem__turn-shadow'),
+      frontPlate: q('.fem__b--front'),
+      flurry: [...el.querySelectorAll<HTMLElement>('.fem__flurry img')],
       letter: q('.fem__letter'),
       env: q('.fem__env'),
       envFloat: q('.fem__env-float'),
@@ -108,8 +104,6 @@ export default function FemaleScene({ popup, sceneA }: Props) {
           <img className="fem__obj fem__petal" src={FEMALE_IMG.petal3} alt="" style={pct(PLACE.petal3)} />
           <div className="fem__spot" style={pct(ENVELOPE_SPOT)} />
         </div>
-        {/* bóng của trang đang lật đổ lên cảnh mới */}
-        <div className="fem__turn-shadow" />
       </div>
 
       {/* PHONG BÌ — thân sau · lá thư · thân trước · thân đã đóng (E1) · nắp 2 mặt */}
@@ -119,7 +113,7 @@ export default function FemaleScene({ popup, sceneA }: Props) {
           <div className="fem__env-shadow" />
           <img className="fem__env-back" src={FEMALE_IMG.envBack} alt="" />
           <div className="fem__env-letter fem-letter">
-            <LetterFace to={to} />
+            <LetterFace />
           </div>
           <img className="fem__env-front" src={FEMALE_IMG.envFront} alt="" />
           <img className="fem__env-closed" src={FEMALE_IMG.envClosed} alt="" />
@@ -139,9 +133,17 @@ export default function FemaleScene({ popup, sceneA }: Props) {
       {/* vệt nắng ấm: hoà (soft-light) lên cả cảnh + phong bì */}
       <div className="fem__light" aria-hidden />
 
+      {/* cơn gió cánh hoa tulip: quét từ trái sang phải, cuốn cảnh cũ đi */}
+      <div className="fem__flurry" aria-hidden>
+        {FLURRY.map((f, i) => (
+          <img key={i} src={f.src} alt="" className={f.depth < 0.3 ? 'is-near' : f.depth > 0.75 ? 'is-far' : ''}
+            style={{ top: `${f.top}%`, width: `${f.size}cqw` }} />
+        ))}
+      </div>
+
       {/* LÁ THƯ tự do: sinh ra đúng chỗ popup, bay tới miệng phong bì rồi trao vai cho thư bên trong */}
       <div className="fem__letter fem-letter" aria-hidden>
-        <LetterFace to={to} />
+        <LetterFace />
       </div>
 
       <button type="button" className="fem__cta" onClick={onTapEnvelope} disabled={state !== 'FEMALE_WAITING_TAP'}>
