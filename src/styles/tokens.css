@@ -1,0 +1,157 @@
+/* ============================================================
+   DESIGN TOKENS — Graduation Gala 2026
+   Màu đo trực tiếp từ ảnh mẫu (k-means + lấy mẫu vùng).
+   Mỗi cảnh có bảng màu riêng: đặt data-scene="..." lên phần tử bọc cảnh.
+   ============================================================ */
+
+:root {
+  /* ---------- Bảng màu gốc (dùng chung) ---------- */
+  --ivory: #f3eee8;          /* giấy thiệp */
+  --paper-ticket: #dbd1c3;   /* giấy vé */
+  --cream: #ebdacd;          /* lụa kem */
+  --envelope: #e4d6c4;       /* phong bì */
+  --burgundy: #4a1119;       /* mực đỏ đô (tiêu đề vé) */
+  --burgundy-deep: #220709;  /* nền quanh thiệp */
+  --wax: #731b28;            /* dấu sáp */
+  --gold: #85663b;           /* vàng trầm (nhãn vé) */
+  --gold-soft: #b19c75;      /* vàng nhạt (tên trên thiệp) */
+  --charcoal: #1f1211;       /* chữ thân */
+  --ink: #030300;            /* chữ đen thiệp */
+  --tulip: #e56f7e;
+  --leaf: #635e2d;
+
+  /* Trạng thái nút form */
+  --emerald: #2f7d5b;
+  --danger: #8c1c2a;
+
+  /* ---------- Vai trò (mặc định = cảnh cuộc gọi, tối ấm) ---------- */
+  --bg: #0e0d0b;
+  --surface: #322c25;
+  --text: #f4ece2;
+  --text-muted: #a49586;
+  --accent: #b48c69;         /* nắng cửa sổ */
+  --line: rgba(244, 236, 226, 0.18);
+
+  /* ---------- Chữ ---------- */
+  --font-script: 'Luxurious Script', 'Great Vibes', cursive;           /* tên khách, "Graduation Party" */
+  --font-serif: 'Cormorant Garamond', 'Times New Roman', Georgia, serif; /* tiêu đề, thân thiệp */
+  --font-display: 'Playfair Display', 'Cormorant Garamond', Georgia, serif; /* tiêu đề "Graduation Gala" màn cuộc gọi */
+  --font-count: 'Oswald', 'Inter', sans-serif;                        /* số đếm ngược (chữ cao, hẹp) */
+  --font-ui: 'Inter', system-ui, -apple-system, 'Segoe UI', sans-serif;  /* form, nút, giờ */
+
+  /* Thang cỡ chữ mobile-first, co giãn theo bề ngang (375 → 430px) */
+  --fs-caption: clamp(11px, 2.9vw, 12.5px);   /* nhãn chữ hoa, cách chữ rộng */
+  --fs-body: clamp(16px, 4.3vw, 18px);
+  --fs-lead: clamp(18px, 4.8vw, 20px);
+  --fs-h3: clamp(20px, 5.4vw, 23px);
+  --fs-h2: clamp(26px, 7vw, 32px);
+  --fs-h1: clamp(32px, 8.8vw, 38px);
+  --fs-script-name: clamp(44px, 13vw, 58px);   /* biệt danh */
+  --fs-script-hero: clamp(52px, 15vw, 68px);   /* Graduation Party */
+
+  --tracking-caps: 0.22em;
+  --tracking-wide: 0.32em;   /* "CHẠM VÀO THƯ ĐỂ MỞ" */
+  --lh-body: 1.6;
+  --lh-tight: 1.1;
+
+  /* ---------- Khoảng cách (bước 4px) ---------- */
+  --space-1: 4px;
+  --space-2: 8px;
+  --space-3: 12px;
+  --space-4: 16px;
+  --space-5: 20px;
+  --space-6: 24px;
+  --space-8: 32px;
+  --space-10: 40px;
+  --space-12: 48px;
+  --gutter: clamp(18px, 5.6vw, 24px);  /* lề ngang 18–24px theo spec */
+
+  /* ---------- Vùng an toàn iPhone ---------- */
+  --safe-top: env(safe-area-inset-top, 0px);
+  --safe-bottom: env(safe-area-inset-bottom, 0px);
+  --safe-left: env(safe-area-inset-left, 0px);
+  --safe-right: env(safe-area-inset-right, 0px);
+
+  /* ---------- Bố cục màn thiệp (header cố định / nội dung cuộn) ---------- */
+  --invite-header: 36dvh;
+  --invite-content: 64dvh;
+
+  /* ---------- Bo góc ---------- */
+  --radius-sm: 10px;
+  --radius-md: 18px;
+  --radius-lg: 28px;
+  --radius-pill: 999px;
+
+  /* ---------- Kính mờ (popup) — chỉ dùng cho UI phẳng ---------- */
+  --glass-bg: rgba(250, 241, 225, 0.62);
+  --glass-border: rgba(255, 255, 255, 0.55);
+  --glass-inset: rgba(232, 222, 209, 0.55);
+  --glass-blur: 18px;
+  --glass-shadow: 0 20px 50px rgba(0, 0, 0, 0.35), inset 0 1px 0 rgba(255, 255, 255, 0.7);
+
+  /* ---------- Bóng giấy ---------- */
+  --shadow-paper: 0 1px 1px rgba(40, 20, 10, 0.12), 0 8px 24px rgba(40, 20, 10, 0.22);
+  --shadow-lift: 0 2px 2px rgba(40, 20, 10, 0.14), 0 22px 44px rgba(40, 20, 10, 0.3);
+
+  /* ---------- Lớp chồng ---------- */
+  --z-canvas: 0;
+  --z-scene: 10;
+  --z-ui: 20;
+  --z-transition: 9999;
+}
+
+/* ============================================================
+   BẢNG MÀU THEO CẢNH
+   ============================================================ */
+
+/* 1 · Cuộc gọi: tối ấm, nắng hoàng hôn */
+[data-scene='call'] {
+  --bg: #0e0d0b;
+  --surface: #322c25;
+  --text: #f4ece2;
+  --text-muted: #a49586;
+  --accent: #56c55a;        /* icon nghe máy */
+  --line: rgba(244, 236, 226, 0.18);
+}
+
+/* 2 · Popup: kính SÁNG kem trên nền tối của cảnh 1 */
+[data-scene='rsvp'] {
+  --bg: #0e0d0b;
+  --surface: #faf1e1;
+  --text: #2a271a;
+  --text-muted: #7c746e;
+  --accent: #2a271a;
+  --line: #959293;
+  --female: #fda0b5;
+  --male: #7db2d7;
+}
+
+/* 3 · Nhánh Nam: tối, folder đen, giấy trắng */
+[data-scene='male'] {
+  --bg: #0d0d0a;
+  --surface: #1e1a14;
+  --text: #eddcc5;
+  --text-muted: #a88d71;
+  --accent: #a88d71;
+  --line: rgba(237, 220, 197, 0.2);
+}
+
+/* 4 · Nhánh Nữ: sáng, marble + lụa kem + tulip */
+[data-scene='female'] {
+  --bg: #ebdacd;
+  --surface: #e4d6c4;
+  --text: #4a1119;
+  --text-muted: #8a6f5c;
+  --accent: #731b28;
+  --line: rgba(74, 17, 25, 0.18);
+}
+
+/* 5 · Thiệp: giấy ngà trên nền đỏ đô rất sẫm */
+[data-scene='invitation'] {
+  --bg: #220709;
+  --surface: #f3eee8;
+  --text: #030300;
+  --text-muted: #6b5a4c;
+  --accent: #b19c75;
+  --line: rgba(177, 156, 117, 0.55);
+}

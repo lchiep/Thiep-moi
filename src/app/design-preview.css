@@ -1,0 +1,103 @@
+/* Chỉ dùng cho trang xem thử Phase 2 — xoá ở Phase 3. */
+.dp {
+  height: 100dvh;
+  overflow-y: auto;
+  background: #0e0d0b;
+  color: #f4ece2;
+  padding: calc(var(--space-6) + var(--safe-top)) var(--gutter) calc(var(--space-12) + var(--safe-bottom));
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-10);
+}
+.dp-head { display: flex; flex-direction: column; gap: var(--space-2); }
+.dp-h1 { font-size: var(--fs-h1); margin: 0; }
+.dp-muted { color: var(--text-muted); margin: 0; }
+.dp-block { display: flex; flex-direction: column; gap: var(--space-3); }
+.dp-label { color: #a49586; margin: 0; }
+
+.dp-scene {
+  display: flex; align-items: center; justify-content: space-between; gap: var(--space-3);
+  padding: var(--space-3) var(--space-4);
+  border-radius: var(--radius-sm);
+  background: var(--surface); color: var(--text);
+  border: 1px solid var(--line);
+}
+.dp-scene-name { font-weight: 600; }
+.dp-swatches { display: flex; gap: 6px; flex-wrap: wrap; justify-content: flex-end; }
+.dp-swatch { width: 22px; height: 22px; border-radius: 50%; box-shadow: 0 0 0 1px rgba(255,255,255,.25); }
+
+.dp-type {
+  padding: var(--space-6) var(--gutter);
+  border-radius: var(--radius-sm);
+  color: var(--ink);
+  display: flex; flex-direction: column; gap: var(--space-3);
+  text-align: center;
+}
+.dp-type p { margin: 0; }
+.dp-hero { font-size: var(--fs-script-hero); color: var(--burgundy); }
+.dp-name { font-size: var(--fs-script-name); color: var(--gold-soft); }
+.dp-name-sm { font-size: 34px; color: var(--burgundy); }
+.dp-h1-ink { font-size: var(--fs-h1); }
+.dp-gold { color: var(--gold); }
+.dp-body { font-size: var(--fs-body); color: var(--charcoal); }
+.dp-ui { font-size: 14px; color: var(--charcoal); }
+
+/* mô phỏng màn 390×844 thu nhỏ */
+.dp-phone {
+  width: min(100%, 340px);
+  aspect-ratio: 390 / 844;
+  margin: 0 auto;
+  border-radius: 34px;
+  overflow: hidden;
+  background: var(--bg);
+  display: grid;
+  grid-template-rows: 36% 64%;
+  box-shadow: 0 0 0 6px #1b1512;
+}
+.dp-inv-head {
+  background: var(--surface);
+  color: var(--text);
+  display: flex; flex-direction: column; align-items: center; justify-content: center;
+  text-align: center; gap: 2px; padding: var(--space-3);
+  border-bottom: 1px solid var(--line);
+}
+.dp-inv-head p { margin: 0; }
+.dp-inv-head .t-title { font-size: 22px; }
+.dp-inv-head .dp-sub { font-size: 15px; }
+.dp-inv-head .t-caps { font-size: 9px; }
+.dp-inv-name { font-size: 40px; color: var(--accent); }
+.dp-seal { width: 26px; height: 26px; border-radius: 50%; background: var(--wax); margin-bottom: 4px; }
+.dp-inv-body {
+  background: var(--surface); color: var(--text);
+  overflow-y: auto; scroll-snap-type: y proximity;
+  padding: var(--space-3) var(--space-4);
+  display: flex; flex-direction: column; gap: var(--space-3);
+  -webkit-mask-image: linear-gradient(to bottom, transparent 0, #000 16px);
+  mask-image: linear-gradient(to bottom, transparent 0, #000 16px);
+}
+.dp-inv-sec {
+  scroll-snap-align: start;
+  min-height: 110px;
+  border-top: 1px solid var(--line);
+  padding-top: var(--space-3);
+}
+.dp-inv-sec .t-caps { font-size: 10px; color: var(--gold); }
+
+.dp-glass-wrap {
+  padding: var(--space-8) var(--space-4);
+  border-radius: var(--radius-md);
+  background: radial-gradient(120% 90% at 20% 10%, #b48c69 0%, #322c25 45%, #0e0d0b 100%);
+}
+.dp-glass { padding: var(--space-5); display: flex; flex-direction: column; gap: var(--space-4); color: var(--text); }
+.dp-field { display: flex; flex-direction: column; gap: 4px; padding: var(--space-3) var(--space-4); }
+.dp-field .t-caps { font-size: 10px; color: var(--text-muted); }
+.dp-field input { border: 0; background: transparent; outline: none; font-size: var(--fs-body); }
+.dp-btns { display: grid; grid-template-columns: 1fr 1fr; gap: var(--space-3); }
+.dp-btn {
+  font-family: var(--font-ui); font-size: 12px; font-weight: 600; letter-spacing: .06em; white-space: nowrap;
+  padding: 14px 10px; border-radius: var(--radius-pill);
+  border: 1px solid var(--glass-border); background: var(--glass-inset); color: var(--text-muted);
+}
+.dp-btn:disabled { opacity: .55; cursor: not-allowed; }
+.dp-btn.is-submit { background: var(--emerald); color: #fff; border-color: transparent; }
+.dp-btn.is-cancel { background: var(--danger); color: #fff; border-color: transparent; }

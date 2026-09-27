@@ -1,0 +1,151 @@
+@import './tokens.css';
+
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+
+html,
+body,
+#root {
+  height: 100%;
+}
+
+html {
+  -webkit-text-size-adjust: 100%;
+  text-size-adjust: 100%;
+}
+
+body {
+  margin: 0;
+  background: var(--bg);
+  color: var(--text);
+  font-family: var(--font-serif);
+  font-size: var(--fs-body);
+  line-height: var(--lh-body);
+  -webkit-font-smoothing: antialiased;
+  -webkit-tap-highlight-color: transparent;
+  overscroll-behavior: none;
+}
+
+img,
+canvas,
+video {
+  display: block;
+  max-width: 100%;
+}
+
+button,
+input,
+textarea,
+select {
+  font: inherit;
+  color: inherit;
+}
+
+button {
+  cursor: pointer;
+}
+
+:focus-visible {
+  outline: 2px solid var(--gold-soft);
+  outline-offset: 3px;
+}
+
+/* Khung app = đúng 1 màn hình điện thoại, không cuộn body */
+.app {
+  position: fixed;
+  inset: 0;
+  height: 100dvh;
+  overflow: hidden;
+  background: var(--bg);
+}
+
+/* ---------- Kiểu chữ dùng lại ---------- */
+.t-caps {
+  font-family: var(--font-serif);
+  font-size: var(--fs-caption);
+  font-weight: 600;
+  letter-spacing: var(--tracking-caps);
+  text-transform: uppercase;
+}
+
+.t-script {
+  font-family: var(--font-script);
+  font-weight: 400;
+  line-height: 1;
+  word-spacing: 0.08em;
+}
+
+.t-title {
+  font-family: var(--font-serif);
+  font-weight: 700;
+  line-height: var(--lh-tight);
+  text-wrap: balance;
+}
+
+.t-ui {
+  font-family: var(--font-ui);
+}
+
+/* ---------- Kính mờ sáng (popup) ---------- */
+.glass {
+  background: var(--glass-bg);
+  border: 1px solid var(--glass-border);
+  border-radius: var(--radius-lg);
+  box-shadow: var(--glass-shadow);
+  -webkit-backdrop-filter: blur(var(--glass-blur)) saturate(1.15);
+  backdrop-filter: blur(var(--glass-blur)) saturate(1.15);
+}
+
+.glass-inset {
+  background: var(--glass-inset);
+  border: 1px solid rgba(149, 146, 147, 0.35);
+  border-radius: var(--radius-md);
+}
+
+/* ---------- Giấy (thiệp, vé khi vẽ bằng DOM) ---------- */
+.paper {
+  background-color: var(--ivory);
+  box-shadow: var(--shadow-paper);
+}
+
+.sr-only {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  clip: rect(0 0 0 0);
+  white-space: nowrap;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
+}
+
+/* Khung điện thoại: full màn hình trên mobile, cột dọc 9:19.5 ở giữa trên máy tính.
+   Bên trong dùng đơn vị cqw/cqh (theo khung) thay cho vw/dvh. */
+.app__phone {
+  position: absolute;
+  inset: 0;
+  margin: 0 auto;
+  width: 100%;
+  overflow: hidden;
+  container-type: size;
+}
+@media (min-aspect-ratio: 3 / 4) {
+  .app {
+    background: radial-gradient(80% 60% at 50% 40%, #241d17 0%, #0b0908 70%);
+  }
+  .app__phone {
+    width: min(100%, calc(100dvh * 9 / 19.5));
+    box-shadow: 0 0 0 1px rgba(255, 255, 255, 0.06), 0 30px 80px rgba(0, 0, 0, 0.6);
+  }
+}

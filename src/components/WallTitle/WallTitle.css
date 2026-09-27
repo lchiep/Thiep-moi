@@ -1,0 +1,54 @@
+/* Chữ như nắng in lên tường: sáng ấm, hoà "screen" vào ảnh nền, viền nhoè nhẹ */
+.wall-title {
+  position: absolute;
+  left: 0;
+  right: 0;
+  top: calc(var(--safe-top) + 6.5cqh);
+  z-index: 2;
+  text-align: center;
+  pointer-events: none;
+  mix-blend-mode: screen;
+  transform: rotate(-2.5deg); /* hơi xiên theo hướng nắng */
+  visibility: hidden;
+}
+.wall-title.is-on { visibility: visible; }
+.wall-title p { margin: 0; }
+
+.wall-title__script {
+  --r: -30%;
+  font-family: var(--font-script);
+  font-size: clamp(50px, 15.5cqw, 71px);
+  line-height: 1.05;
+  /* nét lượn của chữ G thư pháp vượt ra ngoài hộp chữ → nới hộp để mask không cắt mất */
+  display: inline-block;
+  padding: 0.1em 0.5em 0.2em;
+  color: rgba(255, 224, 176, 0.92);
+  text-shadow:
+    0 0 1px rgba(255, 236, 205, 0.7),
+    0 0 12px rgba(255, 196, 120, 0.55),
+    0 0 30px rgba(255, 180, 100, 0.3);
+  filter: blur(0.25px);
+  /* vệt sáng quét qua: phần đã "chiếu" hiện rõ, mép quét mềm */
+  -webkit-mask-image: linear-gradient(100deg, #000 calc(var(--r) - 18%), transparent var(--r));
+  mask-image: linear-gradient(100deg, #000 calc(var(--r) - 18%), transparent var(--r));
+}
+.wall-title__for {
+  display: flex;
+  justify-content: center;
+  align-items: baseline;
+  gap: 5px;
+  color: rgba(255, 226, 184, 0.86);
+  text-shadow: 0 0 10px rgba(255, 196, 120, 0.5), 0 0 22px rgba(255, 180, 100, 0.25);
+}
+.wall-title__lead {
+  font-family: var(--font-serif);
+  font-style: italic;
+  font-size: clamp(29px, 5.6cqw, 40px);
+  opacity: 0;
+}
+.wall-title__name {
+  font-family: var(--font-script);
+  font-size: clamp(40px, 12cqw, 50px);
+  padding: 0 0.15em; /* nét lượn cuối chữ không bị cắt */
+}
+.wall-title__name [data-char] { display: inline-block; opacity: 0; }

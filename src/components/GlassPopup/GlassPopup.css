@@ -1,0 +1,852 @@
+/* ============================================================
+   POPUP — theo ảnh mẫu của Hiệp
+   Nền tường kem có nắng + bóng khung cửa + bóng lá · viền khói tối ·
+   header kính khói · panel kính trắng rất trong (ít blur) · form gọn ·
+   giới tính = 2 mảnh kính màu (hồng / xanh) · cầu pha lê.
+   ============================================================ */
+.gp {
+  /* kính TRONG trên nền tối → chữ sáng */
+  --ink: #fbf6ee;
+  --ph: rgba(255, 248, 238, 0.66);
+  --field-h: clamp(34px, 4.3cqh, 42px);
+  position: absolute;
+  inset: 0;
+  z-index: var(--z-ui);
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  padding: calc(var(--safe-top) + 14px) 12px calc(var(--safe-bottom) + 28px);
+  pointer-events: auto;
+}
+
+/* ---------- nền: tường nắng + khói tối + viền tối ---------- */
+.gp__veil {
+  /* nền = CHÍNH ảnh màn cuộc gọi (MacBook + mũ) phía sau, chỉ tối nhẹ để popup nổi lên */
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+  pointer-events: none;
+  background: linear-gradient(180deg, rgba(14, 10, 6, 0.18), rgba(14, 10, 6, 0.3));
+}
+
+/* ---------- khung LIQUID GLASS bọc tiêu đề + form ---------- */
+.gp__shell {
+  position: relative;
+  isolation: isolate;
+  flex: 1;
+  min-height: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  padding: 10px;
+  border-radius: 30px;
+  border: 1px solid rgba(255, 255, 255, 0.28);
+  /* kính TRONG: gần như không phủ màu, chỉ mờ rất nhẹ — nền thấy rõ */
+  background: linear-gradient(160deg, rgba(255, 255, 255, 0.08) 0%, rgba(255, 255, 255, 0.015) 40%, rgba(255, 255, 255, 0.015) 65%, rgba(255, 255, 255, 0.05) 100%);
+  -webkit-backdrop-filter: blur(1.5px) saturate(1.15) brightness(1.05);
+  backdrop-filter: blur(1.5px) saturate(1.15) brightness(1.05);
+  box-shadow:
+    inset 0 1px 1px rgba(255, 255, 255, 0.5),     /* mép trên bắt sáng */
+    inset 0 -1px 1px rgba(255, 255, 255, 0.15),
+    inset 1px 0 1px rgba(255, 255, 255, 0.18),
+    inset 0 0 22px rgba(255, 255, 255, 0.08),     /* ánh sáng trong lòng kính */
+    0 20px 40px rgba(0, 0, 0, 0.22);
+}
+/* viền kính dày: sáng ở trên-trái, tối dần xuống dưới-phải */
+.gp__shell::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  padding: 1.5px;
+  background: linear-gradient(145deg, rgba(255, 255, 255, 0.75), rgba(255, 255, 255, 0.18) 35%, rgba(255, 255, 255, 0.05) 65%, rgba(255, 255, 255, 0.4));
+  -webkit-mask: linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0);
+  -webkit-mask-composite: xor;
+  mask-composite: exclude;
+  pointer-events: none;
+}
+
+/* ---------- nắng qua cửa sổ chiếu lên tấm kính ----------
+   Ảnh vệt nắng (khung cửa + bóng lá) cùng hướng với cửa sổ trong ảnh nền,
+   hoà "screen" để chỗ có nắng sáng ấm lên, chỗ bóng lá/khung cửa tối hơn. */
+.gp__light {
+  position: absolute;
+  inset: 0;
+  z-index: -1; /* chiếu lên cả cảnh nền, nằm sau mọi lớp kính → chữ không bị loá */
+  overflow: hidden;
+  pointer-events: none;
+  mix-blend-mode: screen;
+}
+.gp__light i {
+  position: absolute;
+  inset: -4%;
+  background: url('/assets/textures/window-light.webp') left top / cover no-repeat;
+  opacity: 0.32;
+  /* lá khẽ lay: vệt nắng trôi rất chậm */
+  animation: gp-sun 12s ease-in-out infinite alternate;
+}
+@keyframes gp-sun {
+  from { transform: translate3d(0, 0, 0) rotate(0deg); }
+  to { transform: translate3d(6px, 4px, 0) rotate(0.4deg); }
+}
+
+/* ---------- header: thanh kính khói xám (mép sáng, trong thấy ánh nền) ---------- */
+.gp__title {
+  position: relative;
+  flex: none;
+  height: 58px;
+  display: grid;
+  place-items: center;
+  padding: 0 14px;
+  border-radius: 16px;
+  border: 1px solid rgba(255, 255, 255, 0.26);
+  background: linear-gradient(180deg, rgba(255, 255, 255, 0.1) 0%, rgba(255, 255, 255, 0.02) 50%, rgba(255, 255, 255, 0.04) 100%);
+  -webkit-backdrop-filter: blur(2px) saturate(1.15);
+  backdrop-filter: blur(2px) saturate(1.15);
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.4),
+    inset 0 -1px 0 rgba(255, 255, 255, 0.1),
+    inset 0 0 14px rgba(255, 255, 255, 0.1);
+}
+/* vệt sáng mảnh chạy dọc mép trên như cạnh kính dày */
+.gp__title::before {
+  content: '';
+  position: absolute;
+  left: 14px;
+  right: 14px;
+  top: 1px;
+  height: 1px;
+  background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.55) 20%, rgba(255, 255, 255, 0.55) 80%, transparent);
+  pointer-events: none;
+}
+.gp__title h2 {
+  margin: 0;
+  /* sans hơi hẹp, đậm vừa — giống chữ hệ thống iOS */
+  font-family: 'Inter Tight', var(--font-ui);
+  font-size: clamp(16px, 5cqw, 19.5px);
+  font-weight: 600;
+  letter-spacing: 0.01em;
+  color: #f7f0e4;
+  white-space: nowrap;
+  /* trắng ngà + quầng sáng VÀNG ấm toả quanh chữ */
+  text-shadow:
+    0 0 2px rgba(255, 238, 205, 0.85),
+    0 0 8px rgba(255, 214, 150, 0.7),
+    0 0 18px rgba(255, 196, 115, 0.5),
+    0 0 32px rgba(255, 184, 100, 0.28),
+    0 1px 1px rgba(20, 12, 4, 0.2);
+}
+
+/* ---------- panel kính trắng trong ---------- */
+.gp__card {
+  position: relative;
+  flex: 1;
+  min-height: 0;
+  margin: 0;
+  display: flex;
+  flex-direction: column;
+  border-radius: 22px;
+  border: 1px solid rgba(255, 255, 255, 0.5);
+  /* kính TRONG như thanh điều hướng iOS: viền sáng mảnh, lòng kính gần như trong suốt */
+  background: linear-gradient(170deg, rgba(255, 255, 255, 0.07), rgba(255, 255, 255, 0.02) 50%, rgba(255, 255, 255, 0.05));
+  -webkit-backdrop-filter: blur(1px) brightness(1.06) saturate(1.1);
+  backdrop-filter: blur(1px) brightness(1.06) saturate(1.1);
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.6),
+    inset 0 0 16px rgba(255, 255, 255, 0.12),   /* mép kính sáng nhẹ vào trong */
+    inset 0 0 2px rgba(255, 255, 255, 0.35);
+}
+
+.gp__scroll {
+  flex: 1;
+  min-height: 0;
+  overflow-y: auto;
+  overscroll-behavior: contain;
+  -webkit-overflow-scrolling: touch;
+  padding: 16px 18px 8px;
+  display: flex;
+  flex-direction: column;
+  gap: clamp(8px, 1.1cqh, 13px);
+  scrollbar-width: none;
+  /* mép dưới mờ dần: báo còn nội dung để cuộn */
+  -webkit-mask-image: linear-gradient(#000 calc(100% - 16px), transparent);
+  mask-image: linear-gradient(#000 calc(100% - 16px), transparent);
+}
+.gp__scroll::-webkit-scrollbar { display: none; }
+
+.gp__row2 {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 12px;
+}
+.gp__row2 .gp__input { padding: 0 10px; gap: 8px; }
+
+.gp__field {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  min-width: 0;
+}
+
+/* lời nhắc dưới ô bắt buộc còn trống (ẩn khi đang nhập ô đó) */
+.gp__tip {
+  margin: 2px 2px 0;
+  font-family: var(--font-ui);
+  font-size: 12.5px;
+  line-height: 1.4;
+  color: #ffe2b0;
+  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.6);
+  animation: gp-tip-in 0.35s ease-out;
+}
+@keyframes gp-tip-in {
+  from { opacity: 0; transform: translateY(-3px); }
+  to { opacity: 1; transform: none; }
+}
+@media (prefers-reduced-motion: reduce) { .gp__tip { animation: none; } }
+
+/* nhãn: serif đậm, micro text-shadow */
+.gp__label {
+  font-family: var(--font-display);
+  font-size: clamp(16px, 2.05cqh, 18.5px);
+  font-weight: 700;
+  line-height: 1.25;
+  color: var(--ink);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  /* quầng sáng vàng nhẹ quanh chữ (nhẹ hơn tiêu đề) */
+  text-shadow:
+    0 0 1px rgba(255, 246, 228, 0.5),
+    0 0 6px rgba(255, 222, 160, 0.45),
+    0 0 14px rgba(255, 200, 125, 0.38),
+    0 1px 3px rgba(0, 0, 0, 0.55);
+}
+
+/* dòng đỏ báo nhập sai: ngay DƯỚI ô nhập */
+.gp__err {
+  margin: 2px 2px 0;
+  font-family: var(--font-ui);
+  font-size: 12.5px;
+  font-weight: 500;
+  line-height: 1.35;
+  color: #ff7a72;
+  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.7);
+  animation: gp-tip-in 0.3s ease-out;
+}
+.gp__field.is-error .gp__input {
+  border-color: rgba(255, 110, 100, 0.75);
+}
+@media (prefers-reduced-motion: reduce) { .gp__err { animation: none; } }
+
+/* ---------- ô nhập: rãnh kính lõm — bóng đổ VÀO TRONG ---------- */
+.gp__input {
+  position: relative;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  height: var(--field-h);
+  padding: 0 12px;
+  border-radius: 10px;
+  color: var(--ink);
+  border: 1px solid rgba(255, 255, 255, 0.38);
+  /* rãnh kính trong: mép trên tối hơn, đáy sáng dần */
+  background: linear-gradient(180deg, rgba(0, 0, 0, 0.14) 0%, rgba(255, 255, 255, 0.03) 55%, rgba(255, 255, 255, 0.08) 100%);
+  box-shadow:
+    inset 0 2px 6px rgba(40, 28, 16, 0.3),    /* bóng lõm từ mép trên */
+    inset 1px 0 3px rgba(40, 28, 16, 0.08),   /* bóng nhẹ mép trái */
+    inset 0 -1px 0 rgba(255, 255, 255, 0.35), /* mép dưới bắt sáng */
+    0 1px 0 rgba(255, 255, 255, 0.18);        /* gờ sáng ngoài đáy */
+  transition: background-color 0.25s, box-shadow 0.25s, border-color 0.25s;
+}
+.gp__input:focus-within {
+  border-color: rgba(255, 255, 255, 0.7);
+  background: linear-gradient(180deg, rgba(0, 0, 0, 0.1) 0%, rgba(255, 255, 255, 0.08) 55%, rgba(255, 255, 255, 0.14) 100%);
+  box-shadow:
+    inset 0 2px 5px rgba(40, 28, 16, 0.2),
+    inset 0 -1px 0 rgba(255, 255, 255, 0.6),
+    0 0 0 3px rgba(255, 255, 255, 0.25);
+}
+.gp__input > svg { flex: none; width: 23px; height: 23px; color: var(--ink); }
+.gp__input input,
+.gp__input textarea {
+  flex: 1;
+  min-width: 0;
+  height: 100%;
+  border: 0;
+  outline: none;
+  background: transparent;
+  font-family: var(--font-ui);
+  font-size: 16px; /* ≥16px: iPhone không tự zoom */
+  color: var(--ink);
+  padding: 0;
+}
+.gp__input input::placeholder,
+.gp__input textarea::placeholder {
+  color: var(--ph);
+  opacity: 1;
+  text-shadow: 0 1px 0 rgba(255, 255, 255, 0.3);
+}
+.gp__input input[type='date'] { position: relative; z-index: 1; }
+.gp__input.is-empty input[type='date'] { color: transparent; }
+/* ẩn icon lịch mặc định nhưng cả ô vẫn mở được bộ chọn ngày */
+.gp__input input[type='date']::-webkit-calendar-picker-indicator {
+  position: absolute; inset: 0; width: auto; height: auto; opacity: 0; cursor: pointer;
+}
+.gp__ph {
+  position: absolute;
+  left: 43px;
+  font-family: var(--font-ui);
+  font-size: 16px;
+  color: var(--ph);
+  text-shadow: 0 1px 0 rgba(255, 255, 255, 0.3);
+  pointer-events: none;
+}
+
+.gp__area { height: calc(var(--field-h) * 1.9); align-items: flex-start; padding-top: 8px; padding-bottom: 8px; }
+.gp__area textarea { resize: none; line-height: 1.35; }
+.gp__area > svg { margin-top: 1px; }
+
+/* ---------- giới tính: 2 mảnh kính màu ---------- */
+.gp__gender {
+  position: relative;
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 12px;
+}
+.gp__sex {
+  /* mặt kính trung tính như ô nhập; CHỈ vùng icon có màu, loang nhẹ sang phải */
+  --tint: 255, 110, 160;
+  --a: 0.72;
+  --edge: 0.55;
+  position: relative;
+  display: flex;
+  align-items: center;
+  gap: 24px;
+  height: calc(var(--field-h) + 4px);
+  padding: 0 14px;
+  border-radius: 12px;
+  border: 1px solid transparent;
+  font-family: var(--font-ui);
+  font-size: 16px;
+  font-weight: 400;
+  color: var(--ink);
+  background:
+    /* vệt màu loang từ icon: đậm quanh icon, tan dần sang phải */
+    radial-gradient(ellipse 62% 170% at 9% 50%,
+      rgba(var(--tint), var(--a)) 0%,
+      rgba(var(--tint), calc(var(--a) * 0.72)) 22%,
+      rgba(var(--tint), calc(var(--a) * 0.38)) 45%,
+      rgba(var(--tint), calc(var(--a) * 0.12)) 72%,
+      rgba(var(--tint), 0) 100%),
+    /* ánh màu rất nhạt phủ cả viên */
+    linear-gradient(90deg, rgba(var(--tint), 0.1), rgba(var(--tint), 0.04)),
+    linear-gradient(180deg, rgba(255, 255, 255, 0.08), rgba(255, 255, 255, 0.02));
+  box-shadow:
+    inset 0 1px 2px rgba(255, 255, 255, 0.6),
+    0 2px 8px rgba(var(--tint), 0.1);
+  cursor: pointer;
+  -webkit-backdrop-filter: blur(1.5px) saturate(1.15);
+  backdrop-filter: blur(1.5px) saturate(1.15);
+  text-shadow: 0 1px 3px rgba(0, 0, 0, 0.5);
+  transition: transform 0.18s cubic-bezier(0.22, 1, 0.36, 1), box-shadow 0.3s ease, filter 0.2s ease, border-color 0.3s;
+}
+/* viền loang màu: đậm ở phía icon, tan dần thành viền kính trắng mờ bên phải */
+/* viền màu mềm quanh cả nút, đậm hơn ở phía icon */
+.gp__sex::before {
+  content: '';
+  position: absolute;
+  inset: -1px;
+  border-radius: 13px;
+  padding: 1.2px;
+  background: linear-gradient(90deg,
+    rgba(var(--tint), var(--edge)) 0%,
+    rgba(var(--tint), calc(var(--edge) * 0.75)) 50%,
+    rgba(var(--tint), calc(var(--edge) * 0.55)) 100%);
+  -webkit-mask: linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0);
+  -webkit-mask-composite: xor;
+  mask-composite: exclude;
+  pointer-events: none;
+}
+/* màu viền loang ra xung quanh: quầng mềm cả trong lẫn ngoài mép */
+.gp__sex::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  pointer-events: none;
+  box-shadow:
+    inset 0 0 8px rgba(var(--tint), calc(var(--edge) * 0.5)),
+    0 0 3px rgba(var(--tint), calc(var(--edge) * 0.6)),
+    0 0 12px rgba(var(--tint), calc(var(--edge) * 0.45)),
+    0 0 24px rgba(var(--tint), calc(var(--edge) * 0.2));
+  transition: box-shadow 0.3s;
+}
+.gp__sex.is-nam { --tint: 80, 155, 235; --a: 0.68; }
+.gp__sex > svg { flex: none; width: 26px; height: 26px; stroke-width: 1.5; color: rgb(var(--tint)); }
+.gp__sex.is-nu > svg { color: #ff8ab8; }
+.gp__sex.is-nam > svg { color: #8cc4ff; }
+
+@media (hover: hover) {
+  .gp__sex:hover { transform: translateY(-1px); --a: 0.8; --edge: 0.7; }
+}
+.gp__sex:active { transform: scale(0.985); filter: brightness(0.97); }
+/* đang chọn: màu vùng icon đậm hơn, viền rõ hơn, toả màu nhẹ ra ngoài */
+.gp__sex.is-on {
+  --a: 0.92;
+  --edge: 0.85;
+  box-shadow:
+    inset 0 1px 2px rgba(255, 255, 255, 0.85),
+    0 0 0 1px rgba(var(--tint), 0.25),
+    0 4px 16px rgba(var(--tint), 0.28);
+}
+
+/* ---------- ảnh (gọn, 1 dòng) ---------- */
+/* ---------- khu "Ảnh của bạn": giữ kiểu ô nhập, chỉ dài xuống lấp phần trống cuối form ---------- */
+.gp__field--grow { flex: 1 0 auto; }
+.gp__photozone {
+  flex: 1;
+  height: auto;
+  min-height: calc(var(--field-h) * 2.2);
+  padding: 7px 12px;
+  gap: 12px;
+  border-style: dashed;
+  border-color: rgba(255, 255, 255, 0.75);
+}
+.gp__photozone input { position: absolute; width: 1px; height: 1px; opacity: 0; pointer-events: none; }
+
+/* chưa có ảnh: cả ô là vùng chạm (icon + chữ như cũ) */
+.gp__photo-empty {
+  flex: 1;
+  align-self: stretch;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  cursor: pointer;
+  min-width: 0;
+}
+.gp__photo-empty svg { flex: none; width: 18px; height: 18px; }
+.gp__photo-text {
+  font-family: var(--font-ui);
+  font-size: 16px;
+  color: var(--ph);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+/* có ảnh: [camera = chọn lại] [ảnh chân dung = xem to] [gợi ý] */
+.gp__photozone.has-photo { justify-content: center; } /* ảnh nằm giữa ô */
+.gp__recam {
+  position: absolute; /* camera ghim mép trái, không đẩy ảnh lệch */
+  left: 12px;
+  top: 50%;
+  margin-top: -18px;
+  z-index: 2;
+  flex: none;
+  display: grid;
+  place-items: center;
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  cursor: pointer;
+  color: var(--ink);
+  border: 1px solid rgba(255, 255, 255, 0.5);
+  background: rgba(255, 255, 255, 0.08);
+  box-shadow: 0 3px 10px rgba(0, 0, 0, 0.28), inset 0 1px 0 rgba(255, 255, 255, 0.35);
+  transition: transform 0.15s ease-out;
+}
+.gp__recam svg { width: 18px; height: 18px; }
+.gp__recam:active { transform: scale(0.92); }
+/* bong bóng chú thích kiểu iMessage, mọc ra từ icon camera */
+.gp__bubble {
+  position: absolute;
+  left: calc(100% + 10px);
+  top: 50%;
+  width: max-content;
+  max-width: 150px;
+  padding: 7px 12px;
+  border-radius: 16px;
+  background: #2b2b2e;
+  color: #f5f5f7;
+  font-family: var(--font-ui);
+  font-size: 13px;
+  line-height: 1.3;
+  text-shadow: none;
+  box-shadow: 0 6px 18px rgba(0, 0, 0, 0.35);
+  transform-origin: 0 50%;
+  pointer-events: none;
+  animation: gp-bubble 4.6s cubic-bezier(0.2, 0.9, 0.3, 1.2) both;
+}
+/* đuôi bong bóng chỉ về icon camera */
+.gp__bubble::before {
+  content: '';
+  position: absolute;
+  left: -5px;
+  bottom: 4px;
+  width: 14px;
+  height: 14px;
+  background: #2b2b2e;
+  border-bottom-right-radius: 12px;
+  transform: skewX(18deg);
+  z-index: -1;
+}
+@keyframes gp-bubble {
+  0% { opacity: 0; transform: translateY(-50%) scale(0.4); }
+  8% { opacity: 1; transform: translateY(-50%) scale(1); }
+  85% { opacity: 1; transform: translateY(-50%) scale(1); }
+  100% { opacity: 0; transform: translateY(-50%) scale(0.85); }
+}
+@media (prefers-reduced-motion: reduce) { .gp__bubble { animation-name: gp-bubble; animation-timing-function: steps(1); } }
+.gp__thumb {
+  position: relative;
+  flex: none;
+  /* cỡ cố định theo chiều cao ô → ảnh gốc to cỡ nào cũng không làm ô phình ra */
+  height: calc(var(--field-h) * 2.2 - 14px);
+  aspect-ratio: 3 / 4;
+  padding: 0;
+  border: 0;
+  border-radius: 4px;
+  overflow: hidden;
+  cursor: zoom-in;
+  background: #1a1512;
+  box-shadow: 0 0 0 1.5px #f6efe4, 0 4px 10px rgba(0, 0, 0, 0.4);
+  transition: transform 0.15s ease-out;
+}
+.gp__thumb:active { transform: scale(0.96); }
+.gp__thumb img { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; object-position: 50% 30%; display: block; }
+.gp__photo-note {
+  min-width: 0;
+  font-family: var(--font-ui);
+  font-size: 16px;
+  line-height: 1.35;
+  color: var(--ink);
+  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.5);
+}
+
+/* xem ảnh to: phủ cả cảnh popup, chạm để thu nhỏ */
+.gp__lightbox {
+  position: absolute;
+  inset: 0;
+  z-index: 60;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 16px;
+  padding: calc(var(--safe-top) + 40px) 22px calc(var(--safe-bottom) + 40px);
+  background: rgba(12, 9, 7, 0.78);
+  -webkit-backdrop-filter: blur(6px);
+  backdrop-filter: blur(6px);
+  cursor: zoom-out;
+}
+.gp__lightbox img {
+  max-width: 100%;
+  max-height: calc(100% - 40px);
+  object-fit: contain;
+  border-radius: 14px;
+  box-shadow: 0 0 0 3px #f6efe4, 0 24px 60px rgba(0, 0, 0, 0.6);
+  will-change: transform;
+}
+.gp__lightbox-hint {
+  font-family: var(--font-ui);
+  font-size: 12.5px;
+  letter-spacing: 0.04em;
+  color: rgba(251, 246, 238, 0.7);
+}
+
+.gp__hint {
+  position: relative;
+  z-index: 1;
+  margin: 0 18px;
+  padding: 7px 12px;
+  border-radius: 10px;
+  font-family: var(--font-ui);
+  font-size: 13.5px;
+  font-weight: 500;
+  line-height: 1.35;
+  color: #ffd9d4;
+  background: rgba(128, 32, 46, 0.42);
+  border: 1px solid rgba(255, 190, 180, 0.35);
+  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.45);
+}
+
+/* ---------- nút ---------- */
+.gp__actions {
+  position: relative;
+  flex: none;
+  display: grid;
+  grid-template-columns: 1.3fr 1fr;
+  gap: 16px;
+  padding: 10px 18px 16px;
+}
+.gp__btn {
+  height: 42px;
+  border-radius: 14px;
+  font-family: var(--font-ui);
+  font-size: 15px;
+  font-weight: 600;
+  white-space: nowrap;
+  -webkit-backdrop-filter: blur(10px);
+  backdrop-filter: blur(10px);
+  cursor: pointer;
+  transition: background-color 0.35s, color 0.35s, box-shadow 0.35s, transform 0.15s, filter 0.2s;
+}
+.gp__btn:active { transform: scale(0.97); }
+@media (hover: hover) { .gp__btn:hover { filter: brightness(1.06); } }
+
+/* chính: kính khói tối */
+.gp__submit {
+  padding: 0 8px;
+  font-size: 14px;
+  letter-spacing: 0.01em;
+  color: rgba(255, 253, 248, 0.9);
+  border: 1px solid rgba(255, 255, 255, 0.22);
+  background: linear-gradient(180deg, rgba(255, 255, 255, 0.1), rgba(255, 255, 255, 0) 60%), rgba(20, 18, 16, 0.38);
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.3), 0 6px 16px rgba(20, 14, 8, 0.22);
+}
+.gp__submit[aria-disabled='true'] { cursor: not-allowed; }
+.gp__submit.is-ready {
+  background: linear-gradient(180deg, rgba(255, 255, 255, 0.16), rgba(255, 255, 255, 0) 60%), rgba(38, 112, 82, 0.8);
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.35), 0 6px 18px rgba(38, 112, 82, 0.35);
+}
+/* phụ: kính sáng */
+.gp__cancel {
+  color: var(--ink);
+  border: 1px solid rgba(255, 255, 255, 0.6);
+  background: linear-gradient(180deg, rgba(255, 255, 255, 0.2), rgba(255, 255, 255, 0.08));
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.7), inset 0 0 10px rgba(255, 255, 255, 0.12);
+  text-shadow: 0 1px 3px rgba(0, 0, 0, 0.45);
+}
+.gp__cancel.is-ready {
+  color: #fff6f4;
+  border-color: rgba(255, 255, 255, 0.3);
+  background: linear-gradient(180deg, rgba(255, 255, 255, 0.14), rgba(255, 255, 255, 0) 60%), rgba(128, 32, 46, 0.74);
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.3), 0 6px 16px rgba(128, 32, 46, 0.28);
+}
+
+/* ✦ góc dưới phải màn hình */
+.gp__sparkle {
+  position: absolute;
+  right: 18px;
+  bottom: calc(var(--safe-bottom) + 14px);
+  width: 24px;
+  height: 24px;
+  color: #fff;
+  pointer-events: none;
+  filter: drop-shadow(0 0 6px rgba(255, 255, 255, 0.9)) drop-shadow(0 0 14px rgba(255, 240, 220, 0.6));
+  animation: gp-twinkle 3.2s ease-in-out infinite;
+}
+@keyframes gp-twinkle {
+  0%, 100% { opacity: 0.6; transform: scale(0.88) rotate(0deg); }
+  50% { opacity: 1; transform: scale(1.08) rotate(10deg); }
+}
+
+/* ============================================================
+   CẦU PHA LÊ — highlight trên-trái, ánh cyan, fresnel, khúc xạ nền
+   ============================================================ */
+.gp-orb {
+  --s: 66px;
+  position: absolute;
+  width: var(--s);
+  height: var(--s);
+  border-radius: 50%;
+  pointer-events: none;
+  z-index: 3;
+  border: 1px solid rgba(255, 255, 255, 0.6);
+  background:
+    radial-gradient(circle at 30% 24%, #fff 0 4%, rgba(255, 255, 255, 0.7) 7%, rgba(255, 255, 255, 0) 15%),
+    radial-gradient(ellipse 30% 12% at 38% 16%, rgba(255, 255, 255, 0.55), rgba(255, 255, 255, 0) 80%),
+    radial-gradient(ellipse 46% 26% at 62% 84%, rgba(215, 250, 255, 0.7), rgba(160, 225, 250, 0.18) 55%, rgba(160, 225, 250, 0) 75%),
+    radial-gradient(circle, rgba(255, 255, 255, 0) 60%, rgba(190, 235, 255, 0.3) 76%, rgba(255, 255, 255, 0.7) 92%, rgba(255, 255, 255, 0.2) 100%),
+    radial-gradient(circle at 45% 42%, rgba(210, 242, 255, 0.03), rgba(120, 195, 235, 0.16));
+  box-shadow:
+    inset -3px -5px 10px rgba(120, 200, 240, 0.22),
+    inset 3px 4px 8px rgba(255, 255, 255, 0.3),
+    0 10px 14px -6px rgba(30, 50, 70, 0.35);
+  /* trong suốt: chữ phía sau vẫn đọc được, chỉ sáng + đậm màu hơn */
+  -webkit-backdrop-filter: blur(0.6px) brightness(1.1) saturate(1.35) contrast(1.06);
+  backdrop-filter: blur(0.6px) brightness(1.1) saturate(1.35) contrast(1.06);
+  animation: gp-float 6s ease-in-out infinite alternate;
+}
+@keyframes gp-float {
+  from { transform: translate3d(0, 0, 0); }
+  to { transform: translate3d(0, -3px, 0); }
+}
+/* cầu lớn trên viên Nam (~57% chiều ngang viên) */
+.gp-orb--lg {
+  --s: 70px;
+  border-color: rgba(95, 105, 115, 0.4);
+  left: calc(50% + 6px + (50% - 6px) * 0.7 - var(--s) / 2);
+  top: calc((var(--field-h) + 4px - var(--s)) / 2 - 2px);
+  /* mép cầu tối hơn một chút: phản chiếu môi trường như pha lê thật */
+  box-shadow:
+    inset 0 0 0 1px rgba(70, 80, 90, 0.22),
+    inset -4px -6px 12px rgba(60, 75, 90, 0.22),
+    inset 4px 5px 10px rgba(255, 255, 255, 0.35),
+    0 12px 16px -6px rgba(30, 40, 50, 0.38);
+}
+/* cầu nhỏ trên mép dưới panel, giữa hai nút */
+.gp-orb--sm {
+  --s: 60px;
+  left: calc(50% - var(--s) / 2);
+  bottom: -26px;
+  animation-duration: 7s;
+}
+
+/* ---------- màn nhỏ ---------- */
+@container (max-width: 360px) {
+  .gp__row2 { grid-template-columns: 1fr; }
+  .gp__actions { gap: 14px; }
+  .gp__btn { font-size: 14px; }
+  .gp__submit { letter-spacing: 0.01em; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .gp__light i { animation: none; }
+  .gp__sparkle,
+  .gp-orb { animation: none; }
+}
+
+/* ============================================================
+   HƯỚNG DẪN TỪNG Ô (FormTour) — lời nhắn + coach-mark trên kính
+   ============================================================ */
+.gpt {
+  position: absolute;
+  inset: 0;
+  z-index: 10;
+  visibility: hidden;
+  -webkit-tap-highlight-color: transparent;
+  touch-action: manipulation;
+}
+.gpt__dim {
+  position: absolute;
+  inset: 0;
+  background: rgba(10, 7, 5, 0.5);
+  -webkit-backdrop-filter: blur(3px);
+  backdrop-filter: blur(3px);
+}
+/* khi đang chỉ từng ô: vùng tối do bóng của khung sáng vẽ (để khoét được lỗ) */
+.gpt:has(.gpt__hole:not([hidden])) .gpt__dim { background: transparent; -webkit-backdrop-filter: none; backdrop-filter: none; }
+/* đang hướng dẫn từng ô: lớp tối không chặn chạm → chạm vào ô là nhập được ngay (và tắt hướng dẫn) */
+.gpt.is-touring,
+.gpt.is-touring .gpt__dim { pointer-events: none; }
+.gpt.is-touring .gpt__tip { pointer-events: auto; }
+.gpt__hole {
+  position: absolute;
+  left: 0;
+  top: 0;
+  border-radius: 14px;
+  pointer-events: none;
+  box-shadow:
+    0 0 0 1.5px rgba(255, 236, 205, 0.85),
+    0 0 18px 2px rgba(255, 214, 150, 0.35),
+    0 0 0 200vmax rgba(10, 7, 5, 0.58);
+}
+
+/* thẻ kính dùng chung cho lời nhắn + thẻ hướng dẫn */
+.gpt__welcome,
+.gpt__tip {
+  position: absolute;
+  left: 7%;
+  right: 7%;
+  padding: 18px 18px 12px;
+  border-radius: 18px;
+  color: #fbf6ee;
+  border: 1px solid rgba(255, 255, 255, 0.45);
+  background: linear-gradient(160deg, rgba(58, 48, 40, 0.72), rgba(34, 28, 24, 0.78));
+  -webkit-backdrop-filter: blur(16px) saturate(1.2);
+  backdrop-filter: blur(16px) saturate(1.2);
+  box-shadow: inset 0 1px 1px rgba(255, 255, 255, 0.35), 0 18px 40px rgba(0, 0, 0, 0.4);
+}
+.gpt__welcome {
+  top: 50%;
+  translate: 0 -50%;
+  padding: 30px 22px 20px;
+  text-align: center;
+}
+.gpt__welcome p { margin: 0; }
+.gpt__lead {
+  font-family: var(--font-display);
+  font-size: 18px;
+  font-weight: 700;
+  line-height: 1.4;
+  text-shadow: 0 0 10px rgba(255, 214, 150, 0.4);
+}
+.gpt__body {
+  margin-top: 12px !important;
+  font-family: var(--font-ui);
+  font-size: 15px;
+  line-height: 1.6;
+  color: rgba(251, 246, 238, 0.9);
+}
+.gpt__welcome .gpt__btn { margin-top: 18px; width: 100%; }
+.gpt__tip { top: 0; }
+.gpt__tip p { margin: 0; }
+.gpt__close {
+  position: absolute;
+  top: 8px;
+  right: 10px;
+  width: 28px;
+  height: 28px;
+  border: 0;
+  background: none;
+  color: rgba(251, 246, 238, 0.7);
+  font-size: 20px;
+  line-height: 1;
+  cursor: pointer;
+}
+.gpt__skiptag {
+  position: absolute;
+  top: 10px;
+  right: 14px;
+  font-family: var(--font-ui);
+  font-size: 10.5px;
+  letter-spacing: 0.03em;
+  color: rgba(251, 246, 238, 0.55);
+  pointer-events: none;
+}
+.gpt__title {
+  padding-right: 110px;
+  font-family: var(--font-display);
+  font-size: 17px;
+  font-weight: 700;
+  text-shadow: 0 0 10px rgba(255, 214, 150, 0.35);
+}
+.gpt__text {
+  margin-top: 6px !important;
+  font-family: var(--font-ui);
+  font-size: 14.5px;
+  line-height: 1.55;
+  color: rgba(251, 246, 238, 0.88);
+}
+.gpt__row { display: flex; align-items: center; gap: 8px; margin-top: 14px; }
+.gpt__count { flex: 1; font-family: var(--font-ui); font-size: 13px; color: rgba(251, 246, 238, 0.7); }
+.gpt__btn {
+  min-height: 38px;
+  padding: 0 14px;
+  border-radius: 11px;
+  border: 1px solid rgba(255, 255, 255, 0.35);
+  background: rgba(255, 255, 255, 0.1);
+  color: #fbf6ee;
+  font-family: var(--font-ui);
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: transform 0.12s, background-color 0.2s;
+}
+.gpt__btn:active { transform: scale(0.96); }
+.gpt__btn:disabled { opacity: 0.4; cursor: default; }
+.gpt__btn.is-primary {
+  border-color: rgba(255, 236, 205, 0.6);
+  background: linear-gradient(180deg, rgba(214, 178, 118, 0.95), rgba(168, 138, 74, 0.95));
+  color: #1d1712;
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.5), 0 4px 12px rgba(168, 138, 74, 0.35);
+}
+.gpt__skip {
+  margin-top: 10px !important;
+  text-align: center;
+  font-family: var(--font-ui);
+  font-size: 11px;
+  letter-spacing: 0.04em;
+  color: rgba(251, 246, 238, 0.55);
+}

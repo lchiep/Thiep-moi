@@ -1,0 +1,179 @@
+/* ---------- ô Ngày sinh (nút mở lịch) ---------- */
+.gp__date {
+  width: 100%;
+  text-align: left;
+  cursor: pointer;
+  font: inherit;
+}
+.gp__date-ph,
+.gp__date-val {
+  font-family: var(--font-ui);
+  font-size: 16px;
+}
+.gp__date-ph { color: var(--ph); }
+.gp__date-val { color: var(--ink); letter-spacing: 0.02em; }
+
+/* ---------- lịch kiểu shadcn/ui Calendar (dark) ---------- */
+.dp-layer {
+  position: absolute;
+  inset: 0;
+  z-index: 70;
+}
+.dp-card {
+  position: absolute;
+  visibility: hidden; /* GSAP hiện sau khi đã đặt đúng chỗ */
+  padding: 12px;
+  border-radius: 12px;
+  border: 1px solid #27272a;
+  background: rgba(9, 9, 11, 0.94);
+  -webkit-backdrop-filter: blur(10px);
+  backdrop-filter: blur(10px);
+  box-shadow: 0 16px 40px rgba(0, 0, 0, 0.5);
+  color: #fafafa;
+  font-family: var(--font-ui);
+  font-variant-numeric: tabular-nums;
+}
+.dp-card .rdp-root { --cell: 38px; position: relative; }
+.dp-card .rdp-months { position: relative; }
+
+/* thanh điều hướng: ‹ ở trái, › ở phải, cùng hàng tiêu đề */
+.dp-card .rdp-nav {
+  position: absolute;
+  inset: 0 0 auto;
+  height: 32px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  pointer-events: none;
+}
+.dp-card .rdp-button_previous,
+.dp-card .rdp-button_next {
+  pointer-events: auto;
+  width: 30px;
+  height: 30px;
+  display: grid;
+  place-items: center;
+  border: 0;
+  border-radius: 6px;
+  background: transparent;
+  color: #fafafa;
+  cursor: pointer;
+}
+.dp-card .rdp-button_previous:hover,
+.dp-card .rdp-button_next:hover { background: #27272a; }
+.dp-card .rdp-button_previous:disabled,
+.dp-card .rdp-button_next:disabled { opacity: 0.35; cursor: default; background: transparent; }
+.dp-card .rdp-chevron { width: 16px; height: 16px; fill: currentColor; }
+
+/* tiêu đề: "Tháng 12 ⌄   2026 ⌄" — select trong suốt phủ lên nhãn */
+.dp-card .rdp-month_caption {
+  height: 32px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.dp-card .rdp-dropdowns { display: flex; align-items: center; gap: 6px; }
+.dp-card .rdp-dropdown_root { position: relative; display: inline-flex; border-radius: 6px; }
+.dp-card .rdp-dropdown_root:has(select:focus-visible) { box-shadow: 0 0 0 2px #52525b; }
+.dp-card .rdp-dropdown {
+  position: absolute;
+  inset: 0;
+  opacity: 0;
+  cursor: pointer;
+  font-size: 16px; /* iPhone không zoom khi mở */
+}
+.dp-card .rdp-caption_label {
+  display: inline-flex;
+  align-items: center;
+  gap: 2px;
+  padding: 4px 4px 4px 8px;
+  border-radius: 6px;
+  font-size: 14.5px;
+  font-weight: 600;
+  pointer-events: none;
+}
+.dp-card .rdp-dropdown_root:hover .rdp-caption_label { background: #27272a; }
+.dp-card .rdp-caption_label .rdp-chevron { width: 14px; height: 14px; opacity: 0.6; }
+
+/* lưới ngày */
+.dp-card .rdp-month_grid { margin-top: 10px; border-collapse: collapse; }
+.dp-card .rdp-weekday {
+  width: var(--cell);
+  height: 28px;
+  font-size: 12.5px;
+  font-weight: 500;
+  color: #a1a1aa;
+  text-transform: none;
+}
+.dp-card .rdp-day { width: var(--cell); height: var(--cell); padding: 0; text-align: center; }
+.dp-card .rdp-day_button {
+  width: 34px;
+  height: 34px;
+  border: 0;
+  border-radius: 7px;
+  background: transparent;
+  color: inherit;
+  font: inherit;
+  font-size: 14.5px;
+  cursor: pointer;
+  transition: background-color 0.15s;
+}
+.dp-card .rdp-day_button:hover { background: #27272a; }
+.dp-card .rdp-outside .rdp-day_button { color: #71717a; }
+.dp-card .rdp-today:not(.rdp-selected) .rdp-day_button { background: #27272a; font-weight: 600; }
+.dp-card .rdp-selected .rdp-day_button,
+.dp-card .rdp-selected .rdp-day_button:hover { background: #fafafa; color: #09090b; font-weight: 600; }
+.dp-card .rdp-disabled .rdp-day_button { color: #52525b; cursor: default; background: transparent; }
+
+/* ô chọn Tháng / Năm kiểu shadcn Select */
+.dp-dd { position: relative; display: inline-flex; }
+.dp-card .dp-dd__btn {
+  border: 0;
+  background: transparent;
+  color: inherit;
+  font-family: inherit;
+  cursor: pointer;
+  pointer-events: auto; /* nhãn gốc của lịch tắt chạm — nút này phải bật lại */
+}
+.dp-dd__btn svg { opacity: 0.6; transition: transform 0.2s; }
+.dp-dd.is-open .dp-dd__btn { background: #27272a; }
+.dp-dd.is-open .dp-dd__btn svg { transform: rotate(180deg); }
+.dp-dd__list {
+  position: absolute;
+  top: calc(100% + 6px);
+  left: 50%;
+  translate: -50% 0;
+  z-index: 5;
+  min-width: 112px;
+  max-height: 224px;
+  overflow-y: auto;
+  overscroll-behavior: contain;
+  padding: 4px;
+  border-radius: 10px;
+  border: 1px solid #27272a;
+  background: #0c0c0e;
+  box-shadow: 0 12px 30px rgba(0, 0, 0, 0.55);
+  scrollbar-width: thin;
+  scrollbar-color: #3f3f46 transparent;
+  animation: dp-dd-in 0.14s ease-out;
+}
+@keyframes dp-dd-in { from { opacity: 0; transform: translateY(-4px) scale(0.98); } to { opacity: 1; transform: none; } }
+.dp-dd__opt {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  width: 100%;
+  padding: 7px 10px;
+  border: 0;
+  border-radius: 6px;
+  background: transparent;
+  color: #fafafa;
+  font-family: var(--font-ui);
+  font-size: 14px;
+  text-align: left;
+  cursor: pointer;
+}
+.dp-dd__opt:hover { background: #27272a; }
+.dp-dd__opt[aria-selected='true'] { font-weight: 600; }
+.dp-dd__opt:disabled { color: #52525b; cursor: default; background: transparent; }
