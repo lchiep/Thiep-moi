@@ -35,6 +35,8 @@ jobs:
   e2e:
     name: Test giao diện (Playwright, 4 cỡ màn)
     needs: verify
+    # tạm chỉ chạy khi bấm tay (Actions → CI → Run workflow) — Hiệp tạm gác test giao diện
+    if: ${{ github.event_name == 'workflow_dispatch' }}
     runs-on: ubuntu-latest
     timeout-minutes: 40
     permissions:
