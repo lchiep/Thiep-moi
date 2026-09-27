@@ -1,0 +1,3 @@
+/* Chỉ áp dụng lúc chụp ảnh so sánh (toHaveScreenshot → stylePath).
+   Ẩn những lớp phủ toàn màn luôn chuyển động ngẫu nhiên — nếu dùng mask sẽ che mất cả màn hình. */
+.dust-motes { visibility: hidden !important; }

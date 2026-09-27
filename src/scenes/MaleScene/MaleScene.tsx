@@ -204,6 +204,19 @@ export default function MaleScene({ popup }: { popup: React.RefObject<HTMLDivEle
     return null
   }
 
+  // ?qa: cho test tự động biết chạm vào đâu để trúng thiệp / túi vé (tâm hình chiếu 3D, toạ độ màn hình)
+  if (QA) (window as unknown as { __maleTargets: unknown }).__maleTargets = () => {
+    const f = folder.current, t = three.current
+    if (!f || !t) return null
+    const card = projectRect(f.card, t.camera, t.canvas)
+    const all = projectRect(f.root, t.camera, t.canvas)
+    const right = card.left + card.width
+    return {
+      card: { x: card.left + card.width / 2, y: card.top + card.height / 2 },
+      ticket: { x: (right + all.left + all.width) / 2, y: all.top + all.height / 2 },
+    }
+  }
+
   const onTap = (e: React.MouseEvent) => {
     const now = useExperience.getState().state
     if (!folder.current) return

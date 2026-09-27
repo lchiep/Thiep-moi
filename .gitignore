@@ -13,3 +13,7 @@ Thumbs.db
 # ảnh chụp màn hình làm việc với Claude (không phải mã nguồn)
 Claude outputs/
 .claude/settings.local.json
+
+# kết quả test Playwright (ảnh gốc tests/__screenshots__ thì CÓ commit)
+tests/.results/
+tests/.report/

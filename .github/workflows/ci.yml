@@ -1,0 +1,78 @@
+# CI thiệp mời: mỗi lần push / mở PR → kiểm tra tổng + test giao diện 4 cỡ điện thoại.
+# Chạy tay (tab Actions → CI → Run workflow) với "cap_nhat_anh_goc" = true
+#   → chụp lại ảnh gốc Linux và tự commit vào tests/__screenshots__/linux/.
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+  workflow_dispatch:
+    inputs:
+      cap_nhat_anh_goc:
+        description: 'Chụp lại ảnh gốc so sánh (chỉ bấm khi đã duyệt giao diện mới)'
+        type: boolean
+        default: false
+
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  verify:
+    name: TypeScript + luật dự án + build
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+      - run: npm ci
+      - run: npm run verify
+
+  e2e:
+    name: Test giao diện (Playwright, 4 cỡ màn)
+    needs: verify
+    runs-on: ubuntu-latest
+    timeout-minutes: 40
+    permissions:
+      contents: write # để job cập nhật ảnh gốc commit lại được
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+      - run: npm ci
+      - name: Cài Chromium cho Playwright
+        run: npx playwright install --with-deps chromium
+
+      - name: Chạy test (so với ảnh gốc)
+        if: ${{ !inputs.cap_nhat_anh_goc }}
+        # chưa có ảnh gốc Linux → ghi ảnh mới thay vì báo lỗi (lần đầu); có rồi → so sánh
+        run: npx playwright test --update-snapshots=missing
+
+      - name: Chụp lại ảnh gốc
+        if: ${{ inputs.cap_nhat_anh_goc }}
+        run: npx playwright test --update-snapshots
+
+      - name: Commit ảnh gốc mới
+        if: ${{ inputs.cap_nhat_anh_goc }}
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add tests/__screenshots__/linux
+          git diff --cached --quiet || git commit -m "test: cập nhật ảnh gốc giao diện (Linux)"
+          git push
+
+      - name: Lưu báo cáo test
+        if: ${{ always() }}
+        uses: actions/upload-artifact@v4
+        with:
+          name: playwright-report
+          path: |
+            tests/.report
+            tests/.results
+          retention-days: 7
