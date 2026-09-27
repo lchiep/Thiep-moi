@@ -71,8 +71,8 @@ export const pct = (b: Box) => ({
  *  vé = drawTicket (vé ngang), thiệp = khúc đầu tờ thiệp drawInvitationCard (giấy dó + header + tên khách).
  * Vẽ sẵn lúc khách bấm GỬI, giữ ở đây để cảnh mở phong bì dùng ngay.
  */
-/** Tờ thiệp được gấp 3 (Z-fold) để vừa phong bì → trong phong bì thấy TẤM TRÊN CÙNG = 1/3 đầu tờ thiệp (header + tên). */
-export const CARD_CROP = { y0: 0, y1: 0.345 }
+/** Thiệp trong phong bì = khối header của tờ thiệp (CHÂN THÀNH KÍNH MỜI … tên khách, 2 nhành lá) — Hiệp chọn 28/09. */
+export const CARD_CROP = { y0: 0.07, y1: 0.37 }
 let cards: { ticket: string; letter: string } = { ticket: '', letter: '' }
 export const getCards = () => cards
 
@@ -88,13 +88,6 @@ export async function buildCards(guest: Guest) {
   c.height = sh
   const g = c.getContext('2d')!
   g.drawImage(card, 0, sy, CARD_SIZE.w, sh, 0, 0, CARD_SIZE.w, sh)
-  // nếp gấp ở mép dưới (tấm giấy gập ra sau): tối dần + 1 vệt sáng mảnh
-  const fold = g.createLinearGradient(0, sh * 0.9, 0, sh)
-  fold.addColorStop(0, 'rgba(90,60,30,0)')
-  fold.addColorStop(0.85, 'rgba(90,60,30,0.10)')
-  fold.addColorStop(1, 'rgba(90,60,30,0.22)')
-  g.fillStyle = fold
-  g.fillRect(0, sh * 0.9, CARD_SIZE.w, sh * 0.1)
   // viền đỏ đô mảnh in sát mép (2 nét: đậm ngoài, mảnh trong)
   g.strokeStyle = 'rgba(122,31,43,0.85)'
   g.lineWidth = 3
