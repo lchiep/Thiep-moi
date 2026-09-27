@@ -10,7 +10,7 @@ import { callAnsweredTimeline, popupCloseTimeline, popupOpenTimeline } from '../
 import { callMicroInteractions } from '../../animations/anime/microInteractions'
 import { useSwipeAnswer } from '../../hooks/useSwipeAnswer'
 import { sendExperience, useExperience } from '../../state/experienceMachine'
-import { guestAddress, useGuest } from '../../state/guestStore'
+import { useGuest } from '../../state/guestStore'
 import './CallScene.css'
 
 gsap.registerPlugin(useGSAP)
@@ -140,9 +140,7 @@ export default function CallScene() {
       if (data.gender === 'nu') {
         // nhánh Nữ: tải code + giải mã sẵn toàn bộ ảnh (thư, phong bì, cảnh tulip) rồi mới biến hình
         const m = await loadFemale()
-        const g = useGuest.getState().guest!
-        // lá thư = khúc đầu tờ thiệp (họ tên + "Chị + tên gọi") — vẽ sẵn trước khi popup biến thành thư
-        await Promise.all([m.preloadFemaleAssets(), m.buildLetterImage(g.fullName, guestAddress(g))])
+        await m.preloadFemaleAssets()
         sendExperience('GO_FEMALE')
         return null
       }

@@ -4,10 +4,11 @@ import { animate } from 'animejs'
 import { COPY } from '../../config/copy'
 import { sendExperience, useExperience } from '../../state/experienceMachine'
 import { envelopePress, femaleIdle, femaleTransitionTimeline } from '../../animations/gsap/femaleTransitionTimeline'
-import { ENVELOPE_SPOT, FEMALE_IMG, PLACE, getLetterSrc, pct } from './femaleAssets'
+import { sealSparkle } from '../../animations/anime/microInteractions'
+import { ENVELOPE_SPOT, FEMALE_IMG, PLACE, pct } from './femaleAssets'
 import './FemaleScene.css'
 
-export { preloadFemaleAssets, buildLetterImage } from './femaleAssets'
+export { preloadFemaleAssets } from './femaleAssets'
 
 const QA = new URLSearchParams(location.search).has('qa')
 
@@ -17,10 +18,6 @@ type Props = {
   sceneA: () => HTMLElement[]
 }
 
-/** Lá thư = khúc đầu tờ thiệp (vẽ sẵn lúc bấm GỬI) — cùng 1 ảnh cho thư tự do lẫn thư trong phong bì. */
-function LetterFace() {
-  return <img className="fem-letter__img" src={getLetterSrc()} alt="" />
-}
 
 /** Cánh hoa bay trong cơn gió chuyển cảnh: vị trí/cỡ/độ nhoè ngẫu nhiên nhưng CỐ ĐỊNH (seed) → lần nào cũng đẹp như nhau. */
 const FLURRY = Array.from({ length: 26 }, (_, i) => {
@@ -29,7 +26,8 @@ const FLURRY = Array.from({ length: 26 }, (_, i) => {
 })
 
 /**
- * NHÁNH NỮ (Phase 8, bước 1): popup → thư → phong bì → cảnh trượt → cảnh tulip → chờ chạm.
+ * NHÁNH NỮ (Phase 8, bước 1): popup tan thành hạt sáng bay vào phong bì → nắp đóng → cơn gió cánh hoa
+ * cuốn cảnh cũ đi → bàn tĩnh vật tulip (bày sẵn) → phong bì đáp xuống dưới bó hoa → chờ chạm.
  * Phong bì là 1 vật duy nhất đi xuyên 2 cảnh (không có phong bì thứ hai trong ảnh nền).
  */
 export default function FemaleScene({ popup, sceneA }: Props) {
@@ -50,7 +48,11 @@ export default function FemaleScene({ popup, sceneA }: Props) {
       sceneB: [...el.querySelectorAll<HTMLElement>('.fem__b .fem__plate')],
       frontPlate: q('.fem__b--front'),
       flurry: [...el.querySelectorAll<HTMLElement>('.fem__flurry img')],
-      letter: q('.fem__letter'),
+      sparks: q<HTMLCanvasElement>('.fem__sparks'),
+      envGlow: q('.fem__env-glow'),
+      envSun: q('.fem__env-sun'),
+      plateRef: q('.fem__b .fem__plate'),
+      onSeal: () => { cleanSpark = sealSparkle([...el.querySelectorAll<HTMLElement>('.fem__seal-fx i')]) },
       env: q('.fem__env'),
       envFloat: q('.fem__env-float'),
       envShadow: q('.fem__env-shadow'),
@@ -58,12 +60,13 @@ export default function FemaleScene({ popup, sceneA }: Props) {
       flap: q('.fem__flap'),
       envClosed: q('.fem__env-closed'),
       spot: q('.fem__spot'),
-      bouquet: q('.fem__bouquet'),
+      bouquet: q('.fem__bq'),
       choc: q('.fem__choc'),
       petals: [...el.querySelectorAll<HTMLElement>('.fem__petal')],
       light: q('.fem__light'),
       cta: q('.fem__cta'),
     }
+    let cleanSpark: (() => void) | null = null
     const reduce = window.matchMedia('(prefers-reduced-motion: reduce)').matches
     // gsap.context: khi gỡ (kể cả StrictMode chạy effect 2 lần ở dev) trả MỌI thứ về như cũ —
     // nền cảnh cuộc gọi, khung popup, phong bì… → lần đo sau không bị lệch vì transform còn sót
@@ -75,7 +78,7 @@ export default function FemaleScene({ popup, sceneA }: Props) {
       if (reduce) tl.current.timeScale(2.2)
     })
     if (QA) (window as unknown as { __femaleTl: unknown }).__femaleTl = tl.current
-    return () => ctx.revert()
+    return () => { ctx.revert(); cleanSpark?.() }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [])
 
@@ -112,14 +115,19 @@ export default function FemaleScene({ popup, sceneA }: Props) {
         <div className="fem__env-float">
           <div className="fem__env-shadow" />
           <img className="fem__env-back" src={FEMALE_IMG.envBack} alt="" />
-          <div className="fem__env-letter fem-letter">
-            <LetterFace />
-          </div>
+          {/* giấy thư "đọng" lại trong túi khi hạt sáng bay vào (chỉ thấy mặt giấy qua miệng túi) */}
+          <div className="fem__env-letter fem-letter" />
+          <div className="fem__env-glow" />
           <img className="fem__env-front" src={FEMALE_IMG.envFront} alt="" />
           <img className="fem__env-closed" src={FEMALE_IMG.envClosed} alt="" />
           <div className="fem__flap">
             <img className="fem__flap-in" src={FEMALE_IMG.flapIn} alt="" />
             <img className="fem__flap-out" src={FEMALE_IMG.flapOut} alt="" />
+          </div>
+          {/* vệt nắng qua cửa sổ đổ lên phong bì — cùng góc/nhịp với vệt nắng trên mặt đá */}
+          <div className="fem__env-sun" />
+          <div className="fem__seal-fx">
+            {Array.from({ length: 12 }, (_, i) => <i key={i} />)}
           </div>
         </div>
       </div>
@@ -127,7 +135,11 @@ export default function FemaleScene({ popup, sceneA }: Props) {
       {/* CẢNH B (lớp trước): bó hoa đè lên mép trái phong bì + vệt nắng */}
       <div className="fem__b fem__b--front" aria-hidden>
         <div className="fem__plate">
-          <img className="fem__obj fem__bouquet" src={FEMALE_IMG.bouquet} alt="" style={pct(PLACE.bouquet)} />
+          {/* bó hoa + bóng đổ của nó (bóng rơi lên phong bì và lụa) — đung đưa cùng nhau */}
+          <div className="fem__bq" style={pct(PLACE.bouquet)}>
+            <img className="fem__bq-shadow" src={FEMALE_IMG.bouquetShadow} alt="" />
+            <img className="fem__bouquet" src={FEMALE_IMG.bouquet} alt="" />
+          </div>
         </div>
       </div>
       {/* vệt nắng ấm: hoà (soft-light) lên cả cảnh + phong bì */}
@@ -141,10 +153,8 @@ export default function FemaleScene({ popup, sceneA }: Props) {
         ))}
       </div>
 
-      {/* LÁ THƯ tự do: sinh ra đúng chỗ popup, bay tới miệng phong bì rồi trao vai cho thư bên trong */}
-      <div className="fem__letter fem-letter" aria-hidden>
-        <LetterFace />
-      </div>
+      {/* hạt sáng: popup tan ra rồi xoáy vào miệng phong bì */}
+      <canvas className="fem__sparks" aria-hidden />
 
       <button type="button" className="fem__cta" onClick={onTapEnvelope} disabled={state !== 'FEMALE_WAITING_TAP'}>
         <span>{COPY.female.cta}</span>

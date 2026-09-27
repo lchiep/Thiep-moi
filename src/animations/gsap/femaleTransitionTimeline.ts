@@ -1,17 +1,17 @@
 import { gsap } from 'gsap'
 import { EASE } from '../motion'
+import { lightParticlesTween } from './lightParticles'
 
 /**
  * NHÁNH NỮ — từ lúc bấm GỬI tới khi cảnh tulip chờ khách chạm vào thư.
  *
- *   popup co lại thành LÁ THƯ (đúng chỗ popup)
- *   → phong bì mở trồi lên từ mép dưới
- *   → thư canh miệng phong bì, thu nhỏ nhẹ → TRƯỢT VÀO (bị thân phong bì che thật, không mờ dần)
- *   → nắp gập xuống quanh nếp gấp (mặt ngoài có dấu sáp ở mũi nắp) → phong bì nhún
+ *   phong bì mở trồi lên từ mép dưới · popup TAN thành hàng trăm HẠT SÁNG (canvas, hoà màu 'lighter')
+ *   → hạt xoáy cong bay vào miệng phong bì, trong túi ấm sáng lên, lá thư "đọng" lại bên trong
+ *   → nắp gập xuống quanh nếp gấp (mặt ngoài có dấu sáp ở mũi nắp) → phong bì nhún, đốm sáng quanh dấu sáp
  *   → CƠN GIÓ CÁNH HOA: phong bì được nhấc lên, một đợt cánh tulip cuộn từ trái sang phải (gần–xa, nhoè
  *     theo chiều sâu); mép đợt gió "cuốn" cảnh cuộc gọi đi (mặt nạ mềm chạy theo), để lộ sẵn bàn tĩnh vật:
  *     lụa + bó hoa + KitKat đã nằm đó
- *   → phong bì chao xuống, luồn dưới bó hoa · nắng quét · "CHẠM VÀO THƯ ĐỂ MỞ"
+ *   → phong bì chao xuống, luồn dưới bó hoa; bóng hoa + vệt nắng cửa sổ đổ lên phong bì · "CHẠM VÀO THƯ ĐỂ MỞ"
  *
  * GSAP là chủ duy nhất của transform/opacity các vật này. Vị trí đích đo bằng getBoundingClientRect
  * (không hard-code pixel). State machine đi tiếp từng bước bằng callback ở các mốc (onStep).
@@ -23,11 +23,15 @@ export type FemaleRefs = {
   sceneB: HTMLElement[] // 2 "tấm ảnh" của cảnh tulip (lớp sau + lớp bó hoa) — camera lùi nhẹ
   frontPlate: HTMLElement // lớp bó hoa (nằm trên phong bì) — lộ ra cùng mép gió
   flurry: HTMLElement[] // cánh hoa bay trong cơn gió
-  letter: HTMLElement // lá thư "tự do" (sinh ra từ popup)
+  sparks: HTMLCanvasElement // canvas hạt sáng
+  envGlow: HTMLElement // ánh sáng ấm trong túi phong bì
+  envSun: HTMLElement // vệt nắng cửa sổ phủ lên phong bì (khi đã nằm trong cảnh tulip)
+  plateRef: HTMLElement // "tấm ảnh" cảnh tulip — để canh vệt nắng trên phong bì khớp nền
+  onSeal: () => void // dấu sáp vừa ấn: đốm sáng (Anime.js)
   env: HTMLElement // phong bì: vị trí/xoay/scale
   envFloat: HTMLElement // lớp trong: nhún khi thư chạm đáy / khi nắp đóng
   envShadow: HTMLElement
-  envLetter: HTMLElement // lá thư NẰM TRONG phong bì (giữa thân sau và thân trước)
+  envLetter: HTMLElement // lá thư trong túi phong bì (giữa thân sau và thân trước)
   envClosed: HTMLElement // thân phong bì đã đóng (E1) — hiện khi nắp nằm hẳn xuống
   flap: HTMLElement
   spot: HTMLElement // chỗ phong bì nằm trong cảnh tulip
@@ -42,24 +46,27 @@ export type FemaleStep = 'letter' | 'closed' | 'pan' | 'ready' | 'waiting'
 
 const center = (r: DOMRect) => ({ x: r.left + r.width / 2, y: r.top + r.height / 2 })
 
+/** Canh ảnh vệt nắng (phủ cả tấm ảnh cảnh tulip) vào hệ toạ độ riêng của phong bì đã đáp (đã thu nhỏ). */
+function sunOn(P: DOMRect, T: DOMRect, envW: number) {
+  const s = T.width / envW // phong bì đáp xuống bị thu theo tỉ lệ này
+  return {
+    backgroundSize: `${P.width / s}px ${P.height / s}px`,
+    backgroundPosition: `${(P.left - T.left) / s}px ${(P.top - T.top) / s}px`,
+  }
+}
+
 export function femaleTransitionTimeline(o: FemaleRefs, onStep: (step: FemaleStep) => void) {
   // ---------- đo khi mọi thứ còn ở vị trí gốc (chưa transform) ----------
   const stageR = o.stage.getBoundingClientRect()
   const E = o.env.getBoundingClientRect() // thân phong bì lúc nằm yên ở cảnh 1
-  const L = o.letter.getBoundingClientRect() // lá thư tự do ở giữa màn
-  const I = o.envLetter.getBoundingClientRect() // lá thư khi đã nằm hẳn trong phong bì
   const T = o.spot.getBoundingClientRect() // chỗ phong bì đáp trong cảnh tulip
+  const P = o.plateRef.getBoundingClientRect() // tấm ảnh cảnh tulip (để canh vệt nắng)
   const flapH = o.flap.getBoundingClientRect().height
-  const Ec = center(E), Ic = center(I), Tc = center(T)
-
-  // lá thư hạ xuống ngay trên miệng phong bì: đáy thư chạm mép trên thân, cùng cỡ với thư bên trong
-  const k = I.width / L.width
-  const hoverCy = E.top - I.height / 2 + 2
-  const letterTo = { x: Ic.x - center(L).x, y: hoverCy - center(L).y, scale: k }
-  const insideStartY = hoverCy - Ic.y // cùng chỗ đó, tính cho lá thư bên trong phong bì
+  const Ec = center(E), Tc = center(T)
+  // hạt sinh ra từ khung kính của popup (không phải cả màn)
+  const popupR = (o.popup?.querySelector('.gp__shell') ?? o.popup)?.getBoundingClientRect() ?? new DOMRect(E.left, E.top - 300, E.width, 260)
 
   // ---------- trạng thái đầu ----------
-  // nền cuộc gọi nằm TRÊN cảnh tulip (cảnh tulip đã sẵn bên dưới, chờ trang lật)
   gsap.set(o.sceneA, { zIndex: (i) => 2 + i })
   gsap.set(o.sceneB, { scale: 1.05, transformOrigin: '50% 55%' })
   // mặt nạ mềm theo mép gió: cảnh cũ mất dần từ trái sang phải, lớp bó hoa hiện ra đúng theo mép đó
@@ -68,54 +75,46 @@ export function femaleTransitionTimeline(o: FemaleRefs, onStep: (step: FemaleSte
   gsap.set(o.frontPlate, { ...WIPE, maskImage: 'linear-gradient(90deg, #000 calc(var(--wipe) - 16%), transparent var(--wipe))', webkitMaskImage: 'linear-gradient(90deg, #000 calc(var(--wipe) - 16%), transparent var(--wipe))' })
   gsap.set(o.flurry, { autoAlpha: 0 })
   // dưới mép màn: cộng cả chiều cao nắp đang mở (nắp nằm trên thân) để không ló mũi nắp
-  gsap.set(o.env, { y: stageR.bottom - E.top + flapH + 30, rotation: 5, transformOrigin: '50% 50%' })
+  gsap.set(o.env, { y: stageR.bottom - E.top + flapH + 30, rotation: 4, transformOrigin: '50% 50%' })
   gsap.set(o.envShadow, { autoAlpha: 0.55 })
-  gsap.set(o.envLetter, { autoAlpha: 0, y: insideStartY })
-  gsap.set(o.envClosed, { autoAlpha: 0 })
-  gsap.set(o.letter, { autoAlpha: 0, scale: 1.05, transformOrigin: '50% 50%' })
+  gsap.set([o.envLetter, o.envGlow, o.envClosed, o.envSun], { autoAlpha: 0 })
   gsap.set(o.flap, { rotationX: 0, transformPerspective: 900, transformOrigin: '50% 100%', zIndex: 0 })
   gsap.set([o.light, o.cta], { autoAlpha: 0 })
 
   const tl = gsap.timeline()
 
-  // ---------- 1. popup → lá thư ----------
-  tl.addLabel('paper', 0)
+  // ---------- 1. popup tan thành hạt sáng ----------
+  tl.addLabel('dissolve', 0)
   if (o.popup) {
-    const pr = o.popup.getBoundingClientRect()
-    const inset = `inset(${L.top - pr.top}px ${pr.right - L.right}px ${pr.bottom - L.bottom}px ${L.left - pr.left}px round 6px)`
-    tl.to(o.popup.querySelectorAll('[data-gp-item]'), { autoAlpha: 0, y: -6, duration: 0.28, ease: 'power2.in' }, 'paper')
-      .fromTo(o.popup, { clipPath: 'inset(0px 0px 0px 0px round 0px)' }, { clipPath: inset, duration: 0.8, ease: 'power3.inOut' }, 'paper+=0.05')
-      .to(o.popup, { autoAlpha: 0, duration: 0.25, ease: 'power1.out' }, 'paper+=0.72')
+    tl.to(o.popup.querySelectorAll('[data-gp-item]'), { autoAlpha: 0, scale: 0.97, duration: 0.35, ease: 'power2.in', stagger: 0.01 }, 'dissolve')
+      // khung kính loé sáng rồi tan (hạt bung ra từ chính viền kính)
+      .to(o.popup, { filter: 'brightness(1.6) blur(2px)', duration: 0.3, ease: 'power2.out' }, 'dissolve+=0.1')
+      .to(o.popup, { autoAlpha: 0, scale: 0.985, duration: 0.45, ease: 'power2.in' }, 'dissolve+=0.3')
   }
-  // giấy "đặc lại" đúng trong khung kính đang co
-  tl.to(o.letter, { autoAlpha: 1, scale: 1, duration: 0.6, ease: EASE.paper }, 'paper+=0.42')
-    .call(() => onStep('letter'), [], 'paper+=1') // → FEMALE_ENVELOPE_INSERT (popup đã tắt hẳn)
+  tl.call(() => onStep('letter'), [], 'dissolve+=0.8') // → FEMALE_ENVELOPE_INSERT (popup đã tắt hẳn)
 
-  // ---------- 2. phong bì trồi lên ----------
-  tl.addLabel('rise', 'paper+=0.75')
-    .to(o.env, { y: 0, rotation: 0, duration: 1.15, ease: 'power3.out' }, 'rise')
+  // ---------- 2. phong bì trồi lên (song song với hạt) ----------
+  tl.addLabel('rise', 'dissolve+=0.25')
+    .to(o.env, { y: 0, rotation: 0, duration: 1.2, ease: 'power3.out' }, 'rise')
 
-  // ---------- 3. thư canh miệng phong bì (thu nhỏ nhẹ) ----------
-  tl.addLabel('align', 'rise+=0.7')
-    .to(o.letter, { x: letterTo.x, y: letterTo.y, scale: letterTo.scale, duration: 0.85, ease: 'power2.inOut' }, 'align')
-    .fromTo(o.letter, { rotation: 0 }, { rotation: -1.5, duration: 0.4, ease: 'sine.out', yoyo: true, repeat: 1 }, 'align')
+  // ---------- 3. hạt sáng xoáy vào miệng phong bì ----------
+  const mouth = { x: Ec.x, y: E.top + E.height * 0.3, w: E.width * 0.55 }
+  tl.add(lightParticlesTween({ canvas: o.sparks, from: popupR, to: mouth, stage: stageR, duration: 2.3 }), 'dissolve+=0.18')
+    // túi phong bì ấm sáng dần khi hạt đổ vào, lá thư đọng lại bên trong
+    .to(o.envGlow, { autoAlpha: 1, duration: 0.9, ease: 'power1.in' }, 'dissolve+=1.2')
+    .to(o.envLetter, { autoAlpha: 1, duration: 0.9, ease: 'power1.inOut' }, 'dissolve+=1.5')
+    .to(o.envGlow, { autoAlpha: 0, duration: 0.6, ease: 'power1.out' }, 'dissolve+=2.45')
+    // phong bì hơi nhún khi đợt hạt cuối chạm đáy
+    .to(o.envFloat, { y: 3, duration: 0.2, ease: 'power2.out' }, 'dissolve+=2.3')
+    .to(o.envFloat, { y: 0, duration: 0.4, ease: 'power2.inOut' }, 'dissolve+=2.5')
 
-  // ---------- 4. trao vai: thư tự do → thư trong phong bì (cùng khung hình, cùng chỗ) ----------
-  tl.addLabel('insert', 'align+=0.9')
-    .set(o.envLetter, { autoAlpha: 1, y: insideStartY }, 'insert')
-    .set(o.letter, { autoAlpha: 0 }, 'insert')
-    .to(o.envLetter, { y: 0, duration: 1.05, ease: 'power2.inOut' }, 'insert+=0.02')
-    .fromTo(o.envLetter, { rotation: 0.8 }, { rotation: 0, duration: 1.05, ease: 'power2.out' }, 'insert+=0.02')
-    .to(o.envFloat, { y: 3, duration: 0.18, ease: 'power2.out' }, 'insert+=0.9')
-    .to(o.envFloat, { y: 0, duration: 0.35, ease: 'power2.inOut' }, 'insert+=1.08')
-
-  // ---------- 5. nắp gập xuống ----------
-  tl.addLabel('close', 'insert+=1.25')
+  // ---------- 4. nắp gập xuống ----------
+  tl.addLabel('close', 'dissolve+=2.6')
     .to(o.flap, { rotationX: -180, duration: 0.95, ease: 'power2.inOut' }, 'close')
-    .set(o.flap, { zIndex: 5 }, 'close+=0.47') // qua 90° → nắp nằm TRÊN thân trước + lá thư
-    // nắp nằm hẳn → thân phong bì hoàn chỉnh (mặt sau đã đóng); nhún nhẹ như vừa ấn dấu sáp
+    .set(o.flap, { zIndex: 5 }, 'close+=0.47') // qua 90° → nắp nằm TRÊN thân trước
     .to(o.envClosed, { autoAlpha: 1, duration: 0.22, ease: 'power1.in' }, 'close+=0.52')
     .to(o.envFloat, { scale: 0.985, duration: 0.12, ease: 'power2.out' }, 'close+=0.92')
+    .call(() => o.onSeal(), [], 'close+=0.95')
     .to(o.envFloat, { scale: 1, duration: 0.35, ease: EASE.settle }, 'close+=1.04')
     .call(() => onStep('closed'), [], 'close+=1.05') // → FEMALE_ENVELOPE_CLOSED
 
@@ -155,6 +154,9 @@ export function femaleTransitionTimeline(o: FemaleRefs, onStep: (step: FemaleSte
   tl.addLabel('land', 'gust+=1.5')
     .to(o.env, { x: Tc.x - Ec.x, y: Tc.y - Ec.y, scale: T.width / E.width, rotation: -4, duration: 1.5, ease: 'power3.inOut' }, 'land')
     .to(o.envShadow, { autoAlpha: 0.55, x: 5, y: 8, scale: 1, duration: 1.5, ease: 'power3.inOut' }, 'land')
+    // phong bì nằm vào vùng nắng: vệt nắng cửa sổ (cùng góc với vệt trên mặt đá) hiện dần trên giấy
+    .set(o.envSun, sunOn(P, T, E.width), 'land')
+    .to(o.envSun, { autoAlpha: 1, duration: 1.1, ease: 'power1.inOut' }, 'land+=0.9')
     .fromTo(o.light, { autoAlpha: 0, xPercent: -35 }, { autoAlpha: 1, xPercent: 0, duration: 1.8, ease: 'power2.out' }, 'land+=0.6')
     .fromTo(o.cta, { autoAlpha: 0, y: 6 }, { autoAlpha: 1, y: 0, duration: 0.6, ease: EASE.ui }, 'land+=1.5')
     .call(() => onStep('waiting'), [], 'land+=1.8') // → FEMALE_WAITING_TAP

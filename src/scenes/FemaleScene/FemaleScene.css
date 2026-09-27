@@ -62,8 +62,24 @@
   height: auto;
   display: block;
 }
+/* bó hoa + bóng đổ vẽ sẵn (nắng trên-trái → bóng xuống dưới-phải), rơi lên phong bì và lụa */
+.fem__bq {
+  position: absolute;
+}
 .fem__bouquet {
-  filter: drop-shadow(8px 12px 12px rgba(92, 62, 40, 0.2));
+  position: relative;
+  display: block;
+  width: 100%;
+  height: auto;
+}
+.fem__bq-shadow {
+  position: absolute;
+  /* ảnh bóng = bó hoa + đệm 60px mỗi bên (ảnh 851×1342 → 971×1462), dịch xuống-phải */
+  left: -3.2%;
+  top: -0.6%;
+  width: 114.1%;
+  height: 108.9%;
+  max-width: none;
 }
 /* nắng từ trên-trái → bóng đổ xuống dưới-phải */
 .fem__choc { filter: drop-shadow(5px 8px 6px rgba(70, 40, 25, 0.28)); }
@@ -119,8 +135,59 @@
 }
 .fem__env-back { z-index: 1; }
 .fem__env-letter { z-index: 2; }
+.fem__env-glow { z-index: 2; }
 .fem__env-front { z-index: 3; }
 .fem__env-closed { z-index: 4; opacity: 0; }
+/* ánh sáng ấm trong túi phong bì lúc hạt sáng bay vào (lộ ra qua miệng túi) */
+.fem__env-glow {
+  position: absolute;
+  left: 18%;
+  right: 18%;
+  top: 14%;
+  height: 42%;
+  opacity: 0;
+  border-radius: 50%;
+  background: radial-gradient(closest-side, rgba(255, 236, 196, 0.95), rgba(255, 214, 160, 0.5) 45%, rgba(255, 214, 160, 0) 100%);
+  mix-blend-mode: screen;
+}
+/* vệt nắng cửa sổ trên phong bì (toạ độ ảnh do JS đặt cho khớp vệt nắng trên nền) */
+.fem__env-sun {
+  position: absolute;
+  inset: 0;
+  z-index: 6;
+  opacity: 0;
+  pointer-events: none;
+  background: url('/assets/female/lightmap.webp') no-repeat;
+  mix-blend-mode: overlay;
+}
+/* đốm sáng quanh dấu sáp (Anime.js) — tâm dấu sáp của E1: 49.6% ngang, 53.4% dọc */
+.fem__seal-fx {
+  position: absolute;
+  left: 49.6%;
+  top: 53.4%;
+  z-index: 7;
+  width: 0;
+  height: 0;
+}
+.fem__seal-fx i {
+  position: absolute;
+  left: -3px;
+  top: -3px;
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  opacity: 0;
+  background: radial-gradient(circle, #fff 0%, rgba(255, 220, 170, 0.9) 40%, rgba(255, 200, 150, 0) 70%);
+}
+/* hạt sáng (canvas phủ màn) */
+.fem__sparks {
+  position: absolute;
+  inset: 0;
+  z-index: 37;
+  width: 100%;
+  height: 100%;
+  pointer-events: none;
+}
 
 .fem__env-letter {
   position: absolute;
@@ -155,10 +222,10 @@
 
 /* ---------- LÁ THƯ ---------- */
 .fem-letter {
-  aspect-ratio: 760 / 501;
+  aspect-ratio: 1.5;
   border-radius: 2px;
   overflow: hidden;
-  background: #f4ecdf;
+  background: #f4ecdf url('/assets/invitation/paper.webp') 50% 60% / 140% auto no-repeat;
   box-shadow:
     0 1px 1px rgba(80, 55, 30, 0.18),
     0 10px 24px rgba(60, 40, 20, 0.22);
@@ -169,14 +236,7 @@
   height: 100%;
   object-fit: cover;
 }
-/* thư tự do: giữa màn, chỗ popup đang co lại */
-.fem__letter {
-  position: absolute;
-  left: 9cqw;
-  top: 24cqh;
-  width: 82cqw;
-  z-index: 36;
-}
+
 
 /* ---------- CHỮ MỜI CHẠM ---------- */
 .fem__cta {

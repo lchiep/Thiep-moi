@@ -88,3 +88,24 @@ export function nudgeShake(el: HTMLElement): Scope {
     })
   })
 }
+
+/**
+ * Dấu sáp vừa ấn: vài đốm sáng li ti bắn ra quanh dấu rồi tắt (Anime.js — chỉ các đốm con).
+ * Trả về hàm dọn dẹp.
+ */
+export function sealSparkle(dots: HTMLElement[]) {
+  const anims = dots.map((d, i) => {
+    const a = (i / dots.length) * Math.PI * 2 + (i % 2 ? 0.3 : -0.2)
+    const dist = 26 + (i % 3) * 12
+    return animate(d, {
+      translateX: [0, Math.cos(a) * dist],
+      translateY: [0, Math.sin(a) * dist],
+      scale: [{ to: 1.2, duration: 160 }, { to: 0, duration: 520 }],
+      opacity: [{ to: 1, duration: 120 }, { to: 0, duration: 560 }],
+      duration: 680,
+      delay: i * 18,
+      ease: 'outQuad',
+    })
+  })
+  return () => anims.forEach((a) => a.revert())
+}
