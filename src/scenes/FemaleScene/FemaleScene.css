@@ -105,6 +105,7 @@
 /* khung = THÂN phong bì; nắp nằm phía trên (tràn ra ngoài khung) */
 .fem__env {
   position: absolute;
+  will-change: transform;
   z-index: 33;
   left: 12cqw;
   top: 50cqh;
@@ -117,6 +118,7 @@
 .fem__env-float {
   position: absolute;
   inset: 0;
+  will-change: transform;
 }
 .fem__env-float > img,
 .fem__env-shadow {
@@ -126,12 +128,11 @@
   height: 100%;
 }
 .fem__env-shadow {
-  inset: 3% 2% -3% 2%;
+  inset: -6% -8% -12% -8%;
   width: auto;
   height: auto;
-  border-radius: 4px;
-  background: rgba(20, 12, 6, 0.55);
-  filter: blur(14px);
+  /* bóng mềm bằng gradient (không dùng filter blur — blur phải vẽ lại mỗi khung khi phong bì di chuyển) */
+  background: radial-gradient(closest-side, rgba(20, 12, 6, 0.6), rgba(20, 12, 6, 0.32) 55%, rgba(20, 12, 6, 0));
 }
 .fem__env-back { z-index: 1; }
 .fem__env-letter { z-index: 2; }
@@ -169,7 +170,7 @@
   border-radius: 1px;
   box-shadow: 0 1px 2px rgba(60, 40, 20, 0.2), 0 8px 18px rgba(40, 25, 12, 0.22);
 }
-.fem__env-float > .fem__card-ticket { left: 35%; top: 52%; width: 62%; }
+.fem__env-float > .fem__card-ticket { left: 22%; top: 52%; width: 74%; }
 /* ánh sáng ấm trong túi phong bì lúc hạt sáng bay vào (lộ ra qua miệng túi) */
 .fem__env-glow {
   position: absolute;
@@ -211,20 +212,23 @@
   opacity: 0;
   background: radial-gradient(circle, #fff 0%, rgba(255, 220, 170, 0.9) 40%, rgba(255, 200, 150, 0) 70%);
 }
-.fem__carry {
+.fem__env-carry {
   position: absolute;
-  inset: 0;
-  z-index: 41;
+  left: 50%;
+  top: 50%;
+  z-index: 2;
+  width: 0;
+  height: 0;
   pointer-events: none;
 }
-.fem__carry img {
+.fem__env-carry img {
   position: absolute;
   left: 0;
   top: 0;
   height: auto;
+  max-width: none; /* khung cha rộng 0 → bỏ giới hạn max-width:100% chung của img */
   opacity: 0;
   visibility: hidden;
-  filter: drop-shadow(2px 6px 5px rgba(80, 30, 30, 0.3));
 }
 /* hạt sáng (canvas phủ màn) */
 .fem__sparks {
