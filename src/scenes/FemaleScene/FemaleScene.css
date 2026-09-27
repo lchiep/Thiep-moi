@@ -3,9 +3,10 @@
    Mọi transform/opacity do GSAP điều khiển (femaleTransitionTimeline.ts); CSS chỉ bố cục tĩnh.
    ============================================================ */
 .fem {
+  /* KHÔNG tạo lớp xếp chồng riêng (không z-index) → các lớp con đan xen được với nền cuộc gọi:
+     cảnh tulip (1) < nền cuộc gọi (2–3, GSAP đặt) < popup (20) < phong bì (33) < bó hoa (34) < lá thư (36) */
   position: absolute;
   inset: 0;
-  z-index: 30; /* trên popup: lá thư sinh ra ngay trên khung kính đang co */
   pointer-events: none;
   overflow: hidden;
 }
@@ -14,8 +15,19 @@
 .fem__b {
   position: absolute;
   inset: 0;
+  z-index: 1;
   overflow: hidden;
   background: #efe9e1;
+}
+.fem__b--front {
+  z-index: 34;
+  background: none;
+}
+.fem__turn-shadow {
+  position: absolute;
+  inset: 0;
+  opacity: 0;
+  background: linear-gradient(270deg, rgba(24, 14, 8, 0.6) 0%, rgba(24, 14, 8, 0.25) 30%, rgba(24, 14, 8, 0) 62%);
 }
 /* "tấm ảnh" 768×1376 phủ kín màn (cover): cao = màn hình, cắt bớt 2 bên */
 .fem__plate {
@@ -46,12 +58,13 @@
 .fem__petal { filter: drop-shadow(3px 5px 4px rgba(120, 70, 60, 0.18)); }
 .fem__spot {
   position: absolute;
-  aspect-ratio: 582 / 444;
+  aspect-ratio: 582 / 435;
   visibility: hidden;
 }
 /* vệt nắng ấm quét qua (screen) */
 .fem__light {
   position: absolute;
+  z-index: 35;
   inset: -10% -30%;
   pointer-events: none;
   mix-blend-mode: soft-light;
@@ -64,10 +77,11 @@
 /* khung = THÂN phong bì; nắp nằm phía trên (tràn ra ngoài khung) */
 .fem__env {
   position: absolute;
+  z-index: 33;
   left: 12cqw;
-  top: 48cqh;
+  top: 50cqh;
   width: 76cqw;
-  aspect-ratio: 582 / 444;
+  aspect-ratio: 582 / 435;
   pointer-events: auto;
   cursor: pointer;
   -webkit-tap-highlight-color: transparent;
@@ -94,11 +108,12 @@
 .fem__env-back { z-index: 1; }
 .fem__env-letter { z-index: 2; }
 .fem__env-front { z-index: 3; }
+.fem__env-closed { z-index: 4; opacity: 0; }
 
 .fem__env-letter {
   position: absolute;
   left: 7%;
-  top: 11%;
+  top: 9%;
   width: 86%;
 }
 
@@ -108,7 +123,7 @@
   left: 0;
   bottom: 100%;
   width: 100%;
-  aspect-ratio: 582 / 388;
+  aspect-ratio: 582 / 294;
   transform-style: preserve-3d;
   margin-bottom: -0.4%;
 }
@@ -121,22 +136,9 @@
   backface-visibility: hidden;
   -webkit-backface-visibility: hidden;
 }
+/* mặt ngoài nắp (E1, có dấu sáp ở mũi) — quay lưng lại khi nắp đang mở */
 .fem__flap-out {
   transform: rotateX(180deg);
-}
-.fem__flap-out > img:first-child {
-  width: 100%;
-  height: 100%;
-  display: block;
-}
-/* dấu sáp gần mũi nắp (sau khi gập, mũi nắp nằm dưới) */
-.fem__seal {
-  position: absolute;
-  left: 50%;
-  bottom: 9%;
-  width: 22%;
-  margin-left: -11%;
-  filter: drop-shadow(0 2px 2px rgba(60, 10, 14, 0.35));
 }
 
 /* ---------- LÁ THƯ ---------- */
@@ -155,7 +157,7 @@
   left: 14cqw;
   top: 27cqh;
   width: 72cqw;
-  z-index: 4;
+  z-index: 36;
 }
 .fem-letter__face {
   position: absolute;
@@ -200,6 +202,7 @@
 /* ---------- CHỮ MỜI CHẠM ---------- */
 .fem__cta {
   position: absolute;
+  z-index: 37;
   left: 0;
   right: 0;
   top: calc(var(--safe-top) + 3.2cqh);

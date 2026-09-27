@@ -1,7 +1,9 @@
 /**
  * Ảnh nhánh Nữ + vị trí từng vật trong cảnh tulip.
- * Toạ độ theo khung ảnh gốc 768×1376 (tách lớp từ ảnh Hiệp tạo: C1 hoa, C2 KitKat + cánh hoa, C3 nền lụa + đá).
- * Component đặt vật bằng % của "tấm ảnh" này → mọi cỡ màn đều khớp đúng chỗ trên nền.
+ * Toạ độ theo "tấm ảnh" nền 768×1376 (C3: lụa + đá). Bố cục theo ảnh mẫu Hiệp gửi (27/09):
+ * bó hoa bên trái đè lên mép trái phong bì · phong bì to ở giữa-phải, dấu sáp ở mũi nắp (giữa phong bì)
+ * · KitKat dưới-phải · cánh hoa rải trên-phải và dưới.
+ * Bó hoa + cánh hoa: ảnh tách nền Hiệp gửi. KitKat: tách từ C2. Phong bì: E2 (mở) + E1 (đóng).
  */
 const F = '/assets/female/'
 
@@ -14,33 +16,27 @@ export const FEMALE_IMG = {
   petal3: F + 'petal3.webp',
   envBack: F + 'env-back.webp',
   envFront: F + 'env-front.webp',
+  envClosed: F + 'env-closed.webp',
   flapIn: F + 'env-flap-in.webp',
   flapOut: F + 'env-flap-out.webp',
   letter: F + 'letter.webp',
-  seal: '/assets/invitation/seal.webp',
 } as const
 
 export const PLATE = { w: 768, h: 1376 }
 
-/** [x0, y0, x1, y1] trên tấm 768×1376 */
+/** [x0, y0, x1, y1] trên tấm 768×1376 (được phép âm / tràn: vật thò ra ngoài khung hình như ảnh thật) */
 export type Box = readonly [number, number, number, number]
 
-/** Hoa dời xuống một chút (so với ảnh gốc) để chừa khoảng lụa phía trên cho phong bì. */
-const BOUQUET_DROP = 150
-
 export const PLACE: Record<'bouquet' | 'choc' | 'petal1' | 'petal2' | 'petal3', Box> = {
-  bouquet: [3, 249 + BOUQUET_DROP, 563, 1365 + BOUQUET_DROP],
-  choc: [429, 762, 743, 1254],
-  petal1: [572, 217, 692, 340],
-  petal2: [637, 451, 760, 579],
-  petal3: [568, 1201, 701, 1337],
+  bouquet: [-150, 290, 450, 1236],
+  choc: [410, 900, 724, 1392],
+  petal1: [520, 300, 640, 409],
+  petal2: [636, 430, 722, 560],
+  petal3: [300, 1180, 396, 1288],
 }
 
-/** Chỗ phong bì nằm yên trên lụa (khung THÂN phong bì — nắp đã đóng nằm trong khung này). */
-export const ENVELOPE_SPOT: Box = [255, 115, 615, 390]
-
-/** Tỉ lệ ảnh phong bì (px ảnh gốc E2): thân 582×444, nắp 582×388 */
-export const ENV = { bodyW: 582, bodyH: 444, flapH: 388 }
+/** Chỗ phong bì nằm (khung THÂN phong bì, tỉ lệ 582×435) — to, giữa-phải, nằm DƯỚI bó hoa. */
+export const ENVELOPE_SPOT: Box = [290, 560, 690, 859]
 
 /** Tải + giải mã trước toàn bộ ảnh (gọi lúc khách bấm GỬI) → cảnh không bị hiện dần từng ảnh. */
 export function preloadFemaleAssets() {

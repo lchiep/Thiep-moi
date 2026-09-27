@@ -52,14 +52,15 @@ export default function FemaleScene({ popup, sceneA }: Props) {
       stage: el,
       popup: popup.current,
       sceneA: sceneA(),
-      sceneB: q('.fem__b'),
+      sceneB: [...el.querySelectorAll<HTMLElement>('.fem__b .fem__plate')],
+      turnShadow: q('.fem__turn-shadow'),
       letter: q('.fem__letter'),
       env: q('.fem__env'),
       envFloat: q('.fem__env-float'),
       envShadow: q('.fem__env-shadow'),
       envLetter: q('.fem__env-letter'),
       flap: q('.fem__flap'),
-      seal: q('.fem__seal'),
+      envClosed: q('.fem__env-closed'),
       spot: q('.fem__spot'),
       bouquet: q('.fem__bouquet'),
       choc: q('.fem__choc'),
@@ -97,7 +98,7 @@ export default function FemaleScene({ popup, sceneA }: Props) {
 
   return (
     <div className="fem" data-scene="female" ref={root}>
-      {/* CẢNH B: tĩnh vật tulip (các vật tách lớp để vào lần lượt) */}
+      {/* CẢNH B (lớp sau): nền lụa + đá, KitKat, cánh hoa — nằm DƯỚI nền cuộc gọi cho tới khi trang lật */}
       <div className="fem__b" aria-hidden>
         <div className="fem__plate">
           <img className="fem__bg" src={FEMALE_IMG.sceneBg} alt="" />
@@ -105,13 +106,13 @@ export default function FemaleScene({ popup, sceneA }: Props) {
           <img className="fem__obj fem__petal" src={FEMALE_IMG.petal1} alt="" style={pct(PLACE.petal1)} />
           <img className="fem__obj fem__petal" src={FEMALE_IMG.petal2} alt="" style={pct(PLACE.petal2)} />
           <img className="fem__obj fem__petal" src={FEMALE_IMG.petal3} alt="" style={pct(PLACE.petal3)} />
-          <img className="fem__obj fem__bouquet" src={FEMALE_IMG.bouquet} alt="" style={pct(PLACE.bouquet)} />
           <div className="fem__spot" style={pct(ENVELOPE_SPOT)} />
-          <div className="fem__light" />
         </div>
+        {/* bóng của trang đang lật đổ lên cảnh mới */}
+        <div className="fem__turn-shadow" />
       </div>
 
-      {/* PHONG BÌ — thân sau · lá thư · thân trước · nắp (2 mặt) */}
+      {/* PHONG BÌ — thân sau · lá thư · thân trước · thân đã đóng (E1) · nắp 2 mặt */}
       <div className="fem__env" onClick={onTapEnvelope} role="button" aria-label={COPY.female.cta}
         aria-disabled={state !== 'FEMALE_WAITING_TAP'}>
         <div className="fem__env-float">
@@ -121,15 +122,22 @@ export default function FemaleScene({ popup, sceneA }: Props) {
             <LetterFace to={to} />
           </div>
           <img className="fem__env-front" src={FEMALE_IMG.envFront} alt="" />
+          <img className="fem__env-closed" src={FEMALE_IMG.envClosed} alt="" />
           <div className="fem__flap">
             <img className="fem__flap-in" src={FEMALE_IMG.flapIn} alt="" />
-            <div className="fem__flap-out">
-              <img src={FEMALE_IMG.flapOut} alt="" />
-              <img className="fem__seal" src={FEMALE_IMG.seal} alt="" />
-            </div>
+            <img className="fem__flap-out" src={FEMALE_IMG.flapOut} alt="" />
           </div>
         </div>
       </div>
+
+      {/* CẢNH B (lớp trước): bó hoa đè lên mép trái phong bì + vệt nắng */}
+      <div className="fem__b fem__b--front" aria-hidden>
+        <div className="fem__plate">
+          <img className="fem__obj fem__bouquet" src={FEMALE_IMG.bouquet} alt="" style={pct(PLACE.bouquet)} />
+        </div>
+      </div>
+      {/* vệt nắng ấm: hoà (soft-light) lên cả cảnh + phong bì */}
+      <div className="fem__light" aria-hidden />
 
       {/* LÁ THƯ tự do: sinh ra đúng chỗ popup, bay tới miệng phong bì rồi trao vai cho thư bên trong */}
       <div className="fem__letter fem-letter" aria-hidden>
