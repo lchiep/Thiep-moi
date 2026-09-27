@@ -9,7 +9,8 @@
   border: 1px solid rgba(154, 123, 71, 0.45);
   background: #ece3d3;
   box-shadow: 0 4px 12px rgba(70, 45, 20, 0.12);
-  touch-action: pan-y; /* 1 ngón: cuộn trang thiệp */
+  touch-action: none; /* chạm trong khung = kéo/chụm bản đồ; cuộn trang bằng vuốt ngoài khung */
+  cursor: grab;
   text-shadow: none;
 }
 /* nền bản đồ ngả ấm cho hợp giấy */
@@ -42,3 +43,9 @@
   background: rgba(253, 250, 243, 0.7);
   color: #6b5f55;
 }
+
+/* nút ◎ về vị trí trường — cùng kiểu nút + / − */
+.inv__map .inv__home a { display: grid; place-items: center; border-bottom: 0; }
+.inv__map .inv__home svg { display: block; }
+.inv__map .leaflet-dragging .leaflet-grab,
+.inv__map.leaflet-dragging { cursor: grabbing; }

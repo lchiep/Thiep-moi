@@ -24,9 +24,9 @@ export const EVENT = {
   venueVi: read('VITE_EVENT_VENUE_VI', 'Trường Đại học Kinh doanh và Công nghệ Hà Nội (HUBT)'),
   addressVi: read('VITE_EVENT_ADDRESS_VI', '29A Ngõ 124 Phố Vĩnh Tuy, Vĩnh Hưng, Hà Nội'),
   greeter: read('VITE_EVENT_GREETER', 'Cung Hiệp'),
-  /** toạ độ ghim trên bản đồ (TẠM — thay bằng toạ độ đúng từ link Google Maps của Hiệp) */
-  lat: Number(read('VITE_EVENT_LAT', '21.0010')),
-  lng: Number(read('VITE_EVENT_LNG', '105.8736')),
+  /** toạ độ ghim trên bản đồ — vị trí ĐÚNG của trường do Hiệp gửi (27/09) */
+  lat: Number(read('VITE_EVENT_LAT', '21.000064705312877')),
+  lng: Number(read('VITE_EVENT_LNG', '105.87777846990927')),
   hall: read('VITE_EVENT_HALL', 'Hội trường nhà B'),
   mapsUrl: read(
     'VITE_EVENT_MAPS_URL',
