@@ -5,9 +5,10 @@
  * · KitKat dưới-phải · cánh hoa rải trên-phải và dưới.
  * Bó hoa + cánh hoa: ảnh tách nền Hiệp gửi. KitKat: tách từ C2. Phong bì: E2 (mở) + E1 (đóng).
  */
-import { drawInvitationCard, CARD_SIZE } from '../../components/DocumentFolder/drawInvitationCard'
 import { drawTicket, TICKET_FONTS } from '../../components/Ticket/drawTicket'
-import { fontsReady } from '../../utils/paperCanvas'
+import { fontsReady, makeCanvas, text } from '../../utils/paperCanvas'
+import { loadImage } from '../../utils/image'
+import { COPY } from '../../config/copy'
 import { ticketFromGuest, type Guest } from '../../state/guestStore'
 
 const F = '/assets/female/'
@@ -71,30 +72,40 @@ export const pct = (b: Box) => ({
  *  vé = drawTicket (vé ngang), thiệp = khúc đầu tờ thiệp drawInvitationCard (giấy dó + header + tên khách).
  * Vẽ sẵn lúc khách bấm GỬI, giữ ở đây để cảnh mở phong bì dùng ngay.
  */
-/** Thiệp trong phong bì = khối header của tờ thiệp (CHÂN THÀNH KÍNH MỜI … tên khách, 2 nhành lá) — Hiệp chọn 28/09. */
-export const CARD_CROP = { y0: 0.07, y1: 0.37 }
+/**
+ * Thiệp trong phong bì — thiết kế riêng cho khổ phong bì (theo ảnh tham khảo phong bì đỏ Hiệp gửi):
+ * nền = chính giấy dó của tờ thiệp (khúc có 2 nhành lá vàng), chữ header thu NHỎ lại cho thoáng,
+ * viền đỏ đô 2 nét. Nội dung chung với thiệp nhánh Nam (COPY.invitationHeader, họ tên, "Chị + tên").
+ */
+const PAPER = '/assets/invitation/paper.webp'
+const LETTER = { w: 852, h: 613, srcY: 210 } // khúc giấy 852×613 (y 210→823): 2 nhành lá ôm 3 dòng tên khách
 let cards: { ticket: string; letter: string } = { ticket: '', letter: '' }
 export const getCards = () => cards
 
 export async function buildCards(guest: Guest) {
-  await fontsReady([...TICKET_FONTS, '400 150px "Luxurious Script"', '700 40px "Cormorant Garamond"', '600 32px "Cormorant Garamond"'])
+  await fontsReady([...TICKET_FONTS, '400 60px "Luxurious Script"', '700 40px "Cormorant Garamond"', '600 22px "Cormorant Garamond"'])
   const t = ticketFromGuest(guest)
   const ticket = await drawTicket(t)
-  const card = await drawInvitationCard(t.guestFullName, t.guestAddress)
-  const sy = Math.round(CARD_SIZE.h * CARD_CROP.y0)
-  const sh = Math.round(CARD_SIZE.h * (CARD_CROP.y1 - CARD_CROP.y0))
-  const c = document.createElement('canvas')
-  c.width = CARD_SIZE.w
-  c.height = sh
-  const g = c.getContext('2d')!
-  g.drawImage(card, 0, sy, CARD_SIZE.w, sh, 0, 0, CARD_SIZE.w, sh)
-  // viền đỏ đô mảnh in sát mép (2 nét: đậm ngoài, mảnh trong)
+
+  const { canvas: c, ctx: g } = makeCanvas(LETTER.w, LETTER.h)
+  g.drawImage(await loadImage(PAPER), 0, LETTER.srcY, LETTER.w, LETTER.h, 0, 0, LETTER.w, LETTER.h)
+  const cx = LETTER.w / 2
+  const ink = '#1c1a18', gold = '#a88a4a'
+  const H = COPY.invitationHeader
+  text(g, 'CHÂN THÀNH KÍNH MỜI', { font: '600 21px "Cormorant Garamond"', color: ink, x: cx, y: 74, align: 'center', spacing: 4 })
+  text(g, H.title, { font: '700 50px "Cormorant Garamond"', color: ink, x: cx, y: 126, align: 'center', spacing: 1 })
+  text(g, H.subtitle, { font: '700 32px "Cormorant Garamond"', color: ink, x: cx, y: 166, align: 'center', spacing: 1 })
+  text(g, H.guestLabel, { font: '700 21px "Cormorant Garamond"', color: gold, x: cx, y: 226, align: 'center', spacing: 3 })
+  text(g, t.guestFullName.toLocaleUpperCase('vi'), { font: '700 25px "Cormorant Garamond"', color: gold, x: cx, y: 264, align: 'center', spacing: 1.5, maxWidth: LETTER.w * 0.56 })
+  text(g, t.guestAddress, { font: '400 58px "Luxurious Script"', color: gold, x: cx, y: 326, align: 'center', maxWidth: LETTER.w * 0.56 })
+  // viền đỏ đô 2 nét
   g.strokeStyle = 'rgba(122,31,43,0.85)'
   g.lineWidth = 3
-  g.strokeRect(22, 22, CARD_SIZE.w - 44, sh - 44)
+  g.strokeRect(20, 20, LETTER.w - 40, LETTER.h - 40)
   g.strokeStyle = 'rgba(122,31,43,0.45)'
   g.lineWidth = 1.2
-  g.strokeRect(32, 32, CARD_SIZE.w - 64, sh - 64)
+  g.strokeRect(29, 29, LETTER.w - 58, LETTER.h - 58)
+
   cards = { ticket: ticket.toDataURL('image/webp', 0.92), letter: c.toDataURL('image/webp', 0.92) }
   return cards
 }

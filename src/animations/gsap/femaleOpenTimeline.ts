@@ -103,13 +103,13 @@ export function femaleOpenTimeline(o: OpenRefs, onDone: () => void) {
 
   // ---------- THIỆP ló lên trước một chút (viền đỏ đô) — rồi nằm yên ----------
   tl.addLabel('letter', 'open+=0.8')
-    // thiệp nhô lên đủ để thấy TRỌN khối chữ (kính mời · lễ vinh danh · tên khách)
-    .to(o.letter, { yPercent: -72, rotation: -0.6, duration: 1.3, ease: 'power2.out' }, 'letter')
+    // thiệp nhô lên vừa phải (≈1/3 thiệp ra khỏi miệng túi); chữ nhỏ nên vẫn đọc trọn qua miệng chữ V
+    .to(o.letter, { yPercent: -50, rotation: -0.5, duration: 1.2, ease: 'power2.out' }, 'letter')
   // ---------- VÉ được nâng từ từ, chéo từ trái lên, rồi nằm chéo trước thiệp ----------
   tl.addLabel('ticket', 'letter+=1.1')
     // nằm trọn trong bề ngang phong bì (xoay -8° vẫn không chìa ra 2 bên), chỉ góc phải nhô lên khỏi miệng túi
-    .fromTo(o.ticket, { xPercent: -4, yPercent: 10, rotation: 1 },
-      { xPercent: 0, yPercent: -44, rotation: -7, duration: 2.1, ease: 'power2.inOut' }, 'ticket')
+    .fromTo(o.ticket, { xPercent: -10, yPercent: 10, rotation: 0 },
+      { xPercent: 0, yPercent: -112, rotation: -20, duration: 2.1, ease: 'power2.inOut' }, 'ticket')
 
   return tl
 }
