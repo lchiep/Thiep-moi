@@ -11,11 +11,12 @@ type P = {
   x1: number; y1: number // đích (miệng phong bì)
   d: number // trễ riêng (0..0.45)
   r: number // bán kính
-  hue: 0 | 1 | 2 // vàng ấm / hồng / trắng ngà
+  hue: 0 // (một màu)
   tw: number // pha lấp lánh
 }
 
-const COLORS = ['255, 214, 150', '255, 186, 196', '255, 246, 230']
+// MỘT màu duy nhất: vàng ấm (Hiệp không muốn lẫn hồng/be)
+const COLORS = ['255, 206, 128']
 
 function sprite(rgb: string) {
   const s = 32
@@ -76,7 +77,7 @@ export function lightParticlesTween(opts: {
       x1: tx, y1: ty,
       d: Math.pow(Math.random(), 1.4) * 0.45,
       r: 1.2 + Math.pow(Math.random(), 2.5) * 5,
-      hue: (Math.random() < 0.55 ? 0 : Math.random() < 0.5 ? 1 : 2) as 0 | 1 | 2,
+      hue: 0,
       tw: Math.random() * Math.PI * 2,
     })
   }

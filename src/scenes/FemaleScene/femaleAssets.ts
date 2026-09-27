@@ -71,7 +71,8 @@ export const pct = (b: Box) => ({
  *  vé = drawTicket (vé ngang), thiệp = khúc đầu tờ thiệp drawInvitationCard (giấy dó + header + tên khách).
  * Vẽ sẵn lúc khách bấm GỬI, giữ ở đây để cảnh mở phong bì dùng ngay.
  */
-export const CARD_CROP = { y0: 0.062, y1: 0.366 } // khúc header của tờ thiệp (theo chiều cao giấy)
+/** Tờ thiệp được gấp 3 (Z-fold) để vừa phong bì → trong phong bì thấy TẤM TRÊN CÙNG = 1/3 đầu tờ thiệp (header + tên). */
+export const CARD_CROP = { y0: 0, y1: 0.345 }
 let cards: { ticket: string; letter: string } = { ticket: '', letter: '' }
 export const getCards = () => cards
 
@@ -85,7 +86,22 @@ export async function buildCards(guest: Guest) {
   const c = document.createElement('canvas')
   c.width = CARD_SIZE.w
   c.height = sh
-  c.getContext('2d')!.drawImage(card, 0, sy, CARD_SIZE.w, sh, 0, 0, CARD_SIZE.w, sh)
+  const g = c.getContext('2d')!
+  g.drawImage(card, 0, sy, CARD_SIZE.w, sh, 0, 0, CARD_SIZE.w, sh)
+  // nếp gấp ở mép dưới (tấm giấy gập ra sau): tối dần + 1 vệt sáng mảnh
+  const fold = g.createLinearGradient(0, sh * 0.9, 0, sh)
+  fold.addColorStop(0, 'rgba(90,60,30,0)')
+  fold.addColorStop(0.85, 'rgba(90,60,30,0.10)')
+  fold.addColorStop(1, 'rgba(90,60,30,0.22)')
+  g.fillStyle = fold
+  g.fillRect(0, sh * 0.9, CARD_SIZE.w, sh * 0.1)
+  // viền đỏ đô mảnh in sát mép (2 nét: đậm ngoài, mảnh trong)
+  g.strokeStyle = 'rgba(122,31,43,0.85)'
+  g.lineWidth = 3
+  g.strokeRect(22, 22, CARD_SIZE.w - 44, sh - 44)
+  g.strokeStyle = 'rgba(122,31,43,0.45)'
+  g.lineWidth = 1.2
+  g.strokeRect(32, 32, CARD_SIZE.w - 64, sh - 64)
   cards = { ticket: ticket.toDataURL('image/webp', 0.92), letter: c.toDataURL('image/webp', 0.92) }
   return cards
 }

@@ -68,3 +68,4 @@ Tách ra từ CLAUDE.md (27/09/2026) để CLAUDE.md ngắn gọn. Đây là nh�
 - KitKat cắt lại lần nữa (bao lồi, không nới viền) → hết viền xám quanh vỏ.
 - Sửa mở thư (28/09): vé giữ ĐÚNG tỉ lệ (trước bị kéo giãn theo khung phong bì), vé chỉ LÓ ra ~10% trên miệng phong bì, thiệp nhô cao hơn phía sau vé; KHÔNG làm tối nền khi mở thư.
 - Mở thư (28/09, lần 3): THIỆP ló lên trước một chút (viền đỏ đô `outline` sát mép) rồi nằm yên → VÉ nâng từ từ theo đường chéo từ trái lên (2.1s), dừng nằm chéo -13° trước thiệp. Mũi chữ V của túi phong bì vẽ lại sạch (bỏ vết dấu sáp cũ, thêm 2 nếp gấp xuống góc dưới).
+- (28/09, lần 4) Hạt sáng chỉ MỘT màu vàng ấm. Thiệp trong phong bì = tấm TRÊN CÙNG của tờ thiệp gấp 3 (1/3 đầu tờ thiệp như màn thiệp, bỏ dấu sáp), viền đỏ đô 2 nét vẽ vào canvas, nếp gấp ở mép dưới + 2 lớp giấy lộ mép. Vé thu còn 80% bề ngang phong bì, xoay -8° → không chìa ra 2 bên, chỉ góc phải nhô nhẹ khỏi miệng túi.

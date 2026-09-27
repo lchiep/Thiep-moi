@@ -103,11 +103,12 @@ export function femaleOpenTimeline(o: OpenRefs, onDone: () => void) {
 
   // ---------- THIỆP ló lên trước một chút (viền đỏ đô) — rồi nằm yên ----------
   tl.addLabel('letter', 'open+=0.8')
-    .to(o.letter, { yPercent: -36, rotation: -1, duration: 1.0, ease: 'power2.out' }, 'letter')
+    .to(o.letter, { yPercent: -30, rotation: -0.6, duration: 1.1, ease: 'power2.out' }, 'letter')
   // ---------- VÉ được nâng từ từ, chéo từ trái lên, rồi nằm chéo trước thiệp ----------
   tl.addLabel('ticket', 'letter+=0.9')
-    .fromTo(o.ticket, { xPercent: -7, yPercent: 6, rotation: 2 },
-      { xPercent: 4, yPercent: -64, rotation: -13, duration: 2.1, ease: 'power2.inOut' }, 'ticket')
+    // nằm trọn trong bề ngang phong bì (xoay -8° vẫn không chìa ra 2 bên), chỉ góc phải nhô lên khỏi miệng túi
+    .fromTo(o.ticket, { xPercent: -4, yPercent: 10, rotation: 1 },
+      { xPercent: 0, yPercent: -100, rotation: -8, duration: 2.1, ease: 'power2.inOut' }, 'ticket')
 
   return tl
 }
