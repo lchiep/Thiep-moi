@@ -38,14 +38,14 @@ export type Box = readonly [number, number, number, number]
 export const PLACE: Record<'bouquet' | 'choc' | 'petal1' | 'petal2' | 'petal3', Box> = {
   bouquet: [-150, 290, 450, 1236],
   choc: [362, 850, 703, 1343], // như ảnh gốc C2 (trên mặt đá, dưới-phải), hạ nhẹ cho khỏi lẫn dưới phong bì
-  petal1: [520, 300, 640, 409],
-  petal2: [636, 430, 722, 560],
+  petal1: [468, 640, 588, 749], // giữa bó hoa và thanh sô-cô-la
+  petal2: [612, 560, 698, 690], // dưới góc phải phong bì
   petal3: [296, 1236, 392, 1344],
 }
 
 /** Chỗ phong bì nằm (khung THÂN phong bì, tỉ lệ 582×435) — trên tấm lụa phía trên bó hoa, nằm chéo (xoay ở ENVELOPE_TILT). */
 export const ENVELOPE_TILT = 12 // độ; số dương = chéo từ trái xuống phải
-export const ENVELOPE_SPOT: Box = [225, 170, 665, 499]
+export const ENVELOPE_SPOT: Box = [232, 150, 636, 452]
 
 
 /** Tải + giải mã trước toàn bộ ảnh (gọi lúc khách bấm GỬI) → cảnh không bị hiện dần từng ảnh. */
