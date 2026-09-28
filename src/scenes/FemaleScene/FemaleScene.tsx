@@ -6,7 +6,7 @@ import { sendExperience, useExperience } from '../../state/experienceMachine'
 import { femaleIdle, femaleTransitionTimeline } from '../../animations/gsap/femaleTransitionTimeline'
 import { femaleOpenTimeline } from '../../animations/gsap/femaleOpenTimeline'
 import { sealSparkle } from '../../animations/anime/microInteractions'
-import { ENVELOPE_SPOT, FEMALE_IMG, PLACE, getCards, pct } from './femaleAssets'
+import { ENVELOPE_SPOT, FEMALE_IMG, PLACE, SCATTER, getCards, pct } from './femaleAssets'
 import './FemaleScene.css'
 
 export { preloadFemaleAssets, buildCards } from './femaleAssets'
@@ -60,6 +60,7 @@ export default function FemaleScene({ popup, sceneA }: Props) {
       envLetter: q('.fem__env-letter'),
       flap: q('.fem__flap'),
       envClosed: q('.fem__env-closed'),
+      envInner: [...el.querySelectorAll<HTMLElement>('.fem__env-back, .fem__env-front, .fem__env-letter, .fem__env-glow')],
       spot: q('.fem__spot'),
       bouquet: q('.fem__bq'),
       choc: q('.fem__choc'),
@@ -127,6 +128,10 @@ export default function FemaleScene({ popup, sceneA }: Props) {
           <img className="fem__obj fem__petal" src={FEMALE_IMG.petal1} alt="" style={pct(PLACE.petal1)} />
           <img className="fem__obj fem__petal" src={FEMALE_IMG.petal2} alt="" style={pct(PLACE.petal2)} />
           <img className="fem__obj fem__petal" src={FEMALE_IMG.petal3} alt="" style={pct(PLACE.petal3)} />
+          {SCATTER.map(([n, box, rot], i) => (
+            <img key={i} className="fem__obj fem__petal" src={FEMALE_IMG[`petal${n}`]} alt=""
+              style={{ ...pct(box), transform: `rotate(${rot}deg)` }} />
+          ))}
           <div className="fem__spot" style={pct(ENVELOPE_SPOT)} />
         </div>
       </div>

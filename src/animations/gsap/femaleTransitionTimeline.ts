@@ -33,6 +33,7 @@ export type FemaleRefs = {
   envFloat: HTMLElement // lớp trong: nhún khi thư chạm đáy / khi nắp đóng
   envShadow: HTMLElement
   envLetter: HTMLElement // lá thư trong túi phong bì (giữa thân sau và thân trước)
+  envInner: HTMLElement[] // thân E2 + giấy + ánh sáng trong túi (ẩn khi đã đóng)
   envClosed: HTMLElement // thân phong bì đã đóng (E1) — hiện khi nắp nằm hẳn xuống
   flap: HTMLElement
   spot: HTMLElement // chỗ phong bì nằm trong cảnh tulip
@@ -120,6 +121,8 @@ export function femaleTransitionTimeline(o: FemaleRefs, onStep: (step: FemaleSte
     .to(o.flap, { rotationX: -180, duration: 0.95, ease: 'power2.inOut' }, 'close')
     .set(o.flap, { zIndex: 5 }, 'close+=0.47') // qua 90° → nắp nằm TRÊN thân trước
     .to(o.envClosed, { autoAlpha: 1, duration: 0.22, ease: 'power1.in' }, 'close+=0.52')
+    // thân E2 (phong bì mở) + giấy + ánh sáng bên dưới: cỡ ảnh khác E1 nên lộ mép như 1 lớp thừa → ẩn hẳn
+    .set(o.envInner, { autoAlpha: 0 }, 'close+=0.8')
     .to(o.envFloat, { scale: 0.985, duration: 0.12, ease: 'power2.out' }, 'close+=0.92')
     .call(() => o.onSeal(), [], 'close+=0.95')
     .to(o.envFloat, { scale: 1, duration: 0.35, ease: EASE.settle }, 'close+=1.04')
@@ -160,7 +163,7 @@ export function femaleTransitionTimeline(o: FemaleRefs, onStep: (step: FemaleSte
   // ---------- 7. phong bì đáp xuống, luồn dưới bó hoa ----------
   tl.addLabel('land', 'gust+=1.5')
     .to(o.env, { x: Tc.x - Ec.x, y: Tc.y - Ec.y, scale: T.width / E.width, rotation: ENVELOPE_TILT, duration: 1.5, ease: 'power3.inOut' }, 'land')
-    .to(o.envShadow, { autoAlpha: 0.55, x: 5, y: 8, scale: 1, duration: 1.5, ease: 'power3.inOut' }, 'land')
+    .to(o.envShadow, { autoAlpha: 0.55, x: 0, y: 0, scale: 1, duration: 1.5, ease: 'power3.inOut' }, 'land')
     // phong bì nằm vào vùng nắng: vệt nắng cửa sổ (cùng góc với vệt trên mặt đá) hiện dần trên giấy
     .set(o.envSun, sunOn(P, T, E.width), 'land')
     .to(o.envSun, { autoAlpha: 1, duration: 1.1, ease: 'power1.inOut' }, 'land+=0.9')

@@ -135,7 +135,9 @@
   border-radius: 2px;
   /* bóng phong bì nằm trên lụa/đá: tiếp xúc sát mép + bóng mềm đổ xuống-phải (không dùng filter blur) */
   background: transparent;
-  box-shadow: 2px 3px 3px rgba(45, 28, 14, 0.32), 9px 16px 24px rgba(45, 28, 14, 0.24);
+  /* bóng đổ mềm xuống-phải; spread ÂM để bóng bắt đầu từ bên trong mép giấy →
+     không có dải xám quanh mép (trông như 1 lớp giấy thừa phía sau) */
+  box-shadow: 6px 12px 22px -8px rgba(45, 28, 14, 0.34);
 }
 .fem__env-back { z-index: 1; }
 .fem__env-letter { z-index: 2; }

@@ -36,16 +36,25 @@ export const PLATE = { w: 768, h: 1376 }
 export type Box = readonly [number, number, number, number]
 
 export const PLACE: Record<'bouquet' | 'choc' | 'petal1' | 'petal2' | 'petal3', Box> = {
-  bouquet: [-41, 491, 469, 1295],
+  bouquet: [-70, 468, 494, 1353],
   choc: [450, 932, 690, 1278],
   petal1: [612, 748, 692, 821],
   petal2: [337, 1207, 407, 1313],
   petal3: [800, 1300, 860, 1380], // ngoài khung — bố cục mẫu chỉ có 2 cánh
 }
 
+/** Cánh hoa rải thêm cho đỡ trống: [ảnh 1|2|3, khung, góc xoay] */
+export const SCATTER: readonly [1 | 2 | 3, Box, number][] = [
+  [1, [548, 318, 618, 420], 28],
+  [3, [118, 236, 186, 312], -22],
+  [2, [404, 1086, 466, 1180], 64],
+  [1, [468, 828, 528, 916], -38],
+  [3, [178, 1284, 240, 1360], 16],
+]
+
 /** Chỗ phong bì nằm (khung THÂN phong bì, tỉ lệ 582×435) — trên tấm lụa phía trên bó hoa, nằm chéo (xoay ở ENVELOPE_TILT). */
 export const ENVELOPE_TILT = 9 // độ; số dương = chéo từ trái xuống phải
-export const ENVELOPE_SPOT: Box = [265, 401, 665, 700]
+export const ENVELOPE_SPOT: Box = [222, 382, 666, 714]
 
 
 /** Tải + giải mã trước toàn bộ ảnh (gọi lúc khách bấm GỬI) → cảnh không bị hiện dần từng ảnh. */
