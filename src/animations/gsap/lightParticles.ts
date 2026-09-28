@@ -74,6 +74,7 @@ export function lightParticlesTween(opts: {
   to: { x: number; y: number; w: number } // miệng phong bì: tâm + bề rộng
   stage: DOMRect
   sweep: number // thời gian đường "tan" quét từ đỉnh xuống đáy popup (giây)
+  spawnAt?: (fy: number) => number // lúc hạt ở độ cao fy (0 = đỉnh, 1 = đáy) được sinh ra — khớp với mặt nạ tan
   count?: number
   flight?: number // thời gian bay trung bình của 1 hạt (giây)
 }) {
@@ -101,7 +102,7 @@ export function lightParticlesTween(opts: {
       // hạt bung nhẹ sang bên rồi mới cong về phong bì
       cx: x + side * (30 + Math.random() * 70), cy: y + (ty - y) * (0.25 + Math.random() * 0.3),
       x1: tx, y1: ty,
-      t0: fy * sweep + Math.random() * 0.12,
+      t0: (opts.spawnAt ? opts.spawnAt(fy) : fy * sweep) + Math.random() * 0.06,
       dur: flight * (0.8 + Math.random() * 0.45),
       r: isStar ? 5 + Math.random() * 6 : 0.8 + Math.pow(Math.random(), 2.2) * 3.2,
       star: isStar,
@@ -126,7 +127,7 @@ export function lightParticlesTween(opts: {
       const k = ease(local)
       const { x, y } = at(p, k)
       // bừng sáng khi vừa tách khỏi popup; gần miệng phong bì thì nhỏ lại và tắt (bị hút vào)
-      const life = Math.min(1, local * 8) * (1 - Math.pow(k, 5))
+      const life = Math.min(1, local * 5) * (1 - Math.pow(k, 5))
       const flick = 0.6 + 0.4 * Math.sin(p.tw + state.t * (p.star ? 9 : 22))
       ctx.globalAlpha = life * flick
       if (p.star) {

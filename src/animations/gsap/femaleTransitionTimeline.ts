@@ -86,7 +86,7 @@ export function femaleTransitionTimeline(o: FemaleRefs, onStep: (step: FemaleSte
   const tl = gsap.timeline()
 
   // ---------- 1. popup TAN DẦN từ trên xuống dưới thành hạt sao vàng ----------
-  const SWEEP = 2.0 // đường tan quét hết popup trong 2s
+  const SWEEP = 3.0 // đường tan quét hết popup trong 3s (Hiệp: chậm lại cho thấy rõ tan tới đâu mất tới đó)
   tl.addLabel('dissolve', 0)
   if (o.popup) {
     const pr = o.popup.getBoundingClientRect()
@@ -100,17 +100,21 @@ export function femaleTransitionTimeline(o: FemaleRefs, onStep: (step: FemaleSte
   tl.call(() => onStep('letter'), [], `dissolve+=${SWEEP}`) // → FEMALE_ENVELOPE_INSERT (popup đã tan hết)
 
   // ---------- 2. phong bì trồi lên đón hạt ----------
-  tl.addLabel('rise', 'dissolve+=0.55') // để popup kịp tan một đoạn rồi phong bì mới trồi lên đón
+  tl.addLabel('rise', 'dissolve+=0.8') // để popup kịp tan một đoạn rồi phong bì mới trồi lên đón
     .to(o.env, { y: 0, rotation: 0, duration: 1.2, ease: 'power3.out' }, 'rise')
 
   // ---------- 3. hạt sao sinh ra đúng theo đường tan, xoáy vào miệng phong bì ----------
   const mouth = { x: Ec.x, y: E.top + E.height * 0.3, w: E.width * 0.55 }
-  const sparks = lightParticlesTween({ canvas: o.sparks, from: popupR, to: mouth, stage: stageR, sweep: SWEEP })
+  // hạt của 1 hàng chỉ sinh ra khi đường tan ĐÃ quét qua hàng đó (hàng đã mờ ~2/3) → tan chỗ nào mất chỗ đó rồi mới có hạt.
+  // Cùng công thức với mặt nạ ở trên: đường tan chạy từ (đỉnh − 24px) tới (đáy + 24px) trong SWEEP giây, mép mềm 28px.
+  const pH = popupR.height
+  const spawnAt = (fy: number) => ((fy * pH + 24 - 10) / (pH + 48)) * SWEEP
+  const sparks = lightParticlesTween({ canvas: o.sparks, from: popupR, to: mouth, stage: stageR, sweep: SWEEP, spawnAt })
   const END = sparks.duration()
   tl.add(sparks, 'dissolve')
     // túi phong bì ấm sáng dần khi hạt đổ vào, giấy thư đọng lại bên trong
-    .to(o.envGlow, { autoAlpha: 1, duration: 1.0, ease: 'power1.in' }, 'dissolve+=1.0')
-    .to(o.envLetter, { autoAlpha: 1, duration: 1.2, ease: 'power1.inOut' }, 'dissolve+=1.4')
+    .to(o.envGlow, { autoAlpha: 1, duration: 1.0, ease: 'power1.in' }, 'dissolve+=1.5')
+    .to(o.envLetter, { autoAlpha: 1, duration: 1.2, ease: 'power1.inOut' }, 'dissolve+=2.1')
     .to(o.envGlow, { autoAlpha: 0, duration: 0.6, ease: 'power1.out' }, `dissolve+=${END - 0.3}`)
     // phong bì hơi nhún khi đợt hạt cuối chạm đáy
     .to(o.envFloat, { y: 3, duration: 0.2, ease: 'power2.out' }, `dissolve+=${END - 0.3}`)
