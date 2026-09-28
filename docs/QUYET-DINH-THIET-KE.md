@@ -73,3 +73,8 @@ Tách ra từ CLAUDE.md (27/09/2026) để CLAUDE.md ngắn gọn. Đây là nh�
 - (28/09, lần 6 — theo ảnh phong bì đỏ) Thiệp trong phong bì vẽ RIÊNG: nền giấy dó (khúc có 2 nhành lá), chữ header thu nhỏ dồn lên trên, rộng 92% phong bì (hết khoảng thừa 2 bên), nhô vừa phải (~1/3). Vé 62% bề ngang, nằm chéo -20° ở góc dưới-phải phía trước thiệp, không che chữ.
 - (28/09, lần 7 — theo thiệp trong tập hồ sơ nhánh Nam) Chữ trên thiệp trong phong bì = NGUYÊN khối header tờ thiệp (drawInvitationCard: chữ C thư pháp, 2 nhành lá ôm tên khách) thu nhỏ còn ~56% bề ngang, đặt phía trên, mép khối làm mờ hoà vào giấy; nền giấy trơn; viền đỏ đô 2 nét.
 - (28/09) Mượt hơn khi chạm thư: phong bì bay theo 1 đường cong liền (MotionPathPlugin: sang phải-lên thoát bó hoa rồi vòng về giữa), các đoạn chồng lấn không có chỗ dừng; cánh hoa là con của phong bì (đi cùng, không đuổi theo); bóng phong bì bằng gradient (bỏ filter blur). Vé to hơn (74% bề ngang phong bì). Số nhô lên do Hiệp tự chỉnh: thiệp -28, vé -120, xoay -20°.
+
+## Nhánh Nữ — cảnh tulip theo ảnh Hiệp gửi (29/09/2026)
+- Nền cảnh = ảnh Hiệp gửi (`assets-src/H-scene-ref.png` → `scene-bg.webp`): lụa kem + bó tulip gói giấy + KitKat + thanh sô-cô-la + cánh hoa, **vẽ sẵn trong ảnh** → không còn đặt KitKat/cánh hoa rời (tránh lệch bóng/ánh sáng).
+- Bó hoa lớp trước = ảnh tách nền Hiệp gửi (`assets-src/H-bouquet-wrapped.png`), đã căn khớp đúng bó hoa trong nền, phủ kín tấm 768×1376 → phong bì luồn DƯỚI giấy gói, bóng bó hoa rơi lên phong bì. Bó hoa **đứng yên** (không đung đưa, để khỏi lệch với nền).
+- Phong bì nằm trên mặt đá phía trên bó hoa (`ENVELOPE_SPOT`), chéo 9°, góc dưới-trái luồn dưới giấy gói.

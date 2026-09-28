@@ -38,7 +38,6 @@ export type FemaleRefs = {
   flap: HTMLElement
   spot: HTMLElement // chỗ phong bì nằm trong cảnh tulip
   bouquet: HTMLElement
-  choc: HTMLElement
   petals: HTMLElement[]
   light: HTMLElement
   cta: HTMLElement
@@ -174,11 +173,10 @@ export function femaleTransitionTimeline(o: FemaleRefs, onStep: (step: FemaleSte
   return tl
 }
 
-/** Cảnh tulip "thở": hoa đung đưa rất nhẹ, cánh hoa trôi li ti, phong bì nghiêng 1–2°, nắng dịch chậm. */
-export function femaleIdle(o: { bouquet: HTMLElement; petals: HTMLElement[]; envFloat: HTMLElement; light: HTMLElement }) {
+/** Cảnh tulip "thở": phong bì nghiêng 1–2°, nắng dịch chậm. Bó hoa ĐỨNG YÊN (lớp bó hoa phải khớp đúng bó hoa trong ảnh nền). */
+export function femaleIdle(o: { petals: HTMLElement[]; envFloat: HTMLElement; light: HTMLElement }) {
   const tl = gsap.timeline()
-  tl.to(o.bouquet, { rotation: 0.6, duration: 3.4, ease: EASE.sway, yoyo: true, repeat: -1, transformOrigin: '15% 100%' }, 0)
-    .to(o.envFloat, { rotation: 1.2, y: -2, duration: 2.8, ease: EASE.sway, yoyo: true, repeat: -1 }, 0.4)
+  tl.to(o.envFloat, { rotation: 1.2, y: -2, duration: 2.8, ease: EASE.sway, yoyo: true, repeat: -1 }, 0.4)
     .to(o.light, { xPercent: 6, duration: 7, ease: EASE.sway, yoyo: true, repeat: -1 }, 0)
   o.petals.forEach((p, i) =>
     tl.to(p, { y: i % 2 ? 2 : -2, rotation: i % 2 ? -2 : 2, duration: 2.6 + i * 0.5, ease: EASE.sway, yoyo: true, repeat: -1 }, i * 0.3),
