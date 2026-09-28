@@ -54,7 +54,7 @@ export const SCATTER: readonly [1 | 2 | 3, Box, number][] = [
 
 /** Chỗ phong bì nằm (khung THÂN phong bì, tỉ lệ 582×435) — trên tấm lụa phía trên bó hoa, nằm chéo (xoay ở ENVELOPE_TILT). */
 export const ENVELOPE_TILT = 9 // độ; số dương = chéo từ trái xuống phải
-export const ENVELOPE_SPOT: Box = [222, 437, 666, 769] // hạ 55 cùng bó hoa (Hiệp 29/09)
+export const ENVELOPE_SPOT: Box = [244, 352, 684, 681] // nhích lên + sang phải cho bó hoa đè ít nhất (Hiệp 29/09)
 
 
 /** Tải + giải mã trước toàn bộ ảnh (gọi lúc khách bấm GỬI) → cảnh không bị hiện dần từng ảnh. */
