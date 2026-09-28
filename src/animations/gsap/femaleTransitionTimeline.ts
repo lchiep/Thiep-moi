@@ -84,33 +84,39 @@ export function femaleTransitionTimeline(o: FemaleRefs, onStep: (step: FemaleSte
 
   const tl = gsap.timeline()
 
-  // ---------- 1. popup tan thành hạt sáng ----------
+  // ---------- 1. popup TAN DẦN từ trên xuống dưới thành hạt sao vàng ----------
+  const SWEEP = 2.0 // đường tan quét hết popup trong 2s
   tl.addLabel('dissolve', 0)
   if (o.popup) {
-    tl.to(o.popup.querySelectorAll('[data-gp-item]'), { autoAlpha: 0, scale: 0.97, duration: 0.35, ease: 'power2.in', stagger: 0.01 }, 'dissolve')
-      // khung kính loé sáng rồi tan (hạt bung ra từ chính viền kính)
-      .to(o.popup, { filter: 'brightness(1.6) blur(2px)', duration: 0.3, ease: 'power2.out' }, 'dissolve+=0.1')
-      .to(o.popup, { autoAlpha: 0, scale: 0.985, duration: 0.45, ease: 'power2.in' }, 'dissolve+=0.3')
+    const pr = o.popup.getBoundingClientRect()
+    const cut0 = popupR.top - pr.top - 24, cut1 = popupR.bottom - pr.top + 24
+    // phần phía trên đường tan trong suốt, mép tan mềm 28px
+    const MASK = 'linear-gradient(180deg, transparent var(--cut), #000 calc(var(--cut) + 28px))'
+    tl.set(o.popup, { '--cut': `${cut0}px`, maskImage: MASK, webkitMaskImage: MASK }, 'dissolve')
+      .to(o.popup, { '--cut': `${cut1}px`, duration: SWEEP, ease: 'none' }, 'dissolve')
+      .set(o.popup, { autoAlpha: 0 }, `dissolve+=${SWEEP}`)
   }
-  tl.call(() => onStep('letter'), [], 'dissolve+=0.8') // → FEMALE_ENVELOPE_INSERT (popup đã tắt hẳn)
+  tl.call(() => onStep('letter'), [], `dissolve+=${SWEEP}`) // → FEMALE_ENVELOPE_INSERT (popup đã tan hết)
 
-  // ---------- 2. phong bì trồi lên (song song với hạt) ----------
-  tl.addLabel('rise', 'dissolve+=0.25')
+  // ---------- 2. phong bì trồi lên đón hạt ----------
+  tl.addLabel('rise', 'dissolve+=0.55') // để popup kịp tan một đoạn rồi phong bì mới trồi lên đón
     .to(o.env, { y: 0, rotation: 0, duration: 1.2, ease: 'power3.out' }, 'rise')
 
-  // ---------- 3. hạt sáng xoáy vào miệng phong bì ----------
+  // ---------- 3. hạt sao sinh ra đúng theo đường tan, xoáy vào miệng phong bì ----------
   const mouth = { x: Ec.x, y: E.top + E.height * 0.3, w: E.width * 0.55 }
-  tl.add(lightParticlesTween({ canvas: o.sparks, from: popupR, to: mouth, stage: stageR, duration: 2.3 }), 'dissolve+=0.18')
-    // túi phong bì ấm sáng dần khi hạt đổ vào, lá thư đọng lại bên trong
-    .to(o.envGlow, { autoAlpha: 1, duration: 0.9, ease: 'power1.in' }, 'dissolve+=1.2')
-    .to(o.envLetter, { autoAlpha: 1, duration: 0.9, ease: 'power1.inOut' }, 'dissolve+=1.5')
-    .to(o.envGlow, { autoAlpha: 0, duration: 0.6, ease: 'power1.out' }, 'dissolve+=2.45')
+  const sparks = lightParticlesTween({ canvas: o.sparks, from: popupR, to: mouth, stage: stageR, sweep: SWEEP })
+  const END = sparks.duration()
+  tl.add(sparks, 'dissolve')
+    // túi phong bì ấm sáng dần khi hạt đổ vào, giấy thư đọng lại bên trong
+    .to(o.envGlow, { autoAlpha: 1, duration: 1.0, ease: 'power1.in' }, 'dissolve+=1.0')
+    .to(o.envLetter, { autoAlpha: 1, duration: 1.2, ease: 'power1.inOut' }, 'dissolve+=1.4')
+    .to(o.envGlow, { autoAlpha: 0, duration: 0.6, ease: 'power1.out' }, `dissolve+=${END - 0.3}`)
     // phong bì hơi nhún khi đợt hạt cuối chạm đáy
-    .to(o.envFloat, { y: 3, duration: 0.2, ease: 'power2.out' }, 'dissolve+=2.3')
-    .to(o.envFloat, { y: 0, duration: 0.4, ease: 'power2.inOut' }, 'dissolve+=2.5')
+    .to(o.envFloat, { y: 3, duration: 0.2, ease: 'power2.out' }, `dissolve+=${END - 0.3}`)
+    .to(o.envFloat, { y: 0, duration: 0.4, ease: 'power2.inOut' }, `dissolve+=${END - 0.1}`)
 
   // ---------- 4. nắp gập xuống ----------
-  tl.addLabel('close', 'dissolve+=2.6')
+  tl.addLabel('close', `dissolve+=${END}`)
     .to(o.flap, { rotationX: -180, duration: 0.95, ease: 'power2.inOut' }, 'close')
     .set(o.flap, { zIndex: 5 }, 'close+=0.47') // qua 90° → nắp nằm TRÊN thân trước
     .to(o.envClosed, { autoAlpha: 1, duration: 0.22, ease: 'power1.in' }, 'close+=0.52')

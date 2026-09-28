@@ -180,7 +180,7 @@
   height: 42%;
   opacity: 0;
   border-radius: 50%;
-  background: radial-gradient(closest-side, rgba(255, 236, 196, 0.95), rgba(255, 214, 160, 0.5) 45%, rgba(255, 214, 160, 0) 100%);
+  background: radial-gradient(closest-side, rgba(255, 236, 244, 0.95), rgba(255, 170, 205, 0.5) 45%, rgba(255, 170, 205, 0) 100%); /* hồng — cùng màu hạt sáng */
   mix-blend-mode: screen;
 }
 /* vệt nắng cửa sổ trên phong bì (toạ độ ảnh do JS đặt cho khớp vệt nắng trên nền) */
