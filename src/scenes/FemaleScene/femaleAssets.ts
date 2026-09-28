@@ -43,8 +43,9 @@ export const PLACE: Record<'bouquet' | 'choc' | 'petal1' | 'petal2' | 'petal3', 
   petal3: [296, 1236, 392, 1344],
 }
 
-/** Chỗ phong bì nằm (khung THÂN phong bì, tỉ lệ 582×435) — to, giữa-phải, luồn SÂU dưới bó hoa. */
-export const ENVELOPE_SPOT: Box = [212, 525, 702, 891]
+/** Chỗ phong bì nằm (khung THÂN phong bì, tỉ lệ 582×435) — trên tấm lụa phía trên bó hoa, nằm chéo (xoay ở ENVELOPE_TILT). */
+export const ENVELOPE_TILT = 12 // độ; số dương = chéo từ trái xuống phải
+export const ENVELOPE_SPOT: Box = [225, 170, 665, 499]
 
 
 /** Tải + giải mã trước toàn bộ ảnh (gọi lúc khách bấm GỬI) → cảnh không bị hiện dần từng ảnh. */

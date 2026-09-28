@@ -1,6 +1,7 @@
 import { gsap } from 'gsap'
 import { EASE } from '../motion'
 import { lightParticlesTween } from './lightParticles'
+import { ENVELOPE_TILT } from '../../scenes/FemaleScene/femaleAssets'
 
 /**
  * NHÁNH NỮ — từ lúc bấm GỬI tới khi cảnh tulip chờ khách chạm vào thư.
@@ -152,7 +153,7 @@ export function femaleTransitionTimeline(o: FemaleRefs, onStep: (step: FemaleSte
 
   // ---------- 7. phong bì đáp xuống, luồn dưới bó hoa ----------
   tl.addLabel('land', 'gust+=1.5')
-    .to(o.env, { x: Tc.x - Ec.x, y: Tc.y - Ec.y, scale: T.width / E.width, rotation: -4, duration: 1.5, ease: 'power3.inOut' }, 'land')
+    .to(o.env, { x: Tc.x - Ec.x, y: Tc.y - Ec.y, scale: T.width / E.width, rotation: ENVELOPE_TILT, duration: 1.5, ease: 'power3.inOut' }, 'land')
     .to(o.envShadow, { autoAlpha: 0.55, x: 5, y: 8, scale: 1, duration: 1.5, ease: 'power3.inOut' }, 'land')
     // phong bì nằm vào vùng nắng: vệt nắng cửa sổ (cùng góc với vệt trên mặt đá) hiện dần trên giấy
     .set(o.envSun, sunOn(P, T, E.width), 'land')
