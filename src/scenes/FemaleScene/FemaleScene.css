@@ -132,17 +132,13 @@
   height: 100%;
 }
 .fem__env-shadow {
-  /* hộp bóng nằm GỌN bên trong phong bì (inset 6%) → dù bóng lệch/to lên khi nhấc, hộp vẫn bị giấy che;
-     nếu hộp lòi ra ngoài mép sẽ thấy 1 dải sáng (box-shadow không vẽ bên trong hộp) */
-  inset: 6%;
-  width: auto;
-  height: auto;
-  border-radius: 4px;
-  /* bóng phong bì nằm trên lụa/đá: tiếp xúc sát mép + bóng mềm đổ xuống-phải (không dùng filter blur) */
-  background: transparent;
-  /* bóng đổ mềm xuống-phải; spread ÂM để bóng bắt đầu từ bên trong mép giấy →
-     không có dải xám quanh mép (trông như 1 lớp giấy thừa phía sau) */
-  box-shadow: 6px 12px 24px 8px rgba(45, 28, 14, 0.3);
+  /* bóng phong bì = ẢNH vẽ sẵn (bóng tiếp xúc sát mép + bóng mềm đổ xuống-phải, đệm 60px quanh thân 582×435).
+     KHÔNG dùng box-shadow: khi phong bì nhấc lên (xoay 3D/scale) trình duyệt có lúc cắt bóng thành 1 dải sáng dưới mép thư */
+  left: -10.309%;
+  top: -13.793%;
+  width: 120.619%;
+  height: 127.586%;
+  background: url('/assets/female/env-shadow.webp') no-repeat 0 0 / 100% 100%;
 }
 .fem__env-back { z-index: 1; }
 .fem__env-letter { z-index: 2; }

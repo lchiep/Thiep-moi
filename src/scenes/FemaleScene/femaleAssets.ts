@@ -22,6 +22,7 @@ export const FEMALE_IMG = {
   petal1: F + 'petal1.webp',
   petal2: F + 'petal2.webp',
   petal3: F + 'petal3.webp',
+  envShadow: F + 'env-shadow.webp', // bóng phong bì vẽ sẵn (CSS nền của .fem__env-shadow) — tải trước cùng cảnh
   envBack: F + 'env-back.webp',
   envFront: F + 'env-front.webp',
   envClosed: F + 'env-closed.webp',
