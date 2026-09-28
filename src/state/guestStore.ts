@@ -79,9 +79,39 @@ export const useGuest = create<Store>((set, get) => ({
   },
 }))
 
-/** Xưng hô trên thiệp: Nam → "Anh", Nữ → "Chị" + tên gọi thân mật (không có thì dùng họ tên). */
+/** Họ và tên có chứa ĐÚNG 1 chữ (so cả chữ, không phân biệt hoa/thường, chuẩn hoá dấu tiếng Việt)? */
+const nameHasWord = (fullName: string, word: string) => {
+  const norm = (x: string) => x.normalize('NFC').toLocaleLowerCase('vi')
+  const w = norm(word)
+  return norm(fullName).split(/\s+/).includes(w)
+}
+
+/** Luật riêng theo tên khách (COPY.specialGuests) — vd. họ tên có chữ "Hằng". */
+export const specialGuest = (fullName: string) => COPY.specialGuests.find((r) => nameHasWord(fullName, r.nameWord))
+
+/**
+ * Xưng hô trên thiệp: Nam → "Anh", Nữ → "Chị" + tên gọi thân mật (không có thì dùng họ tên).
+ * Luật riêng: họ tên có chữ "Hằng" → "Bé" + biệt danh (thay cho Anh/Chị).
+ */
 export const guestAddress = (g: Pick<Guest, 'gender' | 'nickname' | 'fullName'>) =>
-  `${COPY.invitationHeader.honorific[g.gender]} ${g.nickname || g.fullName}`
+  `${specialGuest(g.fullName)?.honorific ?? COPY.invitationHeader.honorific[g.gender]} ${g.nickname || g.fullName}`
+
+/** Kiểu chữ "nới" (bỏ ràng buộc literal của `as const`) để bản riêng thay được bản chung. */
+type Widen<T> = T extends string ? string : T extends readonly (infer U)[] ? readonly Widen<U>[] : { readonly [K in keyof T]: Widen<T[K]> }
+export type Sections = Widen<typeof COPY.sections>
+
+const isObj = (x: unknown): x is Record<string, unknown> => !!x && typeof x === 'object' && !Array.isArray(x)
+const merge = (base: unknown, over: unknown): unknown => {
+  if (!isObj(base) || !isObj(over)) return over === undefined ? base : over // chuỗi / mảng: thay nguyên
+  const out: Record<string, unknown> = { ...base }
+  for (const k of Object.keys(over)) out[k] = merge(base[k], over[k])
+  return out
+}
+/** Chữ trong thư cho khách này: bản chung, ghi đè bằng bản riêng nếu khách thuộc luật riêng (vd. Hằng → xưng "anh – bé"). */
+export const sectionsFor = (fullName: string): Sections => {
+  const r = specialGuest(fullName)
+  return (r ? merge(COPY.sections, r.sections) : COPY.sections) as Sections
+}
 
 /** Dữ liệu vé suy ra từ khách + sự kiện (không hard-code trong component). */
 export type TicketData = {

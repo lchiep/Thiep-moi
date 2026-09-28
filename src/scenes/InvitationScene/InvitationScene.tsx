@@ -4,6 +4,7 @@ import { COPY } from '../../config/copy'
 import { nudgeShake } from '../../animations/anime/microInteractions'
 import { EVENT, eventStart } from '../../config/event'
 import MapPreview from './MapPreview'
+import { sectionsFor, type Sections } from '../../state/guestStore'
 import './InvitationScene.css'
 
 /**
@@ -24,7 +25,8 @@ type Props = {
 }
 
 const InvitationScene = forwardRef<HTMLDivElement, Props>(function InvitationScene({ fullName, address, active, onBack }, ref) {
-  const S = COPY.sections
+  // chữ trong thư theo khách (luật riêng: họ tên có "Hằng" → xưng anh – bé)
+  const S = sectionsFor(fullName)
   const scroller = useRef<HTMLDivElement>(null)
   useCardFocus(scroller)
 
@@ -104,7 +106,7 @@ const InvitationScene = forwardRef<HTMLDivElement, Props>(function InvitationSce
 
           <Page no={S.rsvp.no} title={S.rsvp.title} end={S.rsvp.end}>
             <h2 className="inv__script">{S.rsvp.heading}</h2>
-            <RsvpAndWish />
+            <RsvpAndWish S={S.rsvp} />
           </Page>
         </div>
       </div>
@@ -236,8 +238,7 @@ function Countdown() {
 }
 
 /* ---------- xác nhận tham dự + lời nhắn bên dưới (Phase 12: submit_rsvp / submit_wish; tạm lưu trên máy) ---------- */
-function RsvpAndWish() {
-  const S = COPY.sections.rsvp
+function RsvpAndWish({ S }: { S: Sections['rsvp'] }) {
   const [pick, setPick] = useState<string>('')
   const [sent, setSent] = useState(false)
   return (
@@ -275,13 +276,12 @@ function RsvpAndWish() {
         </form>
       )}
       {/* lời nhắn nằm DƯỚI phần hỏi; chọn "Không đi được" → nút lắc nhẹ gợi ý gửi lời nhắn */}
-      <Wish nudge={pick === 'not_attending'} />
+      <Wish S={S} nudge={pick === 'not_attending'} />
     </>
   )
 }
 
-function Wish({ nudge }: { nudge: boolean }) {
-  const S = COPY.sections.rsvp
+function Wish({ S, nudge }: { S: Sections['rsvp']; nudge: boolean }) {
   const [open, setOpen] = useState(false)
   const [text, setText] = useState('')
   const [sent, setSent] = useState(false)

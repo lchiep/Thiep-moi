@@ -161,6 +161,49 @@ export const COPY = {
       end: '— Hẹn gặp bạn —',
     },
   },
+
+  /**
+   * LUẬT RIÊNG theo tên khách: họ và tên có ĐÚNG chữ `nameWord` (so cả chữ, không phân biệt hoa/thường) →
+   *  - xưng hô trên thiệp = `honorific` + biệt danh (thay cho Anh/Chị), vd. "Nguyễn Thị Bích Hằng" + "Hằng" → "Bé Hằng"
+   *  - chữ trong thư dùng `sections` thay cho bản chung (chỉ cần ghi những dòng khác; dòng nào không ghi → dùng bản chung)
+   */
+  specialGuests: [
+    {
+      nameWord: 'Hằng',
+      honorific: 'Bé',
+      // xưng hô trong thư: ANH – BÉ
+      sections: {
+        letter: {
+          body: [
+            'Sau một chặng đường học tập và trưởng thành, anh sắp bước đến một cột mốc thật đặc biệt.',
+            'Trong hành trình ấy, anh may mắn được gặp gỡ, đồng hành và nhận được rất nhiều sự quan tâm từ những người bạn, người thân và những anh chị đã từng ở bên anh trong những chặng đường khác nhau.',
+            'Vì vậy, anh rất mong bé có thể cùng anh chia sẻ niềm vui trong ngày đặc biệt này và lưu lại thêm một kỷ niệm đẹp trước khi anh bước sang một hành trình mới.',
+          ],
+          note: 'Có bé, ngày này sẽ trở nên trọn vẹn hơn rất nhiều.',
+        },
+        timePlace: { note: 'Đừng đến quá muộn nhé — anh muốn có bé trong khoảnh khắc của ngày hôm ấy.' },
+        schedule: { note: 'Anh đang đếm từng ngày để được gặp bé.' },
+        guide: {
+          intro: 'Để buổi lễ diễn ra thật thoải mái, anh và bé cùng chuẩn bị một vài điều nho nhỏ trước khi gặp nhau nhé!!!',
+          photo: { label: 'CHỤP ẢNH', text: 'Bé có thể lên sớm để chụp vài bức trước hoặc đợi sau khi trao bằng rồi anh sẽ dành thời gian cho bé nhé' },
+        },
+        rsvp: {
+          wishPlaceholder: 'Hãy để lại một lời nhắn/kỷ niệm đáng nhớ nhất của bé với anh nhé!',
+          wishDone: 'Anh đã nhận lời chúc — cảm ơn bé ♡',
+          intro: 'Anh đang háo hức chuẩn bị cho ngày này, và sẽ thật tuyệt nếu bé có thể xuất hiện ở đó.',
+          question: 'Bé sẽ đến chứ?',
+          options: [
+            { value: 'attending', label: 'Sẽ tham dự cùng anh', reply: 'Hẹn gặp bé tại buổi lễ nhé.' },
+            { value: 'maybe', label: 'Sẽ thu xếp', reply: 'Anh sẽ giữ một chỗ thật đẹp cho bé.' },
+            { value: 'not_attending', label: 'Không đi được', reply: 'Tiếc quá, vậy cảm ơn bé đã kết nối với anh nhé' },
+          ],
+          thanks: 'Cảm ơn bé nhé ♡',
+          thanksSub: 'Anh đã nhận được câu trả lời của bé rồi.',
+          end: '— Hẹn gặp bé —',
+        },
+      },
+    },
+  ],
 } as const
 
 /** Khách mẫu để xem thử giao diện khi chưa có dữ liệu thật. */
