@@ -1,4 +1,5 @@
 import { gsap } from 'gsap'
+import { LETTER_RATIO } from '../../scenes/FemaleScene/femaleAssets'
 
 /**
  * NHÁNH NỮ — sau khi phong bì mở (Hiệp 29/09):
@@ -10,7 +11,6 @@ import { gsap } from 'gsap'
  * Vị trí đo từ getBoundingClientRect (không hard-code pixel).
  */
 const TICKET_R = 635 / 1608 // cao / dài của vé ngang
-const LETTER_R = 613 / 852
 
 type Pose = { x: number; y: number; rotation: number; scale: number }
 
@@ -28,21 +28,20 @@ export type DeckRefs = {
 export function layoutDeck(o: DeckRefs) {
   const S = o.stage.getBoundingClientRect()
   // vé đứng trước: dọc, gần kín chiều cao (chừa đỉnh cho gợi ý cất, đáy cho gợi ý vuốt)
-  const L = Math.min(S.height * 0.78, (S.width * 0.9) / TICKET_R)
+  const L = Math.min(S.height * 0.86, (S.width * 0.94) / TICKET_R) // Hiệp: vé to hơn (≈ 86% chiều cao màn)
   const tW = L, tH = L * TICKET_R
-  const tC = { x: S.width / 2, y: S.height * 0.47 }
-  // thư đứng trước: ngang, rộng 92% màn
-  const lW = S.width * 0.92, lH = lW * LETTER_R
-  const lC = { x: S.width / 2, y: S.height * 0.47 }
+  const tC = { x: S.width / 2, y: S.height * 0.48 }
+  // thư đứng trước: NGUYÊN tờ thiệp dọc (như nhánh Nam), cao ≈ bằng vé
+  const lH = Math.min(S.height * 0.86, S.width * 0.92 * LETTER_RATIO), lW = lH / LETTER_RATIO
+  const lC = { x: S.width / 2, y: S.height * 0.48 }
   gsap.set(o.ticket, { left: tC.x - tW / 2, top: tC.y - tH / 2, width: tW, height: tH, transformOrigin: '50% 50%' })
   gsap.set(o.letter, { left: lC.x - lW / 2, top: lC.y - lH / 2, width: lW, height: lH, transformOrigin: '50% 50%' })
   const P = {
     ticketFront: { x: 0, y: 0, rotation: 90, scale: 1 },
-    // vé nằm sau thư: nằm ngang, nhỏ lại, ló lên phía trên mép thư, hơi chéo
-    ticketBack: { x: 0, y: lC.y - tC.y - lH * 0.5, rotation: -6, scale: (S.width * 0.84) / tW },
+    // lá nằm sau: nhỏ lại chút, chéo nhẹ, lệch sang 1 bên → ló mép ra như xấp bài
+    ticketBack: { x: -S.width * 0.08, y: S.height * 0.005, rotation: 84, scale: 0.9 },
     letterFront: { x: 0, y: 0, rotation: 0, scale: 1 },
-    // thư nằm sau vé: nhỏ lại, chéo nhẹ — ló 2 bên vé
-    letterBack: { x: 0, y: -S.height * 0.02, rotation: 5, scale: 0.86 },
+    letterBack: { x: S.width * 0.08, y: -S.height * 0.005, rotation: 6, scale: 0.9 },
   }
   return { S, P, tC, lC, tW, lW }
 }
@@ -69,15 +68,22 @@ export function deckRevealTimeline(o: DeckRefs) {
     .set(o.ticket, { ...tFrom, autoAlpha: 1, zIndex: 43 }, 'ticket')
     .set(o.ticketIn, { autoAlpha: 0 }, 'ticket')
     .to(o.ticket, { ...P.ticketFront, duration: 1.05, ease: 'power3.inOut' }, 'ticket')
-  // 2. THƯ: trượt hẳn lên khỏi túi (vẫn trong phong bì → túi trước che đúng), rồi thay vai và lùi ra sau vé
+  // 2. THƯ (cả tờ thiệp dọc): rút hẳn lên khỏi phong bì — thư đi lên, phong bì hạ xuống (như tay kéo thư ra)
+  //    vẫn nằm trong phong bì nên túi trước che đúng; ra hết rồi mới thay vai sang lá lớn và lùi ra sau vé
+  const Lr = o.letterIn.getBoundingClientRect()
+  const Er = o.env.getBoundingClientRect()
+  const pull = Lr.bottom - Er.top + 10 // quãng cần kéo để đáy thư lên khỏi miệng phong bì
+  const letterScreenH = o.letterIn.offsetHeight * (gsap.getProperty(o.env, 'scale') as number)
+  const up = pull * 0.45
   tl.addLabel('letterOut', 'ticket+=0.2')
-    .to(o.letterIn, { yPercent: -118, duration: 0.55, ease: 'power2.inOut' }, 'letterOut')
-  tl.addLabel('letter', 'letterOut+=0.55')
+    .to(o.letterIn, { yPercent: `-=${(up / letterScreenH) * 100}`, duration: 0.85, ease: 'power2.inOut' }, 'letterOut')
+    .to(o.env, { y: `+=${pull - up}`, duration: 0.85, ease: 'power2.inOut' }, 'letterOut')
+  tl.addLabel('letter', 'letterOut+=0.85')
     // chỗ + cỡ đo ĐÚNG lúc thay vai (thư vừa ra khỏi túi); hiện/ẩn là .set của timeline → tua ngược tự ẩn lại
     .add(() => { gsap.set(o.letter, poseFromInside(o.letterIn, o.env, S, lC, lW)) }, 'letter')
     .set(o.letter, { autoAlpha: 1, zIndex: 42 }, 'letter')
     .set(o.letterIn, { autoAlpha: 0 }, 'letter')
-    .to(o.letter, { ...P.letterBack, duration: 0.75, ease: 'power3.out' }, 'letter+=0.01')
+    .to(o.letter, { ...P.letterBack, duration: 0.8, ease: 'power3.out' }, 'letter+=0.01')
   // 3. nền (phong bì, bó hoa…) mờ đi phía sau — chỉ khi thư đã rời phong bì
   tl.to(o.veil, { autoAlpha: 1, duration: 0.6, ease: 'sine.out' }, 'letter')
   return tl
@@ -97,15 +103,16 @@ export function deckShuffleTimeline(o: DeckRefs, toLetter: boolean) {
     r: gsap.getProperty(front, 'rotation') as number, s: gsap.getProperty(front, 'scale') as number,
   }
   const S = o.stage.getBoundingClientRect()
+  // Hiệp: đảo bài CHẬM thôi
   return gsap
     .timeline()
     .addLabel('out', 0)
     // lá trước: trượt xuống + lệch phải, xoay thêm chút (như rút lá bài ra khỏi xấp)
-    .to(front, { x: cur.x + S.width * 0.18, y: cur.y + S.height * 0.36, rotation: cur.r + 10, scale: cur.s * 0.92, duration: 0.42, ease: 'power2.in' }, 'out')
+    .to(front, { x: cur.x + S.width * 0.2, y: cur.y + S.height * 0.34, rotation: cur.r + 10, scale: cur.s * 0.92, duration: 0.75, ease: 'power2.inOut' }, 'out')
     // lá sau: bắt đầu tiến lên (vẫn ở dưới)
-    .to(back, { ...backComesTo, duration: 0.8, ease: 'power3.inOut' }, 'out+=0.12')
+    .to(back, { ...backComesTo, duration: 1.35, ease: 'power2.inOut' }, 'out+=0.2')
     // lá trước đã ra khỏi xấp → chui ra sau
-    .set(front, { zIndex: 42 }, 'out+=0.42')
-    .set(back, { zIndex: 43 }, 'out+=0.42')
-    .to(front, { ...frontGoesTo, duration: 0.6, ease: 'power3.out' }, 'out+=0.42')
+    .set(front, { zIndex: 42 }, 'out+=0.75')
+    .set(back, { zIndex: 43 }, 'out+=0.75')
+    .to(front, { ...frontGoesTo, duration: 1.0, ease: 'power2.out' }, 'out+=0.75')
 }

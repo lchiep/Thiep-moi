@@ -169,10 +169,23 @@
   bottom: auto;
   height: auto;
 }
-.fem__env-float > .fem__card-letter {
+.fem__letter-clip {
+  /* cao gấp 4 phong bì, đáy trùng đáy phong bì → chỉ cắt phần thư lòi xuống dưới */
+  position: absolute;
+  left: 0;
+  right: 0;
+  top: -300%;
+  bottom: 0;
+  z-index: 2;
+  overflow: hidden;
+  pointer-events: none;
+}
+.fem__letter-clip > .fem__card-letter {
+  /* = left 4% · top 8% của phong bì (khung cắt cao 400%: (300% + 8%) / 400% = 77%) */
   left: 4%;
-  top: 8%;
+  top: 77%;
   width: 92%;
+  max-width: none;
   border-radius: 1px;
   box-shadow: 0 1px 2px rgba(60, 40, 20, 0.2), 0 8px 18px rgba(40, 25, 12, 0.22);
 }

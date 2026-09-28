@@ -199,7 +199,10 @@ export default function FemaleScene({ popup, sceneA }: Props) {
           <img className="fem__env-back" src={FEMALE_IMG.envBack} alt="" />
           {/* lúc mở phong bì: vách trong · thiệp · vé · túi trước (V) — vé + thiệp nằm sẵn trong túi */}
           <div className="fem__env-wall" />
-          <img className="fem__card fem__card-letter" src={cards.letter} alt="" />
+          {/* thư = cả tờ thiệp dọc: khung cắt chỉ giấu phần thò xuống dưới đáy phong bì (phía trên vẫn ló ra được) */}
+          <div className="fem__letter-clip">
+            <img className="fem__card fem__card-letter" src={cards.letter} alt="" />
+          </div>
           <img className="fem__card fem__card-ticket" src={cards.ticket} alt="" />
           {/* giấy thư "đọng" lại trong túi khi hạt sáng bay vào (chỉ thấy mặt giấy qua miệng túi) */}
           <div className="fem__env-letter fem-letter" />

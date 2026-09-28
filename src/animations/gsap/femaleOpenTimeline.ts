@@ -84,7 +84,8 @@ export function femaleOpenTimeline(o: OpenRefs, onDone: () => void) {
 
   // ---------- THIỆP ló lên (khi nắp vừa dựng) rồi nằm yên ----------
   tl.addLabel('letter', 'open+=0.6')
-    .to(o.letter, { yPercent: -28, rotation: -0.5, duration: 1.3, ease: 'power2.out' }, 'letter')
+    // thư là cả tờ thiệp dọc (cao ~2.7 lần phong bì) → ló lên ~9% chiều cao tờ = như trước
+    .to(o.letter, { yPercent: -9.5, rotation: -0.5, duration: 1.3, ease: 'power2.out' }, 'letter')
   // ---------- VÉ nâng chéo từ từ từ trái lên ----------
   tl.addLabel('ticket', 'letter+=0.8')
     .fromTo(o.ticket, { xPercent: -10, yPercent: 10, rotation: 0 },

@@ -7,8 +7,7 @@
  */
 import { drawTicket, TICKET_FONTS } from '../../components/Ticket/drawTicket'
 import { drawInvitationCard, CARD_SIZE } from '../../components/DocumentFolder/drawInvitationCard'
-import { fontsReady, makeCanvas } from '../../utils/paperCanvas'
-import { loadImage } from '../../utils/image'
+import { fontsReady } from '../../utils/paperCanvas'
 import { ticketFromGuest, type Guest } from '../../state/guestStore'
 
 const F = '/assets/female/'
@@ -79,17 +78,11 @@ export const pct = (b: Box) => ({
 })
 
 /**
- * VÉ + THIỆP nằm trong phong bì — dùng CHUNG nội dung với nhánh Nam:
- *  vé = drawTicket (vé ngang), thiệp = khúc đầu tờ thiệp drawInvitationCard (giấy dó + header + tên khách).
+ * VÉ + THƯ nằm trong phong bì — dùng CHUNG với nhánh Nam: vé = drawTicket (vé ngang), thư = NGUYÊN tờ thiệp
+ * drawInvitationCard (dọc, 760×1647). Trong phong bì chỉ ló phần đầu tờ thiệp; phần dưới bị túi che + cắt ở đáy phong bì.
  * Vẽ sẵn lúc khách bấm GỬI, giữ ở đây để cảnh mở phong bì dùng ngay.
  */
-/**
- * Thiệp trong phong bì — thiết kế riêng cho khổ phong bì (theo ảnh tham khảo phong bì đỏ Hiệp gửi):
- * nền = giấy dó của tờ thiệp, khối chữ = NGUYÊN header tờ thiệp (như thiệp nhánh Nam) thu nhỏ còn ~56% bề ngang,
- * đặt phía trên cho thoáng · viền đỏ đô đặc bao quanh + nét vàng nhạt bên trong. Nội dung chung với thiệp nhánh Nam (COPY.invitationHeader, họ tên, "Chị + tên").
- */
-const PAPER = '/assets/invitation/paper.webp'
-const LETTER = { w: 852, h: 613 }
+export const LETTER_RATIO = CARD_SIZE.h / CARD_SIZE.w
 let cards: { ticket: string; letter: string } = { ticket: '', letter: '' }
 export const getCards = () => cards
 
@@ -98,42 +91,9 @@ export async function buildCards(guest: Guest) {
   const t = ticketFromGuest(guest)
   const ticket = await drawTicket(t)
 
-  const { canvas: c, ctx: g } = makeCanvas(LETTER.w, LETTER.h)
-  // nền: khúc giấy trơn đầu tờ (không có nhành lá) giãn ra cho đủ khổ thiệp
-  g.drawImage(await loadImage(PAPER), 0, 0, LETTER.w, 380, 0, 0, LETTER.w, LETTER.h)
-  // chữ: dùng NGUYÊN khối header của tờ thiệp (y hệt thiệp nhánh Nam: chữ C thư pháp, 2 nhành lá ôm tên khách),
-  // thu nhỏ đặt phía trên — mép khối làm mờ dần để hoà vào giấy nền
+  // THƯ = NGUYÊN tờ thiệp như nhánh Nam (Hiệp 29/09: "hiện cái thư thật như ở bên nhánh Nam")
   const card = await drawInvitationCard(t.guestFullName, t.guestAddress)
-  const sy = Math.round(CARD_SIZE.h * 0.068), sh = Math.round(CARD_SIZE.h * (0.352 - 0.068))
-  const blk = makeCanvas(CARD_SIZE.w, sh)
-  blk.ctx.drawImage(card, 0, sy, CARD_SIZE.w, sh, 0, 0, CARD_SIZE.w, sh)
-  blk.ctx.globalCompositeOperation = 'destination-in'
-  const fx = blk.ctx.createLinearGradient(0, 0, CARD_SIZE.w, 0)
-  fx.addColorStop(0, 'rgba(0,0,0,0)'); fx.addColorStop(0.06, '#000'); fx.addColorStop(0.94, '#000'); fx.addColorStop(1, 'rgba(0,0,0,0)')
-  blk.ctx.fillStyle = fx
-  blk.ctx.fillRect(0, 0, CARD_SIZE.w, sh)
-  const fy = blk.ctx.createLinearGradient(0, 0, 0, sh)
-  fy.addColorStop(0, 'rgba(0,0,0,0)'); fy.addColorStop(0.08, '#000'); fy.addColorStop(0.92, '#000'); fy.addColorStop(1, 'rgba(0,0,0,0)')
-  blk.ctx.fillStyle = fy
-  blk.ctx.fillRect(0, 0, CARD_SIZE.w, sh)
-  const bw = LETTER.w * 0.56, bh = (bw / CARD_SIZE.w) * sh
-  g.drawImage(blk.canvas, (LETTER.w - bw) / 2, 58, bw, bh)
-  // viền ĐỎ ĐÔ đặc bao quanh (Hiệp 29/09: "cho hẳn màu đỏ", không phải nét mảnh) + 1 nét vàng nhạt phía trong
-  const B = 30
-  g.fillStyle = '#7a1f2b'
-  g.fillRect(0, 0, LETTER.w, B)
-  g.fillRect(0, LETTER.h - B, LETTER.w, B)
-  g.fillRect(0, 0, B, LETTER.h)
-  g.fillRect(LETTER.w - B, 0, B, LETTER.h)
-  // vân giấy nhẹ trên dải đỏ cho khỏi phẳng như màu vẽ
-  const tex = g.createLinearGradient(0, 0, LETTER.w, LETTER.h)
-  tex.addColorStop(0, 'rgba(255,255,255,0.06)'); tex.addColorStop(0.5, 'rgba(0,0,0,0.05)'); tex.addColorStop(1, 'rgba(255,255,255,0.04)')
-  g.fillStyle = tex
-  g.fillRect(0, 0, LETTER.w, B); g.fillRect(0, LETTER.h - B, LETTER.w, B); g.fillRect(0, 0, B, LETTER.h); g.fillRect(LETTER.w - B, 0, B, LETTER.h)
-  g.strokeStyle = 'rgba(184,150,90,0.8)'
-  g.lineWidth = 1.5
-  g.strokeRect(B + 7, B + 7, LETTER.w - 2 * (B + 7), LETTER.h - 2 * (B + 7))
 
-  cards = { ticket: ticket.toDataURL('image/webp', 0.92), letter: c.toDataURL('image/webp', 0.92) }
+  cards = { ticket: ticket.toDataURL('image/webp', 0.92), letter: card.toDataURL('image/webp', 0.92) }
   return cards
 }
