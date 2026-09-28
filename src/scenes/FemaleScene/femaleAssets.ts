@@ -14,9 +14,11 @@ import { ticketFromGuest, type Guest } from '../../state/guestStore'
 const F = '/assets/female/'
 
 export const FEMALE_IMG = {
-  // ?v=: đổi số mỗi lần sửa ảnh để trình duyệt không dùng bản cũ trong cache
-  sceneBg: F + 'scene-bg.webp?v=3', // ảnh cảnh Hiệp gửi 29/09 (lụa + bó hoa + KitKat + cánh hoa) — gốc: assets-src/H-scene-ref.png
-  lightmap: F + 'lightmap.webp?v=2',
+  sceneBg: F + 'scene-bg.webp?v=2', // nền mới: lụa satin Hiệp gửi 28/09
+  bouquet: F + 'bouquet.webp',
+  bouquetShadow: F + 'bouquet-shadow.webp',
+  lightmap: F + 'lightmap.webp',
+  choc: F + 'choc.webp?v=3', // ?v=: đổi số mỗi lần sửa ảnh để trình duyệt không dùng bản cũ trong cache
   petal1: F + 'petal1.webp',
   petal2: F + 'petal2.webp',
   petal3: F + 'petal3.webp',
@@ -33,14 +35,26 @@ export const PLATE = { w: 768, h: 1376 }
 /** [x0, y0, x1, y1] trên tấm 768×1376 (được phép âm / tràn: vật thò ra ngoài khung hình như ảnh thật) */
 export type Box = readonly [number, number, number, number]
 
-/* Bó hoa, KitKat, cánh hoa: có sẵn trong ảnh nền (không dùng lớp bó hoa tách nền nữa — Hiệp chốt 29/09). */
+export const PLACE: Record<'bouquet' | 'choc' | 'petal1' | 'petal2' | 'petal3', Box> = {
+  bouquet: [-70, 523, 494, 1408], // đẩy xuống 55 (Hiệp 29/09) — cuống tràn qua mép dưới
+  choc: [450, 932, 690, 1278],
+  petal1: [612, 748, 692, 821],
+  petal2: [337, 1207, 407, 1313],
+  petal3: [800, 1300, 860, 1380], // ngoài khung — bố cục mẫu chỉ có 2 cánh
+}
 
-/** Cánh hoa rải thêm (ngoài những cánh có sẵn trong ảnh nền): [ảnh 1|2|3, khung, góc xoay] */
-export const SCATTER: readonly [1 | 2 | 3, Box, number][] = []
+/** Cánh hoa rải thêm cho đỡ trống: [ảnh 1|2|3, khung, góc xoay] */
+export const SCATTER: readonly [1 | 2 | 3, Box, number][] = [
+  [1, [548, 318, 618, 420], 28],
+  [3, [118, 236, 186, 312], -22],
+  [2, [404, 1086, 466, 1180], 64],
+  [1, [468, 828, 528, 916], -38],
+  [3, [178, 1284, 240, 1360], 16],
+]
 
-/** Chỗ phong bì nằm (khung THÂN phong bì, tỉ lệ 582×435) — trên mặt đá phía trên bó hoa, nằm đè lên mép trên giấy gói bó hoa, chéo (ENVELOPE_TILT). */
+/** Chỗ phong bì nằm (khung THÂN phong bì, tỉ lệ 582×435) — trên tấm lụa phía trên bó hoa, nằm chéo (xoay ở ENVELOPE_TILT). */
 export const ENVELOPE_TILT = 9 // độ; số dương = chéo từ trái xuống phải
-export const ENVELOPE_SPOT: Box = [200, 130, 640, 459]
+export const ENVELOPE_SPOT: Box = [222, 382, 666, 714]
 
 
 /** Tải + giải mã trước toàn bộ ảnh (gọi lúc khách bấm GỬI) → cảnh không bị hiện dần từng ảnh. */
