@@ -74,13 +74,16 @@
 }
 .fem__bq-shadow {
   position: absolute;
-  /* ảnh bóng phủ kín tấm như ảnh bó hoa (đã dịch sẵn xuống-phải) */
-  inset: 0;
-  width: 100%;
-  height: 100%;
+  /* ảnh bóng = bó hoa + đệm 60px mỗi bên (ảnh 851×1342 → 971×1462), dịch xuống-phải */
+  left: -3.2%;
+  top: -0.6%;
+  width: 114.1%;
+  height: 108.9%;
+  max-width: none;
 }
 /* nắng từ trên-trái → bóng đổ xuống dưới-phải */
 /* bóng 2 lớp: bóng tiếp xúc (sát, đậm) + bóng đổ mềm (nắng trên-trái → đổ xuống-phải) */
+.fem__choc { filter: drop-shadow(1.5px 2.5px 1.5px rgba(55, 28, 18, 0.38)) drop-shadow(7px 11px 10px rgba(70, 40, 25, 0.22)); }
 .fem__petal { filter: drop-shadow(1px 1.5px 1px rgba(120, 60, 55, 0.28)) drop-shadow(4px 7px 6px rgba(120, 70, 60, 0.16)); }
 .fem__spot {
   position: absolute;
