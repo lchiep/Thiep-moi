@@ -76,5 +76,5 @@ Tách ra từ CLAUDE.md (27/09/2026) để CLAUDE.md ngắn gọn. Đây là nh�
 
 ## Nhánh Nữ — cảnh tulip theo ảnh Hiệp gửi (29/09/2026)
 - Nền cảnh = ảnh Hiệp gửi (`assets-src/H-scene-ref.png` → `scene-bg.webp`): lụa kem + bó tulip gói giấy + KitKat + thanh sô-cô-la + cánh hoa, **vẽ sẵn trong ảnh** → không còn đặt KitKat/cánh hoa rời (tránh lệch bóng/ánh sáng).
-- Bó hoa lớp trước = ảnh tách nền Hiệp gửi (`assets-src/H-bouquet-wrapped.png`), đã căn khớp đúng bó hoa trong nền, phủ kín tấm 768×1376 → phong bì luồn DƯỚI giấy gói, bóng bó hoa rơi lên phong bì. Bó hoa **đứng yên** (không đung đưa, để khỏi lệch với nền).
-- Phong bì nằm trên mặt đá phía trên bó hoa (`ENVELOPE_SPOT`), chéo 9°, góc dưới-trái luồn dưới giấy gói.
+- **Không dùng lớp bó hoa tách nền** (Hiệp chốt 29/09): bó hoa là bó có sẵn trong ảnh nền, đứng yên.
+- Phong bì nằm trên mặt đá phía trên bó hoa (`ENVELOPE_SPOT`), chéo 9°, đè nhẹ lên mép trên giấy gói, không che bông tulip.
