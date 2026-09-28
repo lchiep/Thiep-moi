@@ -82,8 +82,9 @@
   max-width: none;
 }
 /* nắng từ trên-trái → bóng đổ xuống dưới-phải */
-.fem__choc { filter: drop-shadow(5px 8px 6px rgba(70, 40, 25, 0.28)); }
-.fem__petal { filter: drop-shadow(3px 5px 4px rgba(120, 70, 60, 0.18)); }
+/* bóng 2 lớp: bóng tiếp xúc (sát, đậm) + bóng đổ mềm (nắng trên-trái → đổ xuống-phải) */
+.fem__choc { filter: drop-shadow(1.5px 2.5px 1.5px rgba(55, 28, 18, 0.38)) drop-shadow(7px 11px 10px rgba(70, 40, 25, 0.22)); }
+.fem__petal { filter: drop-shadow(1px 1.5px 1px rgba(120, 60, 55, 0.28)) drop-shadow(4px 7px 6px rgba(120, 70, 60, 0.16)); }
 .fem__spot {
   position: absolute;
   aspect-ratio: 582 / 435;
@@ -128,11 +129,13 @@
   height: 100%;
 }
 .fem__env-shadow {
-  inset: -6% -8% -12% -8%;
+  inset: 0.5%;
   width: auto;
   height: auto;
-  /* bóng mềm bằng gradient (không dùng filter blur — blur phải vẽ lại mỗi khung khi phong bì di chuyển) */
-  background: radial-gradient(closest-side, rgba(20, 12, 6, 0.6), rgba(20, 12, 6, 0.32) 55%, rgba(20, 12, 6, 0));
+  border-radius: 2px;
+  /* bóng phong bì nằm trên lụa/đá: tiếp xúc sát mép + bóng mềm đổ xuống-phải (không dùng filter blur) */
+  background: transparent;
+  box-shadow: 2px 3px 3px rgba(45, 28, 14, 0.32), 9px 16px 24px rgba(45, 28, 14, 0.24);
 }
 .fem__env-back { z-index: 1; }
 .fem__env-letter { z-index: 2; }

@@ -1,6 +1,6 @@
 /**
  * Ảnh nhánh Nữ + vị trí từng vật trong cảnh tulip.
- * Toạ độ theo "tấm ảnh" nền 768×1376 (C3: lụa + đá). Bố cục theo ảnh mẫu Hiệp gửi (27/09):
+ * Toạ độ theo "tấm ảnh" nền 768×1376 (C3: lụa + đá). Bố cục theo ảnh mẫu Hiệp gửi (28/09, ảnh đúng khổ màn 390×844 → toạ độ tấm = 66 + x·0.746, y·0.746):
  * bó hoa bên trái đè lên mép trái phong bì · phong bì to ở giữa-phải, dấu sáp ở mũi nắp (giữa phong bì)
  * · KitKat dưới-phải · cánh hoa rải trên-phải và dưới.
  * Bó hoa + cánh hoa: ảnh tách nền Hiệp gửi. KitKat: tách từ C2. Phong bì: E2 (mở) + E1 (đóng).
@@ -14,7 +14,7 @@ import { ticketFromGuest, type Guest } from '../../state/guestStore'
 const F = '/assets/female/'
 
 export const FEMALE_IMG = {
-  sceneBg: F + 'scene-bg.webp',
+  sceneBg: F + 'scene-bg.webp?v=2', // nền mới: lụa satin Hiệp gửi 28/09
   bouquet: F + 'bouquet.webp',
   bouquetShadow: F + 'bouquet-shadow.webp',
   lightmap: F + 'lightmap.webp',
@@ -36,16 +36,16 @@ export const PLATE = { w: 768, h: 1376 }
 export type Box = readonly [number, number, number, number]
 
 export const PLACE: Record<'bouquet' | 'choc' | 'petal1' | 'petal2' | 'petal3', Box> = {
-  bouquet: [-150, 290, 450, 1236],
-  choc: [362, 850, 703, 1343], // như ảnh gốc C2 (trên mặt đá, dưới-phải), hạ nhẹ cho khỏi lẫn dưới phong bì
-  petal1: [468, 640, 588, 749], // giữa bó hoa và thanh sô-cô-la
-  petal2: [612, 560, 698, 690], // dưới góc phải phong bì
-  petal3: [296, 1236, 392, 1344],
+  bouquet: [-41, 491, 469, 1295],
+  choc: [450, 932, 690, 1278],
+  petal1: [612, 748, 692, 821],
+  petal2: [337, 1207, 407, 1313],
+  petal3: [800, 1300, 860, 1380], // ngoài khung — bố cục mẫu chỉ có 2 cánh
 }
 
 /** Chỗ phong bì nằm (khung THÂN phong bì, tỉ lệ 582×435) — trên tấm lụa phía trên bó hoa, nằm chéo (xoay ở ENVELOPE_TILT). */
-export const ENVELOPE_TILT = 12 // độ; số dương = chéo từ trái xuống phải
-export const ENVELOPE_SPOT: Box = [232, 150, 636, 452]
+export const ENVELOPE_TILT = 9 // độ; số dương = chéo từ trái xuống phải
+export const ENVELOPE_SPOT: Box = [265, 401, 665, 700]
 
 
 /** Tải + giải mã trước toàn bộ ảnh (gọi lúc khách bấm GỬI) → cảnh không bị hiện dần từng ảnh. */
