@@ -6,7 +6,7 @@ import { sendExperience, useExperience } from '../../state/experienceMachine'
 import { femaleIdle, femaleTransitionTimeline } from '../../animations/gsap/femaleTransitionTimeline'
 import { femaleOpenTimeline } from '../../animations/gsap/femaleOpenTimeline'
 import { sealSparkle } from '../../animations/anime/microInteractions'
-import { ENVELOPE_SPOT, FEMALE_IMG, PLACE, SCATTER, getCards, pct } from './femaleAssets'
+import { ENVELOPE_SPOT, FEMALE_IMG, SCATTER, getCards, pct } from './femaleAssets'
 import './FemaleScene.css'
 
 export { preloadFemaleAssets, buildCards } from './femaleAssets'
@@ -47,7 +47,6 @@ export default function FemaleScene({ popup, sceneA }: Props) {
       popup: popup.current,
       sceneA: sceneA(),
       sceneB: [...el.querySelectorAll<HTMLElement>('.fem__b .fem__plate')],
-      frontPlate: q('.fem__b--front'),
       flurry: [...el.querySelectorAll<HTMLElement>('.fem__flurry img')],
       sparks: q<HTMLCanvasElement>('.fem__sparks'),
       envGlow: q('.fem__env-glow'),
@@ -62,8 +61,6 @@ export default function FemaleScene({ popup, sceneA }: Props) {
       envClosed: q('.fem__env-closed'),
       envInner: [...el.querySelectorAll<HTMLElement>('.fem__env-back, .fem__env-front, .fem__env-letter, .fem__env-glow')],
       spot: q('.fem__spot'),
-      bouquet: q('.fem__bq'),
-      choc: q('.fem__choc'),
       petals: [...el.querySelectorAll<HTMLElement>('.fem__petal')],
       light: q('.fem__light'),
       cta: q('.fem__cta'),
@@ -120,14 +117,10 @@ export default function FemaleScene({ popup, sceneA }: Props) {
 
   return (
     <div className="fem" data-scene="female" ref={root}>
-      {/* CẢNH B (lớp sau): nền lụa + đá, KitKat, cánh hoa — nằm DƯỚI nền cuộc gọi cho tới khi trang lật */}
+      {/* CẢNH B (lớp sau): ảnh cảnh Hiệp gửi (lụa + bó hoa + KitKat + cánh hoa vẽ sẵn) — nằm DƯỚI nền cuộc gọi cho tới khi trang lật */}
       <div className="fem__b" aria-hidden>
         <div className="fem__plate">
           <img className="fem__bg" src={FEMALE_IMG.sceneBg} alt="" />
-          <img className="fem__obj fem__choc" src={FEMALE_IMG.choc} alt="" style={pct(PLACE.choc)} />
-          <img className="fem__obj fem__petal" src={FEMALE_IMG.petal1} alt="" style={pct(PLACE.petal1)} />
-          <img className="fem__obj fem__petal" src={FEMALE_IMG.petal2} alt="" style={pct(PLACE.petal2)} />
-          <img className="fem__obj fem__petal" src={FEMALE_IMG.petal3} alt="" style={pct(PLACE.petal3)} />
           {SCATTER.map(([n, box, rot], i) => (
             <img key={i} className="fem__obj fem__petal" src={FEMALE_IMG[`petal${n}`]} alt=""
               style={{ ...pct(box), transform: `rotate(${rot}deg)` }} />
@@ -170,16 +163,6 @@ export default function FemaleScene({ popup, sceneA }: Props) {
         </div>
       </div>
 
-      {/* CẢNH B (lớp trước): bó hoa đè lên mép trái phong bì + vệt nắng */}
-      <div className="fem__b fem__b--front" aria-hidden>
-        <div className="fem__plate">
-          {/* bó hoa + bóng đổ của nó (bóng rơi lên phong bì và lụa) — đung đưa cùng nhau */}
-          <div className="fem__bq" style={pct(PLACE.bouquet)}>
-            <img className="fem__bq-shadow" src={FEMALE_IMG.bouquetShadow} alt="" />
-            <img className="fem__bouquet" src={FEMALE_IMG.bouquet} alt="" />
-          </div>
-        </div>
-      </div>
       {/* vệt nắng ấm: hoà (soft-light) lên cả cảnh + phong bì */}
       <div className="fem__light" aria-hidden />
 
