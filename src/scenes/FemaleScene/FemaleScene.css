@@ -398,3 +398,12 @@
 @keyframes fem-hint-in { from { opacity: 0; transform: translateY(6px); } to { opacity: 1; transform: none; } }
 @keyframes fem-hint-breathe { from { opacity: 1; } to { opacity: 0.55; } }
 @media (prefers-reduced-motion: reduce) { .fem__hint, .fem__hint span, .fem__stow { animation: none; } }
+
+/* màn thiệp (InvitationScene dùng chung): nằm trên 2 lá bài; .fem tắt pointer-events → bật lại cho màn thiệp */
+.fem__inv {
+  position: absolute;
+  inset: 0;
+  z-index: 46;
+  pointer-events: none;
+}
+.fem__inv .inv { pointer-events: auto; }

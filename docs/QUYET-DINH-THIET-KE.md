@@ -85,3 +85,5 @@ Tách ra từ CLAUDE.md (27/09/2026) để CLAUDE.md ngắn gọn. Đây là nh�
 - **Vuốt lên (hoặc chạm) lần nữa → ĐẢO BÀI**: lá trước trượt xuống-phải, chui ra sau; lá sau tiến lên trước (thư ngang to giữa màn, vé nhỏ nằm ngang ló phía trên) — lặp lại được (`FEMALE_LETTER_VIEW` ↔ `FEMALE_TICKET_VIEW`).
 - **Vuốt xuống** → cất cả hai vào phong bì (tua ngược đúng đường rút ra) → lại `FEMALE_CARDS_READY`.
 - Code: `animations/gsap/femaleDeckTimeline.ts`; chữ gợi ý `COPY.female.cardsHint/ticketHint/letterHint/stowHint`.
+- (cập nhật 29/09) Thư trong phong bì = NGUYÊN tờ thiệp (drawInvitationCard, dùng chung nhánh Nam) đặt trên **bìa đỏ đô** (viền ngoài 34px + nét vàng). Vé to ~86% chiều cao màn. Đảo bài chậm (~1.75s).
+- (cập nhật 29/09) Vuốt lên ở màn vé → đảo bài, thư lên trước rồi **phóng vừa khít tờ giấy của MÀN THIỆP** (`InvitationScene` dùng chung với nhánh Nam) → nền nhung hiện quanh → thiệp DOM thay chỗ (`invitationHandoff.ts` dùng chung 2 nhánh). "← Quay lại" = tua ngược về màn vé.

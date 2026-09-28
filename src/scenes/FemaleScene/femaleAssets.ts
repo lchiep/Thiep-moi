@@ -7,7 +7,7 @@
  */
 import { drawTicket, TICKET_FONTS } from '../../components/Ticket/drawTicket'
 import { drawInvitationCard, CARD_SIZE } from '../../components/DocumentFolder/drawInvitationCard'
-import { fontsReady } from '../../utils/paperCanvas'
+import { fontsReady, makeCanvas } from '../../utils/paperCanvas'
 import { ticketFromGuest, type Guest } from '../../state/guestStore'
 
 const F = '/assets/female/'
@@ -82,7 +82,10 @@ export const pct = (b: Box) => ({
  * drawInvitationCard (dọc, 760×1647). Trong phong bì chỉ ló phần đầu tờ thiệp; phần dưới bị túi che + cắt ở đáy phong bì.
  * Vẽ sẵn lúc khách bấm GỬI, giữ ở đây để cảnh mở phong bì dùng ngay.
  */
-export const LETTER_RATIO = CARD_SIZE.h / CARD_SIZE.w
+/** Viền ĐỎ ĐÔ đặc bao NGOÀI tờ thiệp (Hiệp: thư trong phong bì phải có "phông đỏ") — px trên khổ tờ thiệp 760 */
+export const LETTER_FRAME = 34
+export const LETTER_SIZE = { w: CARD_SIZE.w + 2 * LETTER_FRAME, h: CARD_SIZE.h + 2 * LETTER_FRAME }
+export const LETTER_RATIO = LETTER_SIZE.h / LETTER_SIZE.w
 let cards: { ticket: string; letter: string } = { ticket: '', letter: '' }
 export const getCards = () => cards
 
@@ -92,8 +95,21 @@ export async function buildCards(guest: Guest) {
   const ticket = await drawTicket(t)
 
   // THƯ = NGUYÊN tờ thiệp như nhánh Nam (Hiệp 29/09: "hiện cái thư thật như ở bên nhánh Nam")
+  // (tờ thiệp nằm trên 1 tấm bìa đỏ đô — viền ngoài; phần giấy bên trong trùng khít tờ thiệp DOM của màn thiệp)
   const card = await drawInvitationCard(t.guestFullName, t.guestAddress)
+  const B = LETTER_FRAME
+  const { canvas: letter, ctx: g } = makeCanvas(LETTER_SIZE.w, LETTER_SIZE.h)
+  g.fillStyle = '#7a1f2b'
+  g.fillRect(0, 0, LETTER_SIZE.w, LETTER_SIZE.h)
+  const tex = g.createLinearGradient(0, 0, LETTER_SIZE.w, LETTER_SIZE.h) // ánh sáng nhẹ trên bìa cho khỏi phẳng
+  tex.addColorStop(0, 'rgba(255,255,255,0.07)'); tex.addColorStop(0.5, 'rgba(0,0,0,0.06)'); tex.addColorStop(1, 'rgba(255,255,255,0.04)')
+  g.fillStyle = tex
+  g.fillRect(0, 0, LETTER_SIZE.w, LETTER_SIZE.h)
+  g.strokeStyle = 'rgba(184,150,90,0.75)' // nét vàng nhạt sát mép giấy
+  g.lineWidth = 2
+  g.strokeRect(B - 9, B - 9, CARD_SIZE.w + 18, CARD_SIZE.h + 18)
+  g.drawImage(card, B, B)
 
-  cards = { ticket: ticket.toDataURL('image/webp', 0.92), letter: card.toDataURL('image/webp', 0.92) }
+  cards = { ticket: ticket.toDataURL('image/webp', 0.92), letter: letter.toDataURL('image/webp', 0.92) }
   return cards
 }

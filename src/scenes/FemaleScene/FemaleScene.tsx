@@ -5,7 +5,9 @@ import { COPY } from '../../config/copy'
 import { sendExperience, useExperience } from '../../state/experienceMachine'
 import { femaleIdle, femaleTransitionTimeline } from '../../animations/gsap/femaleTransitionTimeline'
 import { femaleOpenTimeline } from '../../animations/gsap/femaleOpenTimeline'
-import { deckRevealTimeline, deckShuffleTimeline, type DeckRefs } from '../../animations/gsap/femaleDeckTimeline'
+import { deckRevealTimeline, deckShuffleTimeline, deckToInvitationTimeline, type DeckRefs } from '../../animations/gsap/femaleDeckTimeline'
+import InvitationScene from '../InvitationScene/InvitationScene'
+import { guestAddress, useGuest } from '../../state/guestStore'
 import { sealSparkle } from '../../animations/anime/microInteractions'
 import { ENVELOPE_SPOT, FEMALE_IMG, PLACE, SCATTER, getCards, pct } from './femaleAssets'
 import './FemaleScene.css'
@@ -117,13 +119,16 @@ export default function FemaleScene({ popup, sceneA }: Props) {
   const deckTl = useRef<gsap.core.Timeline | null>(null)
   const revealTl = useRef<gsap.core.Timeline | null>(null)
   const front = useRef<'ticket' | 'letter'>('ticket')
+  const inv = useRef<HTMLDivElement>(null)
+  const invTl = useRef<gsap.core.Timeline | null>(null)
+  const guest = useGuest((g) => g.guest)
   const deckRefs = (): DeckRefs => {
     const el = root.current!
     const q = (s: string) => el.querySelector<HTMLElement>(s)!
     return { stage: el, env: q('.fem__env'), ticketIn: q('.fem__card-ticket'), letterIn: q('.fem__card-letter'),
       ticket: q('.fem__deck-ticket'), letter: q('.fem__deck-letter'), veil: q('.fem__veil') }
   }
-  useEffect(() => () => { deckTl.current?.kill(); revealTl.current?.kill() }, [])
+  useEffect(() => () => { deckTl.current?.kill(); revealTl.current?.kill(); invTl.current?.kill() }, [])
   useLayoutEffect(() => {
     const reduce = window.matchMedia('(prefers-reduced-motion: reduce)').matches
     const run = (t: gsap.core.Timeline) => {
@@ -135,10 +140,17 @@ export default function FemaleScene({ popup, sceneA }: Props) {
       front.current = 'ticket'
       revealTl.current = deckRevealTimeline(deckRefs())
       run(revealTl.current)
-    } else if (state === 'FEMALE_SHUFFLE_TO_LETTER' || state === 'FEMALE_SHUFFLE_TO_TICKET') {
-      const toLetter = state === 'FEMALE_SHUFFLE_TO_LETTER'
-      front.current = toLetter ? 'letter' : 'ticket'
-      run(deckShuffleTimeline(deckRefs(), toLetter))
+    } else if (state === 'FEMALE_SHUFFLE_TO_LETTER') {
+      // đảo bài → thư lên trước → thành màn thiệp (như nhánh Nam)
+      front.current = 'letter'
+      invTl.current = deckToInvitationTimeline(deckRefs(), inv.current!)
+      run(invTl.current)
+    } else if (state === 'FEMALE_SHUFFLE_TO_TICKET') {
+      // "← Quay lại": tua ngược đúng đường đã vào màn thiệp
+      front.current = 'ticket'
+      const m = invTl.current
+      run(m ? m.pause().tweenFromTo(m.duration(), 0, { duration: m.duration() * 0.75, ease: 'power1.inOut' }) as unknown as gsap.core.Timeline
+        : deckShuffleTimeline(deckRefs(), false))
     } else if (state === 'FEMALE_CARDS_STOW' && revealTl.current) {
       // thư đang trước → đảo lại cho vé lên trước, rồi tua ngược đúng đường đã rút ra
       const t = gsap.timeline()
@@ -151,7 +163,7 @@ export default function FemaleScene({ popup, sceneA }: Props) {
   }, [state])
 
   // chạm = TAP · vuốt lên = SWIPE · vuốt xuống = SWIPE_DOWN (chỉ nhận khi đang chờ)
-  const deckActive = state === 'FEMALE_CARDS_READY' || state === 'FEMALE_TICKET_VIEW' || state === 'FEMALE_LETTER_VIEW'
+  const deckActive = state === 'FEMALE_CARDS_READY' || state === 'FEMALE_TICKET_VIEW'
   const touch = useRef({ x: 0, y: 0 })
   const onDeckDown = (e: React.PointerEvent) => { touch.current = { x: e.clientX, y: e.clientY } }
   const onDeckUp = (e: React.PointerEvent) => {
@@ -163,9 +175,9 @@ export default function FemaleScene({ popup, sceneA }: Props) {
   }
   const hint =
     state === 'FEMALE_CARDS_READY' ? COPY.female.cardsHint
-      : state === 'FEMALE_TICKET_VIEW' ? COPY.female.ticketHint
-        : state === 'FEMALE_LETTER_VIEW' ? COPY.female.letterHint : ''
-  const viewing = state === 'FEMALE_TICKET_VIEW' || state === 'FEMALE_LETTER_VIEW'
+      : state === 'FEMALE_TICKET_VIEW' ? COPY.female.ticketHint : ''
+  const viewing = state === 'FEMALE_TICKET_VIEW'
+  const invMounted = state === 'FEMALE_TICKET_VIEW' || state === 'FEMALE_SHUFFLE_TO_LETTER' || state === 'FEMALE_LETTER_VIEW' || state === 'FEMALE_SHUFFLE_TO_TICKET'
 
   const onTapEnvelope = () => {
     if (useExperience.getState().state !== 'FEMALE_WAITING_TAP') return
@@ -259,6 +271,13 @@ export default function FemaleScene({ popup, sceneA }: Props) {
       </div>
       <div className="fem__deck-ticket" aria-hidden={state !== 'FEMALE_TICKET_VIEW'}>
         {cards.ticket && <img src={cards.ticket} alt={COPY.female.ticketAlt} />}
+      </div>
+      {/* MÀN THIỆP dùng chung với nhánh Nam (chỉ khác thông tin khách) — thư lên trước thì thành màn này */}
+      <div className="fem__inv">
+        {invMounted && guest && (
+          <InvitationScene ref={inv} fullName={guest.fullName} address={guestAddress(guest)} active={state === 'FEMALE_LETTER_VIEW'}
+            onBack={() => sendExperience('BACK')} />
+        )}
       </div>
       <div className={`fem__deck-touch ${deckActive ? 'is-on' : ''}`} onPointerDown={onDeckDown} onPointerUp={onDeckUp}
         role="button" aria-label={hint || undefined} aria-disabled={!deckActive}>

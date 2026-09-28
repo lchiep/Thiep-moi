@@ -1,5 +1,6 @@
 import { gsap } from 'gsap'
-import { LETTER_RATIO } from '../../scenes/FemaleScene/femaleAssets'
+import { LETTER_FRAME, LETTER_RATIO, LETTER_SIZE } from '../../scenes/FemaleScene/femaleAssets'
+import { handoff, velvetAround } from './invitationHandoff'
 
 /**
  * NHÁNH NỮ — sau khi phong bì mở (Hiệp 29/09):
@@ -115,4 +116,30 @@ export function deckShuffleTimeline(o: DeckRefs, toLetter: boolean) {
     .set(front, { zIndex: 42 }, 'out+=0.75')
     .set(back, { zIndex: 43 }, 'out+=0.75')
     .to(front, { ...frontGoesTo, duration: 1.0, ease: 'power2.out' }, 'out+=0.75')
+}
+
+/**
+ * Vé đang trước → ĐẢO BÀI cho thư lên trước → tờ thiệp phóng vừa khít tờ giấy của MÀN THIỆP (InvitationScene — dùng chung
+ * với nhánh Nam) → nền nhung đỏ đô hiện quanh → thiệp DOM thay chỗ (y như nhánh Nam). Viền đỏ của thư rơi đúng vào nền nhung.
+ * "← Quay lại" = tua ngược chính timeline này.
+ */
+export function deckToInvitationTimeline(o: DeckRefs, inv: HTMLElement) {
+  const tl = gsap.timeline()
+  tl.add(deckShuffleTimeline(o, true))
+  // đo tờ giấy DOM (đã dàn trang sẵn dù đang ẩn) và khung tờ thiệp BÊN TRONG viền đỏ của lá thư
+  const { lC, S } = layoutDeck(o)
+  const paper = inv.querySelector('.inv__paper')!.getBoundingClientRect()
+  const lW = o.letter.offsetWidth, lH = o.letter.offsetHeight
+  const innerW = lW * (1 - (2 * LETTER_FRAME) / LETTER_SIZE.w)
+  const innerH = lH * (1 - (2 * LETTER_FRAME) / LETTER_SIZE.h)
+  tl.addLabel('fit', '>-0.1')
+    .to(o.letter, {
+      x: paper.left + paper.width / 2 - S.left - lC.x,
+      y: paper.top + paper.height / 2 - S.top - lC.y,
+      rotation: 0, scaleX: paper.width / innerW, scaleY: paper.height / innerH,
+      duration: 1.1, ease: 'power2.inOut',
+    }, 'fit')
+    .add(velvetAround(inv), 'fit+=0.2')
+    .add(handoff(inv), 'fit+=1.35')
+  return tl
 }
