@@ -18,7 +18,7 @@ export const FEMALE_IMG = {
   bouquet: F + 'bouquet.webp',
   bouquetShadow: F + 'bouquet-shadow.webp',
   lightmap: F + 'lightmap.webp',
-  choc: F + 'choc.webp',
+  choc: F + 'choc.webp?v=3', // ?v=: đổi số mỗi lần sửa ảnh để trình duyệt không dùng bản cũ trong cache
   petal1: F + 'petal1.webp',
   petal2: F + 'petal2.webp',
   petal3: F + 'petal3.webp',
