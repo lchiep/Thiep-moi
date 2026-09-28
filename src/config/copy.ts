@@ -66,6 +66,13 @@ export const COPY = {
     letterDate: '16 · 10 · 2026',
     // cảnh tulip: chờ khách chạm vào phong bì
     cta: 'CHẠM VÀO THƯ ĐỂ MỞ',
+    // phong bì đã mở: rút vé ra xem (như nhánh Nam) → vuốt lên để đảo bài vé ↔ thư
+    cardsHint: 'CHẠM HOẶC VUỐT LÊN ĐỂ XEM VÉ',
+    ticketHint: 'VUỐT LÊN ĐỂ XEM THƯ MỜI',
+    letterHint: 'VUỐT LÊN ĐỂ XEM VÉ',
+    stowHint: '↓ Vuốt xuống để cất vào phong bì',
+    ticketAlt: 'Vé mời Graduation Gala 2026',
+    letterAlt: 'Thư mời Graduation Gala 2026',
   },
 
   invitationHeader: {

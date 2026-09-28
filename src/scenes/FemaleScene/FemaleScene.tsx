@@ -5,6 +5,7 @@ import { COPY } from '../../config/copy'
 import { sendExperience, useExperience } from '../../state/experienceMachine'
 import { femaleIdle, femaleTransitionTimeline } from '../../animations/gsap/femaleTransitionTimeline'
 import { femaleOpenTimeline } from '../../animations/gsap/femaleOpenTimeline'
+import { deckRevealTimeline, deckShuffleTimeline, type DeckRefs } from '../../animations/gsap/femaleDeckTimeline'
 import { sealSparkle } from '../../animations/anime/microInteractions'
 import { ENVELOPE_SPOT, FEMALE_IMG, PLACE, SCATTER, getCards, pct } from './femaleAssets'
 import './FemaleScene.css'
@@ -112,6 +113,60 @@ export default function FemaleScene({ popup, sceneA }: Props) {
     })
   }, [state])
 
+  // ---------- VÉ + THƯ ra khỏi phong bì, đảo bài, cất lại ----------
+  const deckTl = useRef<gsap.core.Timeline | null>(null)
+  const revealTl = useRef<gsap.core.Timeline | null>(null)
+  const front = useRef<'ticket' | 'letter'>('ticket')
+  const deckRefs = (): DeckRefs => {
+    const el = root.current!
+    const q = (s: string) => el.querySelector<HTMLElement>(s)!
+    return { stage: el, env: q('.fem__env'), ticketIn: q('.fem__card-ticket'), letterIn: q('.fem__card-letter'),
+      ticket: q('.fem__deck-ticket'), letter: q('.fem__deck-letter'), veil: q('.fem__veil') }
+  }
+  useEffect(() => () => { deckTl.current?.kill(); revealTl.current?.kill() }, [])
+  useLayoutEffect(() => {
+    const reduce = window.matchMedia('(prefers-reduced-motion: reduce)').matches
+    const run = (t: gsap.core.Timeline) => {
+      deckTl.current = t.eventCallback('onComplete', () => sendExperience('DONE'))
+      if (reduce) t.timeScale(2)
+      if (QA) (window as unknown as { __femaleDeckTl: unknown }).__femaleDeckTl = t
+    }
+    if (state === 'FEMALE_TICKET_REVEAL') {
+      front.current = 'ticket'
+      revealTl.current = deckRevealTimeline(deckRefs())
+      run(revealTl.current)
+    } else if (state === 'FEMALE_SHUFFLE_TO_LETTER' || state === 'FEMALE_SHUFFLE_TO_TICKET') {
+      const toLetter = state === 'FEMALE_SHUFFLE_TO_LETTER'
+      front.current = toLetter ? 'letter' : 'ticket'
+      run(deckShuffleTimeline(deckRefs(), toLetter))
+    } else if (state === 'FEMALE_CARDS_STOW' && revealTl.current) {
+      // thư đang trước → đảo lại cho vé lên trước, rồi tua ngược đúng đường đã rút ra
+      const t = gsap.timeline()
+      if (front.current === 'letter') t.add(deckShuffleTimeline(deckRefs(), false))
+      const r = revealTl.current.pause()
+      t.add(r.tweenFromTo(r.duration(), 0, { duration: r.duration() * 0.8, ease: 'power1.inOut' }))
+      front.current = 'ticket'
+      run(t)
+    }
+  }, [state])
+
+  // chạm = TAP · vuốt lên = SWIPE · vuốt xuống = SWIPE_DOWN (chỉ nhận khi đang chờ)
+  const deckActive = state === 'FEMALE_CARDS_READY' || state === 'FEMALE_TICKET_VIEW' || state === 'FEMALE_LETTER_VIEW'
+  const touch = useRef({ x: 0, y: 0 })
+  const onDeckDown = (e: React.PointerEvent) => { touch.current = { x: e.clientX, y: e.clientY } }
+  const onDeckUp = (e: React.PointerEvent) => {
+    const dx = e.clientX - touch.current.x
+    const dy = e.clientY - touch.current.y
+    if (Math.hypot(dx, dy) < 12) sendExperience('TAP')
+    else if (dy < -40 && Math.abs(dy) > Math.abs(dx) * 1.2) sendExperience('SWIPE')
+    else if (dy > 50 && Math.abs(dy) > Math.abs(dx) * 1.2) sendExperience('SWIPE_DOWN')
+  }
+  const hint =
+    state === 'FEMALE_CARDS_READY' ? COPY.female.cardsHint
+      : state === 'FEMALE_TICKET_VIEW' ? COPY.female.ticketHint
+        : state === 'FEMALE_LETTER_VIEW' ? COPY.female.letterHint : ''
+  const viewing = state === 'FEMALE_TICKET_VIEW' || state === 'FEMALE_LETTER_VIEW'
+
   const onTapEnvelope = () => {
     if (useExperience.getState().state !== 'FEMALE_WAITING_TAP') return
     sendExperience('TAP') // → FEMALE_ENVELOPE_OPEN
@@ -193,6 +248,20 @@ export default function FemaleScene({ popup, sceneA }: Props) {
       <button type="button" className="fem__cta" onClick={onTapEnvelope} disabled={state !== 'FEMALE_WAITING_TAP'}>
         <span>{COPY.female.cta}</span>
       </button>
+
+      {/* xem vé / thư: nền mờ + 2 lá lớn (vé dọc như nhánh Nam, thư ngang) — đảo bài khi vuốt lên */}
+      <div className="fem__veil" aria-hidden />
+      <div className="fem__deck-letter" aria-hidden={state !== 'FEMALE_LETTER_VIEW'}>
+        {cards.letter && <img src={cards.letter} alt={COPY.female.letterAlt} />}
+      </div>
+      <div className="fem__deck-ticket" aria-hidden={state !== 'FEMALE_TICKET_VIEW'}>
+        {cards.ticket && <img src={cards.ticket} alt={COPY.female.ticketAlt} />}
+      </div>
+      <div className={`fem__deck-touch ${deckActive ? 'is-on' : ''}`} onPointerDown={onDeckDown} onPointerUp={onDeckUp}
+        role="button" aria-label={hint || undefined} aria-disabled={!deckActive}>
+        {viewing && <p key="stow" className="fem__stow">{COPY.female.stowHint}</p>}
+        {hint && <p key={state} className={`fem__hint ${viewing ? 'is-dark' : ''}`}><span>{hint}</span></p>}
+      </div>
     </div>
   )
 }

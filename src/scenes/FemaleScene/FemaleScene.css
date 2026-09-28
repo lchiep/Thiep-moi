@@ -299,3 +299,89 @@
   cursor: pointer;
 }
 .fem__cta:disabled { cursor: default; }
+
+/* ---------- XEM VÉ / THƯ (đảo bài) ---------- */
+/* nền mờ phía sau 2 lá (phong bì, bó hoa…) */
+.fem__veil {
+  position: absolute;
+  inset: 0;
+  z-index: 41;
+  pointer-events: none;
+  visibility: hidden;
+  opacity: 0;
+  background: radial-gradient(90% 70% at 50% 45%, rgba(40, 24, 18, 0.22), rgba(28, 16, 12, 0.55));
+  -webkit-backdrop-filter: blur(8px) saturate(0.92);
+  backdrop-filter: blur(8px) saturate(0.92);
+}
+/* 2 lá lớn: khung gốc (left/top/width/height) do GSAP đặt theo cỡ màn; xoay/di chuyển/zIndex do GSAP */
+.fem__deck-ticket,
+.fem__deck-letter {
+  position: absolute;
+  z-index: 42;
+  pointer-events: none;
+  visibility: hidden;
+  opacity: 0;
+  will-change: transform;
+}
+.fem__deck-ticket img,
+.fem__deck-letter img {
+  display: block;
+  width: 100%;
+  height: 100%;
+  max-width: none;
+  /* bóng tĩnh (không animate filter) */
+  filter: drop-shadow(0 2px 3px rgba(40, 22, 12, 0.35)) drop-shadow(0 16px 26px rgba(30, 16, 8, 0.38));
+}
+/* lớp nhận chạm / vuốt phủ cả màn (chỉ bật khi đang chờ) */
+.fem__deck-touch {
+  position: absolute;
+  inset: 0;
+  z-index: 45;
+  display: none;
+  pointer-events: auto; /* .fem tắt pointer-events cho cả cây */
+  touch-action: none;
+  cursor: pointer;
+  -webkit-tap-highlight-color: transparent;
+}
+.fem__deck-touch.is-on { display: block; }
+.fem__hint {
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: calc(var(--safe-bottom) + 4.4cqh);
+  margin: 0;
+  text-align: center;
+  pointer-events: none;
+  animation: fem-hint-in 0.7s 0.2s ease-out both;
+  font-family: var(--font-ui);
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: 0.26em;
+  white-space: nowrap;
+  color: #6e1f2a;
+  text-shadow: 0 1px 6px rgba(255, 250, 240, 0.95);
+}
+/* trên nền mờ tối: chữ kem sáng như màn xem vé nhánh Nam */
+.fem__hint.is-dark {
+  color: #f7f0e4;
+  text-shadow: 0 0 2px rgba(255, 238, 205, 0.7), 0 0 10px rgba(255, 210, 145, 0.5), 0 1px 2px rgba(0, 0, 0, 0.6);
+}
+.fem__hint span { display: inline-block; animation: fem-hint-breathe 1.5s 0.9s ease-in-out infinite alternate; }
+.fem__stow {
+  position: absolute;
+  top: calc(var(--safe-top) + 1.4cqh);
+  left: 0;
+  right: 0;
+  margin: 0;
+  text-align: center;
+  pointer-events: none;
+  animation: fem-hint-in 0.8s 0.4s ease-out both;
+  font-family: var(--font-serif);
+  font-style: italic;
+  font-size: 14px;
+  color: rgba(247, 240, 228, 0.8);
+  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.6);
+}
+@keyframes fem-hint-in { from { opacity: 0; transform: translateY(6px); } to { opacity: 1; transform: none; } }
+@keyframes fem-hint-breathe { from { opacity: 1; } to { opacity: 0.55; } }
+@media (prefers-reduced-motion: reduce) { .fem__hint, .fem__hint span, .fem__stow { animation: none; } }

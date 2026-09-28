@@ -79,3 +79,9 @@ Tách ra từ CLAUDE.md (27/09/2026) để CLAUDE.md ngắn gọn. Đây là nh�
 - Bóng phong bì: hộp bóng nằm gọn trong phong bì (inset 6%) → không còn dải sáng lộ ra dưới mép khi phong bì nhấc lên.
 - Thiệp trong phong bì: viền ĐỎ ĐÔ đặc bao quanh (dày ~30px trên khổ 852) + 1 nét vàng nhạt bên trong.
 - Vị trí: bó hoa hạ 55 (tấm), bóng bó hoa nhạt dần ở phần cuống; phong bì `ENVELOPE_SPOT` [244,352,684,681] — bó hoa chỉ đè góc nhỏ.
+
+## Nhánh Nữ — xem vé + đảo bài (29/09/2026)
+- Phong bì mở xong (`FEMALE_CARDS_READY`): **chạm hoặc vuốt lên** → VÉ bay ra, xoay dọc, phóng to giữa màn (như màn xem vé nhánh Nam), THƯ trượt hẳn ra khỏi túi rồi nằm sau vé, nền mờ đi (`FEMALE_TICKET_VIEW`).
+- **Vuốt lên (hoặc chạm) lần nữa → ĐẢO BÀI**: lá trước trượt xuống-phải, chui ra sau; lá sau tiến lên trước (thư ngang to giữa màn, vé nhỏ nằm ngang ló phía trên) — lặp lại được (`FEMALE_LETTER_VIEW` ↔ `FEMALE_TICKET_VIEW`).
+- **Vuốt xuống** → cất cả hai vào phong bì (tua ngược đúng đường rút ra) → lại `FEMALE_CARDS_READY`.
+- Code: `animations/gsap/femaleDeckTimeline.ts`; chữ gợi ý `COPY.female.cardsHint/ticketHint/letterHint/stowHint`.

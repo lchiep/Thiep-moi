@@ -23,6 +23,12 @@ export type ExperienceState =
   | 'FEMALE_WAITING_TAP'
   | 'FEMALE_ENVELOPE_OPEN'
   | 'FEMALE_CARDS_READY'
+  | 'FEMALE_TICKET_REVEAL'
+  | 'FEMALE_TICKET_VIEW'
+  | 'FEMALE_SHUFFLE_TO_LETTER'
+  | 'FEMALE_SHUFFLE_TO_TICKET'
+  | 'FEMALE_LETTER_VIEW'
+  | 'FEMALE_CARDS_STOW'
   | 'TICKET_REVEAL'
   | 'TICKET_VIEW'
   | 'INVITATION_ENTER'
@@ -69,6 +75,15 @@ const TRANSITIONS: Partial<Record<ExperienceState, Partial<Record<ExperienceEven
   // chạm thư: cánh hoa nâng phong bì lên TRƯỚC bó hoa → nắp mở → VÉ ra trước → thiệp ra sau
   FEMALE_WAITING_TAP: { TAP: 'FEMALE_ENVELOPE_OPEN' },
   FEMALE_ENVELOPE_OPEN: { DONE: 'FEMALE_CARDS_READY' },
+  // chạm / vuốt lên: vé bay ra giữa màn (như xem vé nhánh Nam), thư ra nằm sau vé
+  FEMALE_CARDS_READY: { TAP: 'FEMALE_TICKET_REVEAL', SWIPE: 'FEMALE_TICKET_REVEAL' },
+  FEMALE_TICKET_REVEAL: { DONE: 'FEMALE_TICKET_VIEW' },
+  // vuốt lên lần nữa: ĐẢO BÀI (thư lên trước ↔ vé lên trước) · vuốt xuống: cất vào phong bì
+  FEMALE_TICKET_VIEW: { SWIPE: 'FEMALE_SHUFFLE_TO_LETTER', TAP: 'FEMALE_SHUFFLE_TO_LETTER', SWIPE_DOWN: 'FEMALE_CARDS_STOW' },
+  FEMALE_SHUFFLE_TO_LETTER: { DONE: 'FEMALE_LETTER_VIEW' },
+  FEMALE_LETTER_VIEW: { SWIPE: 'FEMALE_SHUFFLE_TO_TICKET', TAP: 'FEMALE_SHUFFLE_TO_TICKET', SWIPE_DOWN: 'FEMALE_CARDS_STOW' },
+  FEMALE_SHUFFLE_TO_TICKET: { DONE: 'FEMALE_TICKET_VIEW' },
+  FEMALE_CARDS_STOW: { DONE: 'FEMALE_CARDS_READY' },
   TICKET_REVEAL: { DONE: 'TICKET_VIEW' },
   // vuốt sang phải → trang thiệp đi vào từ bên trái
   // vuốt phải: cất vé vào túi → camera lia sang trái, zoom vào thiệp tới khi đầy màn hình
