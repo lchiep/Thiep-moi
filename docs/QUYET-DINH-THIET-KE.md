@@ -73,3 +73,9 @@ Tách ra từ CLAUDE.md (27/09/2026) để CLAUDE.md ngắn gọn. Đây là nh�
 - (28/09, lần 6 — theo ảnh phong bì đỏ) Thiệp trong phong bì vẽ RIÊNG: nền giấy dó (khúc có 2 nhành lá), chữ header thu nhỏ dồn lên trên, rộng 92% phong bì (hết khoảng thừa 2 bên), nhô vừa phải (~1/3). Vé 62% bề ngang, nằm chéo -20° ở góc dưới-phải phía trước thiệp, không che chữ.
 - (28/09, lần 7 — theo thiệp trong tập hồ sơ nhánh Nam) Chữ trên thiệp trong phong bì = NGUYÊN khối header tờ thiệp (drawInvitationCard: chữ C thư pháp, 2 nhành lá ôm tên khách) thu nhỏ còn ~56% bề ngang, đặt phía trên, mép khối làm mờ hoà vào giấy; nền giấy trơn; viền đỏ đô 2 nét.
 - (28/09) Mượt hơn khi chạm thư: phong bì bay theo 1 đường cong liền (MotionPathPlugin: sang phải-lên thoát bó hoa rồi vòng về giữa), các đoạn chồng lấn không có chỗ dừng; cánh hoa là con của phong bì (đi cùng, không đuổi theo); bóng phong bì bằng gradient (bỏ filter blur). Vé to hơn (74% bề ngang phong bì). Số nhô lên do Hiệp tự chỉnh: thiệp -28, vé -120, xoay -20°.
+
+## Nhánh Nữ — chạm thư (29/09/2026, sửa theo Hiệp)
+- BỎ cánh hoa bay tới đỡ phong bì (Hiệp chê không đẹp). Thay bằng: nhấn → mép xa nhấc khỏi lụa (nghiêng 3D ~10°, bóng tách ra) → bay theo đường cong ra giữa màn, to dần, bóng xa + nhạt → nằm phẳng lại, nhún nhẹ → mở nắp → thiệp → vé.
+- Bóng phong bì: hộp bóng nằm gọn trong phong bì (inset 6%) → không còn dải sáng lộ ra dưới mép khi phong bì nhấc lên.
+- Thiệp trong phong bì: viền ĐỎ ĐÔ đặc bao quanh (dày ~30px trên khổ 852) + 1 nét vàng nhạt bên trong.
+- Vị trí: bó hoa hạ 55 (tấm), bóng bó hoa nhạt dần ở phần cuống; phong bì `ENVELOPE_SPOT` [244,352,684,681] — bó hoa chỉ đè góc nhỏ.

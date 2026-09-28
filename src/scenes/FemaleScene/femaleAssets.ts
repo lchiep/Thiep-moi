@@ -85,7 +85,7 @@ export const pct = (b: Box) => ({
 /**
  * Thiệp trong phong bì — thiết kế riêng cho khổ phong bì (theo ảnh tham khảo phong bì đỏ Hiệp gửi):
  * nền = giấy dó của tờ thiệp, khối chữ = NGUYÊN header tờ thiệp (như thiệp nhánh Nam) thu nhỏ còn ~56% bề ngang,
- * đặt phía trên cho thoáng · viền đỏ đô 2 nét. Nội dung chung với thiệp nhánh Nam (COPY.invitationHeader, họ tên, "Chị + tên").
+ * đặt phía trên cho thoáng · viền đỏ đô đặc bao quanh + nét vàng nhạt bên trong. Nội dung chung với thiệp nhánh Nam (COPY.invitationHeader, họ tên, "Chị + tên").
  */
 const PAPER = '/assets/invitation/paper.webp'
 const LETTER = { w: 852, h: 613 }
@@ -116,14 +116,22 @@ export async function buildCards(guest: Guest) {
   blk.ctx.fillStyle = fy
   blk.ctx.fillRect(0, 0, CARD_SIZE.w, sh)
   const bw = LETTER.w * 0.56, bh = (bw / CARD_SIZE.w) * sh
-  g.drawImage(blk.canvas, (LETTER.w - bw) / 2, 36, bw, bh)
-  // viền đỏ đô 2 nét
-  g.strokeStyle = 'rgba(122,31,43,0.85)'
-  g.lineWidth = 3
-  g.strokeRect(20, 20, LETTER.w - 40, LETTER.h - 40)
-  g.strokeStyle = 'rgba(122,31,43,0.45)'
-  g.lineWidth = 1.2
-  g.strokeRect(29, 29, LETTER.w - 58, LETTER.h - 58)
+  g.drawImage(blk.canvas, (LETTER.w - bw) / 2, 58, bw, bh)
+  // viền ĐỎ ĐÔ đặc bao quanh (Hiệp 29/09: "cho hẳn màu đỏ", không phải nét mảnh) + 1 nét vàng nhạt phía trong
+  const B = 30
+  g.fillStyle = '#7a1f2b'
+  g.fillRect(0, 0, LETTER.w, B)
+  g.fillRect(0, LETTER.h - B, LETTER.w, B)
+  g.fillRect(0, 0, B, LETTER.h)
+  g.fillRect(LETTER.w - B, 0, B, LETTER.h)
+  // vân giấy nhẹ trên dải đỏ cho khỏi phẳng như màu vẽ
+  const tex = g.createLinearGradient(0, 0, LETTER.w, LETTER.h)
+  tex.addColorStop(0, 'rgba(255,255,255,0.06)'); tex.addColorStop(0.5, 'rgba(0,0,0,0.05)'); tex.addColorStop(1, 'rgba(255,255,255,0.04)')
+  g.fillStyle = tex
+  g.fillRect(0, 0, LETTER.w, B); g.fillRect(0, LETTER.h - B, LETTER.w, B); g.fillRect(0, 0, B, LETTER.h); g.fillRect(LETTER.w - B, 0, B, LETTER.h)
+  g.strokeStyle = 'rgba(184,150,90,0.8)'
+  g.lineWidth = 1.5
+  g.strokeRect(B + 7, B + 7, LETTER.w - 2 * (B + 7), LETTER.h - 2 * (B + 7))
 
   cards = { ticket: ticket.toDataURL('image/webp', 0.92), letter: c.toDataURL('image/webp', 0.92) }
   return cards

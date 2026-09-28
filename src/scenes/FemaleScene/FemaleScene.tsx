@@ -91,7 +91,7 @@ export default function FemaleScene({ popup, sceneA }: Props) {
     return () => { a.revert() }
   }, [state])
 
-  // CHẠM THƯ → cánh hoa nâng phong bì lên trước bó hoa → mở nắp → vé ra trước → thiệp ra sau
+  // CHẠM THƯ → phong bì được nhấc lên, bay ra giữa màn → mở nắp → vé ra trước → thiệp ra sau
   const openCtx = useRef<gsap.Context | null>(null)
   useEffect(() => () => { openCtx.current?.revert() }, []) // chỉ dọn khi rời cảnh (không dọn lúc đổi state)
   useLayoutEffect(() => {
@@ -105,7 +105,7 @@ export default function FemaleScene({ popup, sceneA }: Props) {
         envSun: q('.fem__env-sun'), envClosed: q('.fem__env-closed'), pocket: q('.fem__env-pocket'),
         inner: [...el.querySelectorAll<HTMLElement>('.fem__env-back, .fem__env-front, .fem__env-letter, .fem__env-glow')],
         wall: q('.fem__env-wall'), flap: q('.fem__flap'), ticket: q('.fem__card-ticket'), letter: q('.fem__card-letter'),
-        carry: [...el.querySelectorAll<HTMLElement>('.fem__env-carry img')], cta: q('.fem__cta'),
+        cta: q('.fem__cta'),
       }, () => sendExperience('DONE')) // → FEMALE_CARDS_READY
       if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) t.timeScale(2)
       if (QA) (window as unknown as { __femaleOpenTl: unknown }).__femaleOpenTl = t
@@ -161,12 +161,6 @@ export default function FemaleScene({ popup, sceneA }: Props) {
           <div className="fem__seal-fx">
             {Array.from({ length: 12 }, (_, i) => <i key={i} />)}
           </div>
-        </div>
-        {/* cánh hoa bay tới "đỡ" phong bì lên — là con của phong bì nên đi cùng phong bì, không bị trễ */}
-        <div className="fem__env-carry" aria-hidden>
-          {Array.from({ length: 8 }, (_, i) => (
-            <img key={i} src={[FEMALE_IMG.petal1, FEMALE_IMG.petal2, FEMALE_IMG.petal3][i % 3]} alt="" style={{ width: `${9 + (i % 3) * 2}cqw` }} />
-          ))}
         </div>
       </div>
 
