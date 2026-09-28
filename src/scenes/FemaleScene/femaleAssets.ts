@@ -37,7 +37,7 @@ export type Box = readonly [number, number, number, number]
 
 export const PLACE: Record<'bouquet' | 'choc' | 'petal1' | 'petal2' | 'petal3', Box> = {
   bouquet: [-150, 290, 450, 1236],
-  choc: [390, 850, 702, 1342], // như ảnh gốc C2 (trên mặt đá, dưới-phải), hạ nhẹ cho khỏi lẫn dưới phong bì
+  choc: [362, 850, 703, 1343], // như ảnh gốc C2 (trên mặt đá, dưới-phải), hạ nhẹ cho khỏi lẫn dưới phong bì
   petal1: [520, 300, 640, 409],
   petal2: [636, 430, 722, 560],
   petal3: [296, 1236, 392, 1344],

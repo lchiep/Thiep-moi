@@ -306,7 +306,12 @@
 .gp__area textarea { resize: none; line-height: 1.35; }
 .gp__area > svg { margin-top: 1px; }
 
-/* ---------- giới tính: 2 mảnh kính màu ---------- */
+/* ---------- giới tính: 2 mảnh kính ----------
+   Chưa chọn: cả 2 nút là kính TRẮNG XÁM phát sáng nhẹ. Chọn nút nào → nút đó mới chuyển sang màu
+   (Nữ hồng / Nam xanh), màu chuyển mượt nhờ 3 kênh màu đăng ký @property. */
+@property --tr { syntax: '<number>'; inherits: true; initial-value: 225; }
+@property --tg { syntax: '<number>'; inherits: true; initial-value: 228; }
+@property --tb { syntax: '<number>'; inherits: true; initial-value: 235; }
 .gp__gender {
   position: relative;
   display: grid;
@@ -314,10 +319,13 @@
   gap: 12px;
 }
 .gp__sex {
-  /* mặt kính trung tính như ô nhập; CHỈ vùng icon có màu, loang nhẹ sang phải */
-  --tint: 255, 110, 160;
-  --a: 0.72;
-  --edge: 0.55;
+  /* mặt kính trung tính như ô nhập; vùng icon loang màu (chưa chọn: trắng xám sáng) */
+  --tr: 225;
+  --tg: 228;
+  --tb: 235;
+  --tint: var(--tr), var(--tg), var(--tb);
+  --a: 0.42;
+  --edge: 0.6;
   position: relative;
   display: flex;
   align-items: center;
@@ -348,7 +356,8 @@
   -webkit-backdrop-filter: blur(1.5px) saturate(1.15);
   backdrop-filter: blur(1.5px) saturate(1.15);
   text-shadow: 0 1px 3px rgba(0, 0, 0, 0.5);
-  transition: transform 0.18s cubic-bezier(0.22, 1, 0.36, 1), box-shadow 0.3s ease, filter 0.2s ease, border-color 0.3s;
+  transition: transform 0.18s cubic-bezier(0.22, 1, 0.36, 1), box-shadow 0.3s ease, filter 0.2s ease, border-color 0.3s,
+    --tr 0.45s ease, --tg 0.45s ease, --tb 0.45s ease;
 }
 /* viền loang màu: đậm ở phía icon, tan dần thành viền kính trắng mờ bên phải */
 /* viền màu mềm quanh cả nút, đậm hơn ở phía icon */
@@ -381,10 +390,14 @@
     0 0 24px rgba(var(--tint), calc(var(--edge) * 0.2));
   transition: box-shadow 0.3s;
 }
-.gp__sex.is-nam { --tint: 80, 155, 235; --a: 0.68; }
-.gp__sex > svg { flex: none; width: 26px; height: 26px; stroke-width: 1.5; color: rgb(var(--tint)); }
-.gp__sex.is-nu > svg { color: #ff8ab8; }
-.gp__sex.is-nam > svg { color: #8cc4ff; }
+.gp__sex > svg { flex: none; width: 26px; height: 26px; stroke-width: 1.5; color: rgb(var(--tint)); transition: color 0.45s ease; }
+/* chưa chọn: icon trắng sáng */
+.gp__sex:not(.is-on) > svg { color: #f4f6fa; filter: drop-shadow(0 0 4px rgba(255, 255, 255, 0.55)); }
+/* đã chọn: mới đổi sang màu riêng */
+.gp__sex.is-nu.is-on { --tr: 255; --tg: 110; --tb: 160; }
+.gp__sex.is-nam.is-on { --tr: 80; --tg: 155; --tb: 235; }
+.gp__sex.is-nu.is-on > svg { color: #ff8ab8; }
+.gp__sex.is-nam.is-on > svg { color: #8cc4ff; }
 
 @media (hover: hover) {
   .gp__sex:hover { transform: translateY(-1px); --a: 0.8; --edge: 0.7; }
