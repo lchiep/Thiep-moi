@@ -171,6 +171,8 @@ export const COPY = {
     {
       nameWord: 'Hằng',
       honorific: 'Bé',
+      // luôn là nhánh Nữ: nút "Nam" bị khoá, tự chọn "Nữ"
+      lockGender: 'nu',
       // xưng hô trong thư: ANH – BÉ
       sections: {
         letter: {

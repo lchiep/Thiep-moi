@@ -60,7 +60,8 @@ export const useGuest = create<Store>((set, get) => ({
       nickname: f.nickname.trim(),
       phone: f.phone.replace(/\s/g, ''),
       cccd: f.cccd.trim(),
-      gender: f.gender === 'nu' ? 'nu' : 'nam',
+      // luật riêng (vd. tên Hằng) khoá giới tính → luôn đúng nhánh dù form gửi gì
+      gender: specialGuest(f.fullName)?.lockGender ?? (f.gender === 'nu' ? 'nu' : 'nam'),
       email: f.email.trim(),
       dob: f.dob,
       hobbies: f.hobbies.trim(),

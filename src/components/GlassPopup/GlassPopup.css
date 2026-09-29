@@ -863,3 +863,11 @@
   letter-spacing: 0.04em;
   color: rgba(251, 246, 238, 0.55);
 }
+
+/* giới tính bị khoá theo luật riêng (vd. tên Hằng → chỉ Nữ): nút còn lại mờ đi, không bấm được */
+.gp__sex:disabled {
+  opacity: 0.35;
+  filter: grayscale(1);
+  cursor: not-allowed;
+  pointer-events: none;
+}

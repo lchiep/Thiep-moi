@@ -5,6 +5,7 @@ import FormTour from './FormTour'
 import PhotoPicker from './PhotoPicker'
 import DateField from './DateField'
 import { COPY } from '../../config/copy'
+import { specialGuest } from '../../state/guestStore'
 import './GlassPopup.css'
 
 export type Gender = 'nu' | 'nam'
@@ -77,6 +78,12 @@ const GlassPopup = forwardRef<HTMLDivElement, Props>(function GlassPopup({ onCan
   }
   const set = <K extends keyof GuestForm>(k: K, v: GuestForm[K]) => setF((p) => ({ ...p, [k]: v }))
 
+  // luật riêng theo tên (vd. họ tên có "Hằng"): khoá giới tính → chỉ đi được nhánh Nữ
+  const lockGender = specialGuest(f.fullName)?.lockGender as Gender | undefined
+  useEffect(() => {
+    if (lockGender && f.gender !== lockGender) setF((p) => ({ ...p, gender: lockGender }))
+  }, [lockGender, f.gender])
+
   const photoUrl = useMemo(() => (f.photo ? URL.createObjectURL(f.photo) : ''), [f.photo])
   useEffect(() => () => { if (photoUrl) URL.revokeObjectURL(photoUrl) }, [photoUrl])
 
@@ -142,11 +149,11 @@ const GlassPopup = forwardRef<HTMLDivElement, Props>(function GlassPopup({ onCan
 
           <Field {...fp('gender')} label="Giới tính" req>
             <div className="gp__gender" role="radiogroup" aria-label="Giới tính">
-              <button type="button" role="radio" aria-checked={f.gender === 'nu'}
+              <button type="button" role="radio" aria-checked={f.gender === 'nu'} disabled={!!lockGender && lockGender !== 'nu'}
                 className={`gp__sex is-nu ${f.gender === 'nu' ? 'is-on' : ''}`} onClick={() => set('gender', 'nu')}>
                 <IFemale />Nữ
               </button>
-              <button type="button" role="radio" aria-checked={f.gender === 'nam'}
+              <button type="button" role="radio" aria-checked={f.gender === 'nam'} disabled={!!lockGender && lockGender !== 'nam'}
                 className={`gp__sex is-nam ${f.gender === 'nam' ? 'is-on' : ''}`} onClick={() => set('gender', 'nam')}>
                 <IMale />Nam
               </button>
