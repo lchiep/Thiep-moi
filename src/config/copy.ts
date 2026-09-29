@@ -195,7 +195,7 @@ export const COPY = {
           options: [
             { value: 'attending', label: 'Sẽ tham dự cùng anh', reply: 'Hẹn gặp bé tại buổi lễ nhé.' },
             { value: 'maybe', label: 'Sẽ thu xếp', reply: 'Anh sẽ giữ một chỗ thật đẹp cho bé.' },
-            { value: 'not_attending', label: 'Không đi được', reply: 'Tiếc quá, vậy cảm ơn bé đã kết nối với anh nhé' },
+            { value: 'not_attending', label: 'Không đi được', reply: 'Tiếc quá, vậy cảm ơn em đã trả lời lá thư này' },
           ],
           thanks: 'Cảm ơn bé nhé ♡',
           thanksSub: 'Anh đã nhận được câu trả lời của bé rồi.',

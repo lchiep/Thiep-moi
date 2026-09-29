@@ -326,6 +326,11 @@
   font-weight: 600;
   font-size: 18px;
   color: var(--wine);
+  /* gạch chân mảnh (Hiệp: để người đọc hiểu đây là câu hỏi cần trả lời) */
+  text-decoration: underline;
+  text-decoration-thickness: 1px;
+  text-underline-offset: 5px;
+  text-decoration-color: rgba(90, 22, 33, 0.55);
 }
 .inv__rsvp [role='radiogroup'] { display: flex; flex-direction: column; gap: 6px; }
 .inv__opt {
