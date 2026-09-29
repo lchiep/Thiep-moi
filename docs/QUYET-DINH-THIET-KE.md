@@ -92,3 +92,6 @@ Tách ra từ CLAUDE.md (27/09/2026) để CLAUDE.md ngắn gọn. Đây là nh�
 - Họ và tên có chữ **Hằng** (cả chữ, không phân biệt hoa/thường) → xưng hô trên thiệp/vé = **"Bé" + biệt danh** (thay Anh/Chị), cả 2 nhánh.
 - Chữ trong thư đổi xưng hô thành **anh – bé** (thư ngỏ, ghi chú, hướng dẫn, xác nhận tham dự, lời chúc).
 - Cấu hình ở `COPY.specialGuests` (copy.ts): mỗi luật có `nameWord`, `honorific`, `sections` (chỉ ghi dòng khác bản chung). Code: `specialGuest`, `guestAddress`, `sectionsFor` trong `guestStore.ts`.
+
+## Nhánh Nam — popup → tập tài liệu (29/09/2026, sửa theo Hiệp)
+- Bỏ bước "kính co thành hộp đen trống ở mép dưới rồi mới hiện tập". Giờ tập tài liệu 3D có mặt ngay, trồi lên từ mép dưới; tấm kính popup co lại **bám theo đúng hình chiếu mặt bìa đang trồi lên** (đo mỗi khung hình) và trong dần → như lớp kính tan lên bìa.

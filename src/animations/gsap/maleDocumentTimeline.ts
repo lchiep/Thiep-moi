@@ -55,40 +55,43 @@ export function maleEnterTimeline({ popup, folder, camera, canvas, onComplete }:
   const air = popup.querySelectorAll('.gp__veil, .gp__light')
 
   const s = shell.getBoundingClientRect()
-  const r = projectRect(folder.root, camera, canvas)
   const root = folder.root
+
+  /*
+   * Hiệp chê bản cũ (kính co thành 1 hộp đen trống ở mép dưới rồi mới hiện tập tài liệu).
+   * Bản mới: tập tài liệu THẬT đã có mặt ngay từ đầu, trồi lên từ mép dưới; tấm kính popup co lại và
+   * "bám" dần vào đúng mặt bìa đang trồi lên (đo hình chiếu 3D từng khung hình), vừa bám vừa trong dần
+   * — như lớp kính tan lên bìa. Không có khoảnh khắc nào màn hình chỉ còn 1 khối trống.
+   */
+  const k = { v: 0 }
+  const follow = () => {
+    const r = projectRect(root, camera, canvas)
+    const e = k.v
+    const l = s.left + (r.left - s.left) * e
+    const t = s.top + (r.top - s.top) * e
+    const w = s.width + (r.width - s.width) * e
+    const h = s.height + (r.height - s.height) * e
+    gsap.set(shell, { x: l - s.left, y: t - s.top, scaleX: w / s.width, scaleY: h / s.height })
+  }
 
   const tl = gsap.timeline({ onComplete })
   tl.addLabel('fold')
     // 1. nội dung form lặng đi, các lớp kính con tan vào tấm kính lớn
     .to(items, { autoAlpha: 0, y: 8, duration: 0.32, stagger: { each: 0.012, from: 'end' }, ease: 'power2.in' }, 'fold')
     .to(inner, { autoAlpha: 0, duration: 0.4, ease: 'power2.in' }, 'fold+=0.15')
-    // 2. tấm kính co lại + sẫm dần thành mặt bìa nhựa đen, trượt xuống mép dưới
-    .to(
-      shell,
-      {
-        x: r.left - s.left,
-        y: r.top - s.top,
-        scaleX: r.width / s.width,
-        scaleY: r.height / s.height,
-        transformOrigin: '0 0',
-        backgroundColor: 'rgba(23, 24, 27, 0.96)',
-        borderRadius: 10,
-        duration: 1.0,
-        ease: EASE.cinematic,
-      },
-      'fold+=0.12',
-    )
     .to(air, { autoAlpha: 0, duration: 0.9, ease: 'power2.inOut' }, 'fold+=0.2')
-    // 3. đúng chỗ đó tập tài liệu thật xuất hiện, tấm kính nhường chỗ
-    .addLabel('swap', 'fold+=1.08')
-    .set(root, { visible: true }, 'swap') // tween 0s: tua/đảo ngược timeline vẫn đúng
-    .to(shell, { autoAlpha: 0, duration: 0.3, ease: 'power1.out' }, 'swap')
-    // 4. trồi lên, hạ xuống nằm trên giường (vật nặng: chậm, có quán tính)
-    .addLabel('rise', 'swap+=0.05')
-    .to(root.position, { z: 0, duration: 1.6, ease: 'power3.out' }, 'rise')
-    .to(root.position, { y: 0, duration: 1.45, ease: 'power2.inOut' }, 'rise+=0.1')
-    .to(root.rotation, { x: 0, y: 0, z: 0, duration: 1.55, ease: EASE.settle }, 'rise+=0.05')
+    .set(shell, { transformOrigin: '0 0' }, 'fold')
+    // 2. tập tài liệu có mặt ngay, trồi lên từ mép dưới (vật nặng: chậm, có quán tính)
+    .set(root, { visible: true }, 'fold+=0.1') // tween 0s: tua/đảo ngược timeline vẫn đúng
+    .addLabel('rise', 'fold+=0.1')
+    .to(root.position, { z: 0, duration: 1.8, ease: 'power3.out' }, 'rise')
+    .to(root.position, { y: 0, duration: 1.65, ease: 'power2.inOut' }, 'rise+=0.1')
+    .to(root.rotation, { x: 0, y: 0, z: 0, duration: 1.75, ease: EASE.settle }, 'rise+=0.05')
+    // 3. tấm kính co lại, bám theo mặt bìa đang trồi lên, bo góc nhỏ dần như mép bìa
+    .to(k, { v: 1, duration: 1.3, ease: 'power2.inOut', onUpdate: follow }, 'fold+=0.15')
+    .to(shell, { borderRadius: 8, duration: 1.3, ease: 'power2.inOut' }, 'fold+=0.15')
+    // 4. vừa bám vào bìa vừa trong dần → như lớp kính tan lên mặt bìa (không đổi màu thành hộp đen)
+    .to(shell, { autoAlpha: 0, duration: 0.75, ease: 'power1.in' }, 'fold+=0.75')
   return tl
 }
 
