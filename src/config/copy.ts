@@ -106,7 +106,7 @@ export const COPY = {
       title: 'THỜI GIAN & ĐỊA ĐIỂM',
       heading: 'Thời Gian & Địa Điểm',
       timeLabel: 'THỜI GIAN',
-      time: '13h00 · Thứ Sáu, ngày 16/10/2026',
+      time: '1:00 PM · Friday, October 16, 2026', // Hiệp: viết kiểu tiếng Anh
       placeLabel: 'ĐỊA ĐIỂM',
       greeterLabel: 'LỄ TÂN_PHỤC VỤ',
       note: 'Đừng đến quá muộn nhé — mình muốn có bạn trong khoảnh khắc của ngày hôm ấy.',
