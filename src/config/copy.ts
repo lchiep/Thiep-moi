@@ -189,7 +189,7 @@ export const COPY = {
         },
         rsvp: {
           wishPlaceholder: 'Hãy để lại một lời nhắn/kỷ niệm đáng nhớ nhất của bé với anh nhé!',
-          wishDone: 'Anh đã nhận lời chúc — cảm ơn bé ♡',
+          wishDone: 'Anh xin cảm ơn lời chúc của em',
           intro: 'Anh đang háo hức chuẩn bị cho ngày này, và sẽ thật tuyệt nếu bé có thể xuất hiện ở đó.',
           question: 'Bé sẽ đến chứ?',
           options: [
