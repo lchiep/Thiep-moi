@@ -184,8 +184,8 @@ export const COPY = {
         timePlace: { note: 'Đừng đến quá muộn nhé — anh muốn có bé trong khoảnh khắc của ngày hôm ấy.' },
         schedule: { note: 'Anh đang đếm từng ngày để được gặp bé.' },
         guide: {
-          intro: 'Để buổi lễ diễn ra thật thoải mái, anh và bé cùng chuẩn bị một vài điều nho nhỏ trước khi gặp nhau nhé!!!',
-          photo: { label: 'CHỤP ẢNH', text: 'Bé có thể lên sớm để chụp vài bức trước hoặc đợi sau khi trao bằng rồi anh sẽ dành thời gian cho bé nhé' },
+          intro: 'Để ngày hôm đó thật thoải mái, bé hãy chuẩn bị 1 vài điều nho nhỏ trước khi gặp nhau nhé !!!',
+          photo: { label: 'CHỤP ẢNH', text: 'Bé có thể lên sớm để chụp vài bức trước hoặc có thể lên sau để tránh mệt, khi đó anh sẽ có nhiều thời gian hơn.' },
         },
         rsvp: {
           wishPlaceholder: 'Hãy để lại một lời nhắn/kỷ niệm đáng nhớ nhất của bé với anh nhé!',
