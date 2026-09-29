@@ -68,7 +68,7 @@ export const COPY = {
     cta: 'CHẠM VÀO THƯ ĐỂ MỞ',
     // phong bì đã mở: rút vé ra xem (như nhánh Nam) → vuốt lên để đảo bài vé ↔ thư
     cardsHint: 'CHẠM HOẶC VUỐT LÊN ĐỂ XEM VÉ',
-    ticketHint: 'VUỐT LÊN ĐỂ XEM THƯ MỜI',
+    ticketHint: 'VUỐT ĐỂ XEM THƯ MỜI',
     letterHint: 'VUỐT LÊN ĐỂ XEM VÉ',
     stowHint: '↓ Vuốt xuống để cất vào phong bì',
     ticketAlt: 'Vé mời Graduation Gala 2026',

@@ -169,9 +169,12 @@ export default function FemaleScene({ popup, sceneA }: Props) {
   const onDeckUp = (e: React.PointerEvent) => {
     const dx = e.clientX - touch.current.x
     const dy = e.clientY - touch.current.y
-    if (Math.hypot(dx, dy) < 12) sendExperience('TAP')
+    const dist = Math.hypot(dx, dy)
+    if (dist < 12) sendExperience('TAP')
+    // đang xem vé: vuốt NGANG hay DỌC (hướng nào cũng được) → sang thư (Hiệp)
+    else if (useExperience.getState().state === 'FEMALE_TICKET_VIEW') { if (dist > 40) sendExperience('SWIPE') }
+    // phong bì mở: vuốt lên → rút vé
     else if (dy < -40 && Math.abs(dy) > Math.abs(dx) * 1.2) sendExperience('SWIPE')
-    else if (dy > 50 && Math.abs(dy) > Math.abs(dx) * 1.2) sendExperience('SWIPE_DOWN')
   }
   const hint =
     state === 'FEMALE_CARDS_READY' ? COPY.female.cardsHint
@@ -281,7 +284,6 @@ export default function FemaleScene({ popup, sceneA }: Props) {
       </div>
       <div className={`fem__deck-touch ${deckActive ? 'is-on' : ''}`} onPointerDown={onDeckDown} onPointerUp={onDeckUp}
         role="button" aria-label={hint || undefined} aria-disabled={!deckActive}>
-        {viewing && <p key="stow" className="fem__stow">{COPY.female.stowHint}</p>}
         {hint && <p key={state} className={`fem__hint ${viewing ? 'is-dark' : ''}`}><span>{hint}</span></p>}
       </div>
     </div>

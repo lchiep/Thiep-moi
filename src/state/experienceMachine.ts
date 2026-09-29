@@ -78,8 +78,8 @@ const TRANSITIONS: Partial<Record<ExperienceState, Partial<Record<ExperienceEven
   // chạm / vuốt lên: vé bay ra giữa màn (như xem vé nhánh Nam), thư ra nằm sau vé
   FEMALE_CARDS_READY: { TAP: 'FEMALE_TICKET_REVEAL', SWIPE: 'FEMALE_TICKET_REVEAL' },
   FEMALE_TICKET_REVEAL: { DONE: 'FEMALE_TICKET_VIEW' },
-  // vuốt lên lần nữa: ĐẢO BÀI → thư lên trước rồi thành màn thiệp · vuốt xuống: cất vào phong bì
-  FEMALE_TICKET_VIEW: { SWIPE: 'FEMALE_SHUFFLE_TO_LETTER', TAP: 'FEMALE_SHUFFLE_TO_LETTER', SWIPE_DOWN: 'FEMALE_CARDS_STOW' },
+  // vuốt (ngang hay dọc) / chạm: ĐẢO BÀI → thư lên trước rồi thành màn thiệp
+  FEMALE_TICKET_VIEW: { SWIPE: 'FEMALE_SHUFFLE_TO_LETTER', TAP: 'FEMALE_SHUFFLE_TO_LETTER' },
   FEMALE_SHUFFLE_TO_LETTER: { DONE: 'FEMALE_LETTER_VIEW' },
   // thư lên trước = MÀN THIỆP (dùng chung với nhánh Nam) · "← Quay lại" → đảo bài ngược, vé lên trước
   FEMALE_LETTER_VIEW: { BACK: 'FEMALE_SHUFFLE_TO_TICKET' },
