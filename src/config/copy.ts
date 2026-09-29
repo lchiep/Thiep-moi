@@ -175,9 +175,9 @@ export const COPY = {
       sections: {
         letter: {
           body: [
-            'Sau một chặng đường học tập và trưởng thành, anh sắp bước đến một cột mốc thật đặc biệt.',
-            'Trong hành trình ấy, anh may mắn được gặp gỡ, đồng hành và nhận được rất nhiều sự quan tâm từ những người bạn, người thân và những anh chị đã từng ở bên anh trong những chặng đường khác nhau.',
-            'Vì vậy, anh rất mong bé có thể cùng anh chia sẻ niềm vui trong ngày đặc biệt này và lưu lại thêm một kỷ niệm đẹp trước khi anh bước sang một hành trình mới.',
+            'Sau những ngày bận rộn với đủ thứ công việc, những kế hoạch cứ nối tiếp nhau, cuối cùng anh cũng hoàn thành được một chặng đường mà anh đã dành nhiều thời gian và cố gắng.',
+            'Và trong ngày đặc biệt ấy, anh muốn gửi riêng cho bé một lời mời. Bé không cần phải chuẩn bị gì đặc biệt, cũng chẳng cần phải làm gì cầu kỳ, chỉ cần có thể sắp xếp được thời gian và đến chung vui cùng anh trong ngày hôm ấy là đã đủ rồi.',
+            'Anh biết ai cũng có công việc, lịch trình và những chuyện riêng của mình, nên nếu bé thu xếp được, anh rất mong sẽ được gặp bé ở đó. Anh hy vọng bé có thể dành một chút thời gian đến cùng anh, để ngày tốt nghiệp này có thêm một người mà anh thật sự muốn có mặt bên cạnh.',
           ],
           note: 'Có bé, ngày này sẽ trở nên trọn vẹn hơn rất nhiều.',
         },
