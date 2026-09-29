@@ -29,9 +29,9 @@ export type DeckRefs = {
 export function layoutDeck(o: DeckRefs) {
   const S = o.stage.getBoundingClientRect()
   // vé đứng trước: dọc, gần kín chiều cao (chừa đỉnh cho gợi ý cất, đáy cho gợi ý vuốt)
-  const L = Math.min(S.height * 0.86, (S.width * 0.94) / TICKET_R) // Hiệp: vé to hơn (≈ 86% chiều cao màn)
+  const L = Math.min(S.height * 0.9, (S.width * 0.96) / TICKET_R) // Hiệp: vé to hơn nữa (≈ 90% chiều cao màn)
   const tW = L, tH = L * TICKET_R
-  const tC = { x: S.width / 2, y: S.height * 0.48 }
+  const tC = { x: S.width / 2, y: S.height * 0.47 }
   // thư đứng trước: NGUYÊN tờ thiệp dọc (như nhánh Nam), cao ≈ bằng vé
   const lH = Math.min(S.height * 0.86, S.width * 0.92 * LETTER_RATIO), lW = lH / LETTER_RATIO
   const lC = { x: S.width / 2, y: S.height * 0.48 }
