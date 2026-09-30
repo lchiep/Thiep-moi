@@ -350,6 +350,18 @@
 .inv__opt.is-on .inv__radio { color: var(--wine); }
 .inv__reply { font-weight: 500; font-style: italic; font-size: 15.5px; color: var(--soft); animation: inv-in 0.35s ease-out; }
 .inv__thanks { text-align: center; animation: inv-in 0.45s ease-out; }
+.inv__swipe {
+  margin: 10px 0 0 !important;
+  text-align: center;
+  font-family: var(--font-ui);
+  font-size: 10.5px;
+  font-weight: 500;
+  letter-spacing: 0.22em;
+  text-transform: uppercase;
+  color: var(--soft);
+  opacity: 0.8;
+}
+.inv__swipe span { display: block; font-size: 13px; line-height: 1; margin-bottom: 3px; color: var(--gold); }
 .inv__end { margin-top: 14px !important; text-align: center; font-family: var(--font-script); font-size: 34px; color: var(--wine); }
 
 @media (prefers-reduced-motion: reduce) {

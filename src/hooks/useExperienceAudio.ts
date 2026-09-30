@@ -1,4 +1,4 @@
-import { useEffect } from 'react'
+import { useEffect, useRef } from 'react'
 import { audio, type Track } from '../audio/audioManager'
 import { useGuest } from '../state/guestStore'
 import { useExperience, type ExperienceState } from '../state/experienceMachine'
@@ -8,9 +8,15 @@ import { useExperience, type ExperienceState } from '../state/experienceMachine'
  *   cuộc gọi đến (chờ / đang vuốt) → chuông điện thoại
  *   nghe máy → popup (kể cả gửi lỗi / huỷ) → nhạc nền
  *   huỷ popup → quay lại chuông
- *   sang nhánh Nam / Nữ → nhạc popup nhỏ dần, nhạc riêng của nhánh to dần (2 giây), giữ tới hết màn thiệp
+ *   sang nhánh Nam / Nữ → nhạc popup chạy tiếp; khách chạm vào thư/vé lần đầu → nhạc riêng của nhánh vào (crossfade 2s)
  */
-export const trackFor = (s: ExperienceState, gender: 'nam' | 'nu' | undefined): { track: Track | null; fade: number } => {
+/** Các trạng thái SAU khi khách bắt đầu chạm vào thư/phong bì (nữ) hoặc thiệp/vé (nam) — từ đây mới đổi sang nhạc riêng của nhánh */
+const AFTER_TAP = (s: ExperienceState) =>
+  s === 'FEMALE_ENVELOPE_OPEN' || s === 'FEMALE_CARDS_READY' || s === 'FEMALE_TICKET_REVEAL' || s === 'FEMALE_TICKET_VIEW' ||
+  s === 'FEMALE_SHUFFLE_TO_LETTER' || s === 'FEMALE_SHUFFLE_TO_TICKET' || s === 'FEMALE_LETTER_VIEW' || s === 'FEMALE_CARDS_STOW' ||
+  s === 'TICKET_REVEAL' || s === 'TICKET_VIEW' || s === 'INVITATION_ENTER' || s === 'INVITATION_VIEW' || s === 'INVITATION_EXIT' || s === 'TICKET_STOW'
+
+export const trackFor = (s: ExperienceState, gender: 'nam' | 'nu' | undefined, engaged: boolean): { track: Track | null; fade: number } => {
   switch (s) {
     case 'CALL_IDLE':
     case 'CALL_DRAGGING':
@@ -21,10 +27,10 @@ export const trackFor = (s: ExperienceState, gender: 'nam' | 'nu' | undefined): 
     case 'RSVP_SUBMITTING':
       return { track: 'music', fade: 1.2 }
     default:
-      // nhánh Nam / Nữ: nhạc riêng, chạy suốt từ lúc popup biến hình tới hết màn thiệp (không ngắt khi đổi cảnh)
-      if (s.startsWith('FEMALE_')) return { track: 'female', fade: 2 }
-      if (s.startsWith('MALE_')) return { track: 'male', fade: 2 }
-      return { track: gender === 'nu' ? 'female' : gender === 'nam' ? 'male' : null, fade: 2 } // TICKET_* / INVITATION_*
+      // popup biến hình → thư đóng phong bì → sang cảnh mới (nữ) / tập tài liệu mở (nam): VẪN nhạc popup chạy tiếp.
+      // Khách chạm vào thư/phong bì/vé lần đầu → nhạc riêng của nhánh mới vào (crossfade), rồi giữ tới hết màn thiệp.
+      if (!engaged) return { track: 'music', fade: 1.2 }
+      return { track: gender === 'nu' ? 'female' : gender === 'nam' ? 'male' : null, fade: 2 }
   }
 }
 
@@ -38,8 +44,12 @@ export function useExperienceAudio() {
   }, [])
   const state = useExperience((s) => s.state)
   const gender = useGuest((s) => s.guest?.gender)
+  const engaged = useRef(false)
   useEffect(() => {
-    const { track, fade } = trackFor(state, gender)
+    // về cuộc gọi / popup → chưa chạm; đã chạm thì giữ (kể cả khi quay lại tập hồ sơ / cất vé)
+    if (state === 'CALL_IDLE' || state === 'CALL_DRAGGING' || state === 'CALL_ANSWERED' || state.startsWith('RSVP_')) engaged.current = false
+    else if (AFTER_TAP(state)) engaged.current = true
+    const { track, fade } = trackFor(state, gender, engaged.current)
     audio.setScene(track, fade)
   }, [state, gender])
 }

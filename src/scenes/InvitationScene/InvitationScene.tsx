@@ -1,6 +1,7 @@
 import { forwardRef, useEffect, useRef, useState, type CSSProperties, type ReactNode } from 'react'
 import { HEAD, HEAD_COLOR, fitFs } from './inviteHeader'
 import { COPY } from '../../config/copy'
+import { animate } from 'animejs'
 import { nudgeShake } from '../../animations/anime/microInteractions'
 import { EVENT, eventStart } from '../../config/event'
 import MapPreview from './MapPreview'
@@ -57,7 +58,7 @@ const InvitationScene = forwardRef<HTMLDivElement, Props>(function InvitationSce
 
         {/* ---------- NỘI DUNG: 5 "trang", mỗi lần chỉ 1 trang trong khung lá ---------- */}
         <div className="inv__scroll" ref={scroller}>
-          <Page no={S.letter.no} title={S.letter.title} heading={S.letter.heading} note={S.letter.note}>
+          <Page no={S.letter.no} title={S.letter.title} heading={S.letter.heading} note={S.letter.note} hint>
             {S.letter.body.map((p, i) => <p key={i} className="inv__body">{p}</p>)}
           </Page>
 
@@ -167,9 +168,18 @@ function useCardFocus(ref: React.RefObject<HTMLDivElement | null>) {
 }
 
 /** Một "trang" nội dung: cao đúng bằng khung cuộn → mỗi lần chỉ thấy 1 trang. */
-function Page({ no, title, heading, note, end, children }: {
-  no: string; title: string; heading?: string; note?: string; end?: string; children: ReactNode
+const SWIPE_HINT = 'Vuốt lên để xem tiếp'
+
+function Page({ no, title, heading, note, end, hint, children }: {
+  no: string; title: string; heading?: string; note?: string; end?: string; hint?: boolean; children: ReactNode
 }) {
+  const arrow = useRef<HTMLSpanElement>(null)
+  // mũi tên nhích lên nhè nhẹ (Anime.js — chỉ phần tử con nhỏ, không đụng transform của trang)
+  useEffect(() => {
+    if (!hint || !arrow.current || window.matchMedia('(prefers-reduced-motion: reduce)').matches) return
+    const a = animate(arrow.current, { translateY: [2, -3], duration: 900, ease: 'inOutSine', loop: true, alternate: true })
+    return () => { a.revert() }
+  }, [hint])
   return (
     <section className="inv__sec" aria-label={title} data-no={no}>
       {/* chỉ giữ tiêu đề viết tay đỏ đô (bỏ dòng "01 — …" theo ý Hiệp) */}
@@ -177,6 +187,7 @@ function Page({ no, title, heading, note, end, children }: {
       {children}
       {note && <p className="inv__note"><span aria-hidden>❦</span>{note}</p>}
       {end && <p className="inv__end">{end}</p>}
+      {hint && <p className="inv__swipe"><span ref={arrow} aria-hidden>↑</span>{SWIPE_HINT}</p>}
     </section>
   )
 }
