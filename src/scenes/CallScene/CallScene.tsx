@@ -10,7 +10,7 @@ import { callAnsweredTimeline, popupCloseTimeline, popupOpenTimeline } from '../
 import { callMicroInteractions } from '../../animations/anime/microInteractions'
 import { useSwipeAnswer } from '../../hooks/useSwipeAnswer'
 import { sendExperience, useExperience } from '../../state/experienceMachine'
-import { useGuest } from '../../state/guestStore'
+import { specialGuest, useGuest } from '../../state/guestStore'
 import { warmMap } from '../../utils/mapWarm'
 import './CallScene.css'
 
@@ -129,11 +129,18 @@ export default function CallScene() {
 
   const onSubmit = useCallback(async (data: GuestForm): Promise<string | null> => {
     if (!sendExperience('SUBMIT')) return null
+    // phản hồi NGAY khi bấm gửi (nhánh Nam): nội dung form lặng đi — trùng với nhịp đầu của "popup hoá thành tập tài liệu",
+    // nên lúc 3D sẵn sàng timeline chỉ việc nối tiếp, không có khoảng đứng hình
+    const goingMale = data.gender !== 'nu' && specialGuest(data.fullName)?.lockGender !== 'nu'
+    const items = goingMale && popup.current ? popup.current.querySelectorAll('[data-gp-item]') : null
+    const pre = items?.length ? gsap.to(items, { autoAlpha: 0, y: 8, duration: 0.32, stagger: { each: 0.012, from: 'end' }, ease: 'power2.in' }) : null
+    const undo = () => { if (pre) { pre.kill(); gsap.to(items!, { autoAlpha: 1, y: 0, duration: 0.3, ease: 'power2.out', clearProps: 'opacity,visibility,transform' }) } }
     try {
       // lưu hồ sơ khách trên máy (ảnh nén ~600px). Phase 6: đồng bộ Supabase + mã vé chính thức.
       await useGuest.getState().saveFromForm(data)
     } catch (e) {
       console.error('[RSVP] lưu thông tin lỗi', e)
+      undo()
       sendExperience('SUBMIT_FAIL')
       return 'Không đọc được ảnh này (có thể là ảnh HEIC). Bạn chọn ảnh JPG/PNG khác nhé.'
     }
@@ -149,6 +156,7 @@ export default function CallScene() {
       await loadMale() // chắc chắn code 3D đã tải xong trước khi biến hình
     } catch (e) {
       console.error('[RSVP] tải cảnh 3D lỗi', e)
+      undo()
       sendExperience('SUBMIT_FAIL')
       return 'Mạng chập chờn, không tải được cảnh tiếp theo. Bạn bấm gửi lại nhé.'
     }

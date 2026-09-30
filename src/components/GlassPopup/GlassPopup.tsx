@@ -5,7 +5,7 @@ import FormTour from './FormTour'
 import PhotoPicker from './PhotoPicker'
 import DateField from './DateField'
 import { COPY } from '../../config/copy'
-import { specialGuest } from '../../state/guestStore'
+import { prepPhoto, specialGuest } from '../../state/guestStore'
 import './GlassPopup.css'
 
 export type Gender = 'nu' | 'nam'
@@ -89,6 +89,8 @@ const GlassPopup = forwardRef<HTMLDivElement, Props>(function GlassPopup({ onCan
     if (lockGender && f.gender !== lockGender) setF((p) => ({ ...p, gender: lockGender }))
   }, [lockGender, f.gender])
 
+  // nén ảnh + dò mặt sẵn trong nền ngay khi chọn ảnh (xem prepPhoto) → bấm GỬI là chạy hiệu ứng liền
+  useEffect(() => { if (f.photo) void prepPhoto(f.photo).catch(() => {}) }, [f.photo])
   const photoUrl = useMemo(() => (f.photo ? URL.createObjectURL(f.photo) : ''), [f.photo])
   useEffect(() => () => { if (photoUrl) URL.revokeObjectURL(photoUrl) }, [photoUrl])
 

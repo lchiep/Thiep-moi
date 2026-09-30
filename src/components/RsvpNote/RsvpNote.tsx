@@ -44,9 +44,8 @@ export default function RsvpNote({ note, onClose }: { note: Note; onClose: () =>
   return createPortal(
     <div className="note" ref={root} role="dialog" aria-modal="true" aria-label="Lời nhắn nhỏ" onClick={close}>
       <div className="note__paper" ref={paper} onClick={(e) => e.stopPropagation()}>
-        <svg className="note__clip" ref={clip} viewBox="0 0 40 110" aria-hidden="true">
-          <path d="M27 10c-6-6-17-2-17 8v66c0 12 8 20 16 20s16-8 16-20V30" transform="translate(-6 0)" fill="none" stroke="#7a2230" strokeWidth="4.2" strokeLinecap="round" />
-          <path d="M20 26v56c0 6 4 10 8 10s8-4 8-10V38" transform="translate(-6 0) translate(2 0)" fill="none" stroke="#7a2230" strokeWidth="4.2" strokeLinecap="round" />
+        <svg className="note__clip" ref={clip} viewBox="0 0 28 70" aria-hidden="true">
+          <path d="M6 22V58a8 8 0 0 0 16 0V16a5.5 5.5 0 0 0-11 0V54a2.5 2.5 0 0 0 5 0V24" fill="none" stroke="#7a2230" strokeWidth="2.8" strokeLinecap="round" strokeLinejoin="round" />
         </svg>
         <div className="note__text">
           {note.paragraphs.map((p, i) => <p key={i}>{p}</p>)}

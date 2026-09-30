@@ -43,6 +43,20 @@ function readSaved(): Guest | null {
   }
 }
 
+/**
+ * Nén ảnh + dò khuôn mặt làm NGAY khi khách chọn ảnh (nền, trong lúc khách còn điền form) → lúc bấm GỬI đã xong sẵn,
+ * hiệu ứng chuyển cảnh chạy liền, không phải đợi. Cache theo File.
+ */
+const photoPrep = new WeakMap<File, Promise<{ photo: string; focus: Focus }>>()
+export function prepPhoto(file: File) {
+  let p = photoPrep.get(file)
+  if (!p) {
+    p = compressImage(file, 600).then(async (photo) => ({ photo, focus: await findFocus(photo) }))
+    photoPrep.set(file, p)
+  }
+  return p
+}
+
 type Store = {
   guest: Guest | null
   saveFromForm: (f: GuestForm) => Promise<Guest>
@@ -52,8 +66,9 @@ export const useGuest = create<Store>((set, get) => ({
   guest: readSaved(),
   saveFromForm: async (f) => {
     const prev = get().guest
-    const photo = f.photo ? await compressImage(f.photo, 600) : prev?.photo ?? null
-    const photoFocus = f.photo && photo ? await findFocus(photo) : prev?.photoFocus ?? { x: 0.5, y: 0.35 }
+    const prepped = f.photo ? await prepPhoto(f.photo) : null
+    const photo = prepped?.photo ?? prev?.photo ?? null
+    const photoFocus = prepped?.focus ?? prev?.photoFocus ?? { x: 0.5, y: 0.35 }
     const guest: Guest = {
       id: prev?.id ?? newId(),
       fullName: f.fullName.trim(),
