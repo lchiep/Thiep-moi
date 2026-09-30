@@ -25,19 +25,19 @@ export type GuestForm = {
 /**
  * DỮ LIỆU MẪU để test nhanh (chỉ khi `npm run dev`, bản build thật KHÔNG có):
  * form điền sẵn + bỏ qua lời chào/hướng dẫn → chỉ cần up ảnh rồi bấm GỬI.
- * Muốn tắt: thêm `?nomock` vào URL. Muốn thử nhánh Nữ (tên Hằng): `?mock=nu`.
+ * Muốn tắt: thêm `?nomock` vào URL. Muốn thử nhánh Nữ: `?mock=nu`; nhánh Nam (tên khác): `?mock=nam`.
  */
 const MOCK_ON = import.meta.env.DEV && !new URLSearchParams(location.search).has('nomock')
-// Luật riêng: họ tên có chữ "Hằng" bị KHOÁ sang nhánh Nữ (nút Nam mờ) → mẫu Nam dùng tên khác, chỉ `?mock=nu` mới dùng tên Hằng
-const MOCK_FORM = (): GuestForm => new URLSearchParams(location.search).get('mock') === 'nu'
-  ? {
-      fullName: 'Nguyễn Thị Bích Hằng', nickname: 'Hằng', phone: '0912345678', cccd: '', gender: 'nu',
-      email: 'bichhang@gmail.com', dob: '2003-05-14', hobbies: '', description: 'Thích chụp ảnh ✨', photo: null,
-    }
-  : {
-      fullName: 'Nguyễn Văn An', nickname: 'An', phone: '0912345678', cccd: '', gender: 'nam',
-      email: 'vanan@gmail.com', dob: '2003-05-14', hobbies: '', description: 'Thích chụp ảnh ✨', photo: null,
-    }
+// Dữ liệu mẫu khi chạy dev (giữ nguyên như ban đầu: Hằng). Lưu ý luật riêng: tên có chữ "Hằng" bị KHOÁ sang nhánh Nữ.
+// Muốn thử nhánh Nữ: `?mock=nu`. Muốn thử nhánh Nam với tên khác: `?mock=nam`.
+const MOCK_FORM = (): GuestForm => {
+  const m = new URLSearchParams(location.search).get('mock')
+  return {
+    fullName: m === 'nam' ? 'Nguyễn Văn An' : 'Nguyễn Thị Bích Hằng', nickname: m === 'nam' ? 'An' : 'Hằng', phone: '0912345678', cccd: '',
+    gender: m === 'nu' ? 'nu' : 'nam',
+    email: 'bichhang@gmail.com', dob: '2003-05-14', hobbies: '', description: 'Thích chụp ảnh ✨', photo: null,
+  }
+}
 
 const EMPTY: GuestForm = {
   fullName: '', nickname: '', phone: '', cccd: '', gender: '',
