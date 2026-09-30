@@ -1,5 +1,6 @@
 import CallScene from '../scenes/CallScene/CallScene'
 import DesignPreview from './DesignPreview'
+import SoundGate from '../components/SoundGate/SoundGate'
 import { useExperienceAudio } from '../hooks/useExperienceAudio'
 
 /**
@@ -13,6 +14,7 @@ export default function App() {
     <div className="app">
       <div className="app__phone">
         <CallScene />
+        <SoundGate />
       </div>
     </div>
   )

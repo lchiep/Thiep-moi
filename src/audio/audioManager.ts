@@ -82,13 +82,24 @@ class AudioManager {
     this.boot()
     const ctx = this.ctx
     if (!ctx) return
-    void ctx.resume().then(() => { if (ctx.state === 'running') this.unlocked = true }).catch(() => {})
+    void ctx.resume().then(() => { if (ctx.state === 'running') { this.unlocked = true; this.fadeInWanted() } }).catch(() => {})
     // phát 1 mẫu im lặng ngay trong cú chạm → iPhone mở khoá hẳn
     const s = ctx.createBufferSource()
     s.buffer = ctx.createBuffer(1, 1, 22050)
     s.connect(ctx.destination)
     s.start(0)
     this.decodeIfReady()
+  }
+
+  /** trình duyệt chỉ vừa cho phát: đưa bài đang cần về 0 rồi to dần (không bùng lên đột ngột) */
+  private fadeInWanted() {
+    const t = this.want
+    if (!t) return
+    const v = this.voices[t]
+    if (!v.source) return
+    v.vol.v = 0
+    if (v.gain) v.gain.gain.value = 0
+    this.start(t, v)
   }
 
   private decodeIfReady() {
