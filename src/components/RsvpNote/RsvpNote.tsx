@@ -56,10 +56,12 @@ export default function RsvpNote({ note, onClose }: { note: Note; onClose: () =>
           <path d="M5 32V58A10 10 0 0 0 25 58V14A6.5 6.5 0 0 0 12 14V52A3 3 0 0 0 18 52V26" fill="none" stroke="#6f757c" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round" />
           <path d="M5 32V58A10 10 0 0 0 25 58V14A6.5 6.5 0 0 0 12 14V52A3 3 0 0 0 18 52V26" fill="none" stroke="url(#clipMetal)" strokeWidth="1.9" strokeLinecap="round" strokeLinejoin="round" />
         </svg>
+        <div className="note__scroll">
         <div className="note__text">
           {note.paragraphs.map((p, i) => <p key={i}>{p}</p>)}
         </div>
         <button type="button" className="note__btn" onClick={close}>{note.button}</button>
+        </div>
       </div>
     </div>,
     host,

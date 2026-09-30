@@ -13,9 +13,6 @@
 .note__paper {
   position: relative;
   width: min(100%, 330px);
-  max-height: 82cqh;
-  overflow-y: auto;
-  overscroll-behavior: contain;
   padding: 56px 24px 20px;
   border-radius: 2px;
   background:
@@ -28,6 +25,11 @@
     9px 11px 0 -2px #ddd6c7,
     0 18px 34px rgba(0, 0, 0, 0.38);
   will-change: transform, opacity;
+}
+.note__scroll {
+  max-height: calc(82cqh - 76px);
+  overflow-y: auto;
+  overscroll-behavior: contain;
 }
 .note__clip {
   position: absolute;
