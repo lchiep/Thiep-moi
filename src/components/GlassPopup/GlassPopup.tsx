@@ -62,9 +62,11 @@ type Props = {
   onCancel: () => void
   /** trả về câu báo lỗi (hiện dưới form) hoặc null nếu đi tiếp được */
   onSubmit: (data: GuestForm) => Promise<string | null>
+  /** form đã đủ thông tin và đi nhánh Nam → cho cảnh 3D dựng sẵn ở nền (null = chưa đủ / không phải nhánh Nam) */
+  onWarm?: (data: GuestForm | null) => void
 }
 
-const GlassPopup = forwardRef<HTMLDivElement, Props>(function GlassPopup({ onCancel, onSubmit }, ref) {
+const GlassPopup = forwardRef<HTMLDivElement, Props>(function GlassPopup({ onCancel, onSubmit, onWarm }, ref) {
   const [f, setF] = useState<GuestForm>(() => (MOCK_ON ? MOCK_FORM() : EMPTY))
   const [busy, setBusy] = useState(false)
   const [note, setNote] = useState<string | null>(null)
@@ -90,6 +92,8 @@ const GlassPopup = forwardRef<HTMLDivElement, Props>(function GlassPopup({ onCan
   useEffect(() => () => { if (photoUrl) URL.revokeObjectURL(photoUrl) }, [photoUrl])
 
   const miss = missing(f)
+  const toMale = miss.length === 0 && f.gender === 'nam' && specialGuest(f.fullName)?.lockGender !== 'nu'
+  useEffect(() => { onWarm?.(toMale ? f : null) }, [f, toMale, onWarm])
   const ready = miss.length === 0
   // KHÔNG hiện lời nhắc hàng loạt dưới các ô (Hiệp chê rối) — ô thiếu chỉ được
   // hướng dẫn bằng thẻ FormTour khi khách bấm GỬI THÔNG TIN mà còn thiếu/sai.

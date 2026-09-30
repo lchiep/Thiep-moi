@@ -1,4 +1,4 @@
-import { lazy, Suspense, useCallback, useLayoutEffect, useRef } from 'react'
+import { lazy, Suspense, useCallback, useEffect, useLayoutEffect, useRef, useState } from 'react'
 import { gsap } from 'gsap'
 import { useGSAP } from '@gsap/react'
 import CallActions from '../../components/CallScreen/CallActions'
@@ -10,7 +10,7 @@ import { callAnsweredTimeline, popupCloseTimeline, popupOpenTimeline } from '../
 import { callMicroInteractions } from '../../animations/anime/microInteractions'
 import { useSwipeAnswer } from '../../hooks/useSwipeAnswer'
 import { sendExperience, useExperience } from '../../state/experienceMachine'
-import { specialGuest, useGuest } from '../../state/guestStore'
+import { useGuest } from '../../state/guestStore'
 import { warmMap } from '../../utils/mapWarm'
 import './CallScene.css'
 
@@ -36,6 +36,22 @@ export default function CallScene() {
   const openTl = useRef<gsap.core.Timeline | null>(null)
   const sliderRect = useRef<DOMRect | null>(null)
   const state = useExperience((s) => s.state)
+  // nhánh Nam: form đủ thông tin → dựng sẵn tập tài liệu 3D ở nền (ẩn) trong lúc khách còn đọc/bấm gửi → bấm gửi là chạy hiệu ứng liền
+  const [warm, setWarm] = useState(false)
+  const warmKey = useRef('')
+  const warmCall = useRef<gsap.core.Tween | null>(null)
+  const onWarm = useCallback((data: GuestForm | null) => {
+    warmCall.current?.kill()
+    if (!data) { warmKey.current = ''; setWarm(false); return }
+    const key = [data.fullName, data.nickname, data.photo?.name, data.photo?.size].join('|')
+    if (key === warmKey.current) return // chỉ dựng lại khi tên / biệt danh / ảnh đổi
+    // đợi khách ngừng gõ ~0.8s rồi mới lưu hồ sơ + dựng (tránh dựng lại liên tục)
+    warmCall.current = gsap.delayedCall(0.8, () => {
+      warmKey.current = key
+      void useGuest.getState().saveFromForm(data).then(() => setWarm(true)).catch(() => {})
+    })
+  }, [])
+  useEffect(() => () => { warmCall.current?.kill() }, [])
 
   // --- vào cảnh + chuyển động nhỏ ---
   useGSAP(
@@ -88,9 +104,12 @@ export default function CallScene() {
   const showFemale = state.startsWith('FEMALE_')
   // "cảnh A" của nhánh Nữ = nền cuộc gọi (ảnh + lớp tối), bị đẩy sang phải khi cảnh tulip đi vào
   const sceneA = useCallback(() => [...root.current!.querySelectorAll<HTMLElement>('.call__bg, .call__shade')], [])
+  const isPopup = state === 'RSVP_OPEN' || state === 'RSVP_SUBMITTING'
   const showMale =
     state.startsWith('MALE_') ||
+    (warm && isPopup) ||
     ((state === 'TICKET_REVEAL' || state === 'TICKET_VIEW' || state === 'INVITATION_ENTER' || state === 'INVITATION_VIEW' || state === 'INVITATION_EXIT' || state === 'TICKET_STOW') && useGuest.getState().guest?.gender === 'nam')
+  useEffect(() => { if (state === 'CALL_IDLE' || state === 'RSVP_CLOSING') { setWarm(false); warmKey.current = '' } }, [state])
   useLayoutEffect(() => {
     if (state === 'RSVP_OPEN') { void loadMale(); void loadFemale(); warmMap() }
     if (state !== 'RSVP_OPEN' || !popup.current || openTl.current) return
@@ -129,18 +148,11 @@ export default function CallScene() {
 
   const onSubmit = useCallback(async (data: GuestForm): Promise<string | null> => {
     if (!sendExperience('SUBMIT')) return null
-    // phản hồi NGAY khi bấm gửi (nhánh Nam): nội dung form lặng đi — trùng với nhịp đầu của "popup hoá thành tập tài liệu",
-    // nên lúc 3D sẵn sàng timeline chỉ việc nối tiếp, không có khoảng đứng hình
-    const goingMale = data.gender !== 'nu' && specialGuest(data.fullName)?.lockGender !== 'nu'
-    const items = goingMale && popup.current ? popup.current.querySelectorAll('[data-gp-item]') : null
-    const pre = items?.length ? gsap.to(items, { autoAlpha: 0, y: 8, duration: 0.32, stagger: { each: 0.012, from: 'end' }, ease: 'power2.in' }) : null
-    const undo = () => { if (pre) { pre.kill(); gsap.to(items!, { autoAlpha: 1, y: 0, duration: 0.3, ease: 'power2.out', clearProps: 'opacity,visibility,transform' }) } }
     try {
       // lưu hồ sơ khách trên máy (ảnh nén ~600px). Phase 6: đồng bộ Supabase + mã vé chính thức.
       await useGuest.getState().saveFromForm(data)
     } catch (e) {
       console.error('[RSVP] lưu thông tin lỗi', e)
-      undo()
       sendExperience('SUBMIT_FAIL')
       return 'Không đọc được ảnh này (có thể là ảnh HEIC). Bạn chọn ảnh JPG/PNG khác nhé.'
     }
@@ -156,7 +168,6 @@ export default function CallScene() {
       await loadMale() // chắc chắn code 3D đã tải xong trước khi biến hình
     } catch (e) {
       console.error('[RSVP] tải cảnh 3D lỗi', e)
-      undo()
       sendExperience('SUBMIT_FAIL')
       return 'Mạng chập chờn, không tải được cảnh tiếp theo. Bạn bấm gửi lại nhé.'
     }
@@ -187,7 +198,7 @@ export default function CallScene() {
 
       {showMale && (
         <Suspense fallback={null}>
-          <MaleScene popup={popup} />
+          <MaleScene popup={popup} warm={isPopup} />
         </Suspense>
       )}
       {showFemale && (
@@ -195,7 +206,7 @@ export default function CallScene() {
           <FemaleScene popup={popup} sceneA={sceneA} />
         </Suspense>
       )}
-      {showPopup && <GlassPopup ref={popup} onCancel={onCancelPopup} onSubmit={onSubmit} />}
+      {showPopup && <GlassPopup ref={popup} onCancel={onCancelPopup} onSubmit={onSubmit} onWarm={onWarm} />}
     </section>
   )
 }

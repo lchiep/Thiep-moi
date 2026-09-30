@@ -6,6 +6,7 @@
   inset: 0;
   z-index: 10; /* dưới popup (z-ui) để popup còn biến hình phía trên */
 }
+.male.is-warm { visibility: hidden; pointer-events: none; } /* đang dựng sẵn ở nền, popup vẫn ở trên */
 .male__canvas {
   position: absolute !important;
   inset: 0;

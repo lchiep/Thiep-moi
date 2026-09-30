@@ -32,7 +32,7 @@ const QA = new URLSearchParams(location.search).has('qa')
  * NHÁNH NAM: tập tài liệu 3D trên nền màn cuộc gọi (nền giữ nguyên).
  * Popup (nằm trên) được timeline "enter" biến thành mặt bìa rồi nhường chỗ cho tập thật.
  */
-export default function MaleScene({ popup }: { popup: React.RefObject<HTMLDivElement | null> }) {
+export default function MaleScene({ popup, warm = false }: { popup: React.RefObject<HTMLDivElement | null>; warm?: boolean }) {
   const guest = useGuest((s) => s.guest)
   const state = useExperience((s) => s.state)
   const [assets, setAssets] = useState<FolderAssets | null>(null)
@@ -138,10 +138,14 @@ export default function MaleScene({ popup }: { popup: React.RefObject<HTMLDivEle
     }
   }, [guest])
 
-  // 2. khung hình đầu đã vẽ → chạy "popup hoá thành tập tài liệu"
-  const onReady = () => {
-    if (!folder.current || !three.current || !popup.current) return
+  // 2. khung hình đầu đã vẽ → chạy "popup hoá thành tập tài liệu".
+  //    Cảnh được dựng SẴN từ lúc form đủ thông tin (warm): khi khách bấm gửi (state = MALE_DOCUMENT_ENTER) chạy ngay, không đợi dựng.
+  const ready = useRef(false)
+  const entered = useRef(false)
+  const startEnter = () => {
+    if (entered.current || !ready.current || !folder.current || !three.current || !popup.current) return
     if (useExperience.getState().state !== 'MALE_DOCUMENT_ENTER') return
+    entered.current = true
     tl.current = maleEnterTimeline({
       popup: popup.current,
       folder: folder.current,
@@ -152,6 +156,11 @@ export default function MaleScene({ popup }: { popup: React.RefObject<HTMLDivEle
     if (reduce.current) tl.current.timeScale(2.2)
     if (QA) (window as unknown as { __maleEnter: unknown }).__maleEnter = tl.current
   }
+  const onReady = () => { ready.current = true; startEnter() }
+  useEffect(() => {
+    if (state === 'MALE_DOCUMENT_ENTER') startEnter()
+    else if (state.startsWith('RSVP_')) entered.current = false // gửi lỗi / huỷ → lần sau chạy lại
+  }, [state]) // eslint-disable-line react-hooks/exhaustive-deps
 
   // 3. mở bìa khi vào MALE_DOCUMENT_OPEN
   useEffect(() => {
@@ -251,15 +260,16 @@ export default function MaleScene({ popup }: { popup: React.RefObject<HTMLDivEle
     }  }
 
   return (
-    <div className="male" data-scene="male" ref={stage}>
+    <div className={`male ${warm ? 'is-warm' : ''}`} data-scene="male" ref={stage}>
       <DustMotes />
       {guest && (
-        <WallTitle nickname={guest.nickname || guest.fullName} show={state !== 'MALE_DOCUMENT_ENTER'} />
+        <WallTitle nickname={guest.nickname || guest.fullName} show={!warm && state !== 'MALE_DOCUMENT_ENTER'} />
       )}
       {assets && (
         <Canvas
           className="male__canvas"
           shadows="soft"
+          frameloop={warm ? 'demand' : 'always'}
           dpr={[1, 1.75]}
           gl={{ alpha: true, antialias: true, powerPreference: 'high-performance' }}
           camera={{ fov: 30, near: 0.1, far: 40 }}

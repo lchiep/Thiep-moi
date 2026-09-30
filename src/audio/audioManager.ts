@@ -14,7 +14,7 @@ export type Track = 'ring' | 'male' | 'female'
 const SRC: Record<Track, string> = {
   ring: '/assets/audio/ringtone.mp3?v=3', // bài mở đầu: chạy từ màn cuộc gọi, nhỏ lại ở popup, to lại khi gửi xong, tới khi khách chạm thư/vé
   male: '/assets/audio/male.mp3?v=2', // nhánh Nam: tập tài liệu → vé → thiệp
-  female: '/assets/audio/female.mp3?v=2', // nhánh Nữ: thư → phong bì → tulip → vé → thiệp
+  female: '/assets/audio/female.mp3?v=3', // nhánh Nữ: thư → phong bì → tulip → vé → thiệp
 }
 /** bài dài phát cả bài dạng luồng (thẻ <audio> qua GainNode) — bài ngắn (không còn bài ngắn nào) */
 const STREAM = new Set<Track>(['ring', 'male', 'female'])
