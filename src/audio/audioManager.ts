@@ -13,7 +13,7 @@ export type Track = 'ring' | 'music' | 'male' | 'female'
 
 const SRC: Record<Track, string> = {
   ring: '/assets/audio/ringtone.mp3?v=2', // chuông điện thoại — màn cuộc gọi
-  music: '/assets/audio/popup.mp3?v=1', // nhạc nền — popup nhập thông tin
+  music: '/assets/audio/popup.mp3?v=2', // nhạc nền — popup nhập thông tin
   male: '/assets/audio/male.mp3?v=1', // nhánh Nam: tập tài liệu → vé → thiệp
   female: '/assets/audio/female.mp3?v=1', // nhánh Nữ: thư → phong bì → tulip → vé → thiệp
 }
