@@ -12,7 +12,7 @@ import { gsap } from 'gsap'
 export type Track = 'ring' | 'music'
 
 const SRC: Record<Track, string> = {
-  ring: '/assets/audio/ringtone.mp3?v=1', // chuông điện thoại — màn cuộc gọi
+  ring: '/assets/audio/ringtone.mp3?v=2', // chuông điện thoại — màn cuộc gọi
   music: '/assets/audio/popup.mp3?v=1', // nhạc nền — popup nhập thông tin
 }
 /** độ to từng bài (0–1) */
