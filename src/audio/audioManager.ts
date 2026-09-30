@@ -9,14 +9,16 @@ import { gsap } from 'gsap'
  *
  * File nằm ở public/assets/audio/ — muốn đổi bài chỉ cần thay file cùng tên (đổi `?v=` để khỏi dính cache).
  */
-export type Track = 'ring' | 'music'
+export type Track = 'ring' | 'music' | 'male' | 'female'
 
 const SRC: Record<Track, string> = {
   ring: '/assets/audio/ringtone.mp3?v=2', // chuông điện thoại — màn cuộc gọi
   music: '/assets/audio/popup.mp3?v=1', // nhạc nền — popup nhập thông tin
+  male: '/assets/audio/male.mp3?v=1', // nhánh Nam: tập tài liệu → vé → thiệp
+  female: '/assets/audio/female.mp3?v=1', // nhánh Nữ: thư → phong bì → tulip → vé → thiệp
 }
 /** độ to từng bài (0–1) */
-const LEVEL: Record<Track, number> = { ring: 0.85, music: 0.5 }
+const LEVEL: Record<Track, number> = { ring: 0.85, music: 0.5, male: 0.5, female: 0.5 }
 
 type Voice = {
   bytes: ArrayBuffer | null
@@ -33,6 +35,8 @@ class AudioManager {
   private voices: Record<Track, Voice> = {
     ring: { bytes: null, buffer: null, source: null, gain: null, vol: { v: 0 }, tween: null },
     music: { bytes: null, buffer: null, source: null, gain: null, vol: { v: 0 }, tween: null },
+    male: { bytes: null, buffer: null, source: null, gain: null, vol: { v: 0 }, tween: null },
+    female: { bytes: null, buffer: null, source: null, gain: null, vol: { v: 0 }, tween: null },
   }
   private want: Track | null = null
   private fade = 0.8
@@ -172,6 +176,8 @@ class AudioManager {
       unlocked: this.unlocked, ctx: this.ctx?.state ?? null, want: this.want,
       ring: { decoded: !!v.ring.buffer, playing: !!v.ring.source, vol: +v.ring.vol.v.toFixed(2) },
       music: { decoded: !!v.music.buffer, playing: !!v.music.source, vol: +v.music.vol.v.toFixed(2) },
+      male: { decoded: !!v.male.buffer, playing: !!v.male.source, vol: +v.male.vol.v.toFixed(2) },
+      female: { decoded: !!v.female.buffer, playing: !!v.female.source, vol: +v.female.vol.v.toFixed(2) },
     }
   }
 

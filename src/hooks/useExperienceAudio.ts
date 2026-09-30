@@ -1,5 +1,6 @@
 import { useEffect } from 'react'
 import { audio, type Track } from '../audio/audioManager'
+import { useGuest } from '../state/guestStore'
 import { useExperience, type ExperienceState } from '../state/experienceMachine'
 
 /**
@@ -7,9 +8,9 @@ import { useExperience, type ExperienceState } from '../state/experienceMachine'
  *   cuộc gọi đến (chờ / đang vuốt) → chuông điện thoại
  *   nghe máy → popup (kể cả gửi lỗi / huỷ) → nhạc nền
  *   huỷ popup → quay lại chuông
- *   sang nhánh Nam / Nữ → nhạc nhỏ dần rồi tắt (chậm, ~3 giây) cho tới khi có nhạc riêng
+ *   sang nhánh Nam / Nữ → nhạc popup nhỏ dần, nhạc riêng của nhánh to dần (2 giây), giữ tới hết màn thiệp
  */
-export const trackFor = (s: ExperienceState): { track: Track | null; fade: number } => {
+export const trackFor = (s: ExperienceState, gender: 'nam' | 'nu' | undefined): { track: Track | null; fade: number } => {
   switch (s) {
     case 'CALL_IDLE':
     case 'CALL_DRAGGING':
@@ -20,7 +21,10 @@ export const trackFor = (s: ExperienceState): { track: Track | null; fade: numbe
     case 'RSVP_SUBMITTING':
       return { track: 'music', fade: 1.2 }
     default:
-      return { track: null, fade: 3 }
+      // nhánh Nam / Nữ: nhạc riêng, chạy suốt từ lúc popup biến hình tới hết màn thiệp (không ngắt khi đổi cảnh)
+      if (s.startsWith('FEMALE_')) return { track: 'female', fade: 2 }
+      if (s.startsWith('MALE_')) return { track: 'male', fade: 2 }
+      return { track: gender === 'nu' ? 'female' : gender === 'nam' ? 'male' : null, fade: 2 } // TICKET_* / INVITATION_*
   }
 }
 
@@ -33,8 +37,9 @@ export function useExperienceAudio() {
     return audio.init()
   }, [])
   const state = useExperience((s) => s.state)
+  const gender = useGuest((s) => s.guest?.gender)
   useEffect(() => {
-    const { track, fade } = trackFor(state)
+    const { track, fade } = trackFor(state, gender)
     audio.setScene(track, fade)
-  }, [state])
+  }, [state, gender])
 }
