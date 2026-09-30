@@ -3,11 +3,12 @@ import { create } from 'zustand'
 import type { GuestForm } from '../components/GlassPopup/GlassPopup'
 import { compressImage } from '../utils/image'
 import { findFocus, type Focus } from '../utils/faceFocus'
+import { flushPending, reservedTicket, syncGuest } from '../api/guestSync'
 
 /**
  * Hồ sơ khách — nguồn dữ liệu DUY NHẤT cho vé, thiệp, tên hiển thị.
- * Phase 6 (sau): gửi lên Supabase `register_guest` để lấy mã vé chính thức.
- * Hiện tại: lưu trên máy (localStorage), mã vé tạm GH26-XXXX không đổi trong phiên.
+ * Lưu trên máy (localStorage) + gửi lên Supabase khi khách bấm GỬI (`submit`, xem src/api/guestSync.ts).
+ * Mã vé: mã chính thức đã giữ chỗ lúc mở popup (GH26-0001…); không có mạng thì mã tạm, server cấp lại sau.
  */
 export type Guest = {
   id: string
@@ -60,6 +61,9 @@ export function prepPhoto(file: File) {
 type Store = {
   guest: Guest | null
   saveFromForm: (f: GuestForm) => Promise<Guest>
+  /** Khách bấm GỬI: lưu trên máy + gửi toàn bộ thông tin (kèm ảnh) lên Supabase ở nền. */
+  submit: (f: GuestForm) => Promise<Guest>
+  setTicketNo: (t: string) => void
 }
 
 export const useGuest = create<Store>((set, get) => ({
@@ -83,7 +87,7 @@ export const useGuest = create<Store>((set, get) => ({
       description: f.description.trim(),
       photo,
       photoFocus,
-      ticketNo: prev?.ticketNo ?? tempTicketNo(),
+      ticketNo: prev?.ticketNo ?? reservedTicket() ?? tempTicketNo(),
     }
     set({ guest })
     try {
@@ -93,7 +97,30 @@ export const useGuest = create<Store>((set, get) => ({
     }
     return guest
   },
+  submit: async (f) => {
+    const guest = await get().saveFromForm(f)
+    void syncGuest(guest, f.photo, get().setTicketNo)
+    return guest
+  },
+  setTicketNo: (ticketNo) => {
+    const g = get().guest
+    if (!g || g.ticketNo === ticketNo) return
+    const guest = { ...g, ticketNo }
+    set({ guest })
+    try {
+      localStorage.setItem(KEY, JSON.stringify(guest))
+    } catch {
+      /* bỏ qua */
+    }
+  },
 }))
+
+// lần trước mất mạng → gửi lại khi mở web / khi có mạng lại
+if (typeof window !== 'undefined') {
+  const flush = () => flushPending((t) => useGuest.getState().setTicketNo(t))
+  flush()
+  window.addEventListener('online', flush)
+}
 
 /** Họ và tên có chứa ĐÚNG 1 chữ (so cả chữ, không phân biệt hoa/thường, chuẩn hoá dấu tiếng Việt)? */
 const nameHasWord = (fullName: string, word: string) => {

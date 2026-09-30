@@ -3,7 +3,7 @@
 -- Đã áp dụng lên project "thiep-moi-graduation-gala" (jbnemrbfdxngqzlrsyve)
 --
 -- Nguyên tắc bảo mật:
---   - Khách (anon) CHỈ được GHI qua hàm register_guest / submit_rsvp / submit_wish.
+--   - Khách (anon) CHỈ được GHI qua hàm reserve_ticket / register_guest / submit_rsvp / submit_wish.
 --   - Khách KHÔNG đọc được bảng nào (SĐT, CCCD, ảnh của người khác được bảo vệ).
 --   - Hiệp xem dữ liệu trong Supabase Dashboard → Table Editor (quyền admin).
 -- ============================================================
@@ -23,7 +23,8 @@ create table if not exists public.guests (
   hobbies      text check (char_length(hobbies) <= 300),
   description  text check (char_length(description) <= 1000),
   photo_path   text,                                   -- đường dẫn trong bucket guest-photos
-  created_at   timestamptz not null default now()
+  created_at   timestamptz not null default now(),
+  updated_at   timestamptz not null default now()
 );
 
 create table if not exists public.rsvps (
@@ -50,19 +51,43 @@ alter table public.wishes enable row level security;
 
 -- ---------- Hàm ghi dữ liệu (chạy với quyền owner, anon chỉ được gọi hàm) ----------
 
+-- Giữ chỗ 1 mã vé chính thức lúc khách mở popup → vé khách thấy khớp với dữ liệu lưu
+create or replace function public.reserve_ticket() returns text
+language plpgsql security definer set search_path = public as $$
+declare v text;
+begin
+  loop
+    v := 'GH26-' || lpad(nextval('ticket_seq')::text, 4, '0');
+    exit when not exists (select 1 from guests where ticket_no = v);
+  end loop;
+  return v;
+end $$;
+
 create or replace function public.register_guest(
-  p_id uuid, p_full_name text, p_nickname text, p_phone text, p_cccd text,
-  p_gender text, p_email text, p_dob date, p_hobbies text, p_description text,
-  p_photo_path text
+  p_id uuid, p_ticket_no text, p_full_name text, p_nickname text, p_phone text, p_cccd text,
+  p_gender text, p_email text, p_dob date, p_hobbies text, p_description text, p_photo_path text
 ) returns text
 language plpgsql security definer set search_path = public as $$
 declare v_ticket text;
 begin
-  -- Đăng ký lại cùng id (khách bấm gửi 2 lần) → trả về mã vé cũ, không tạo vé mới
+  -- khách gửi lại (cùng id) → cập nhật thông tin mới nhất, giữ mã vé cũ
   select ticket_no into v_ticket from guests where id = p_id;
-  if v_ticket is not null then return v_ticket; end if;
+  if v_ticket is not null then
+    update guests set full_name = trim(p_full_name), nickname = nullif(trim(p_nickname),''),
+      phone = p_phone, cccd = p_cccd, gender = p_gender, email = p_email, dob = p_dob,
+      hobbies = p_hobbies, description = p_description,
+      photo_path = coalesce(p_photo_path, photo_path), updated_at = now()
+    where id = p_id;
+    return v_ticket;
+  end if;
 
-  v_ticket := 'GH26-' || lpad(nextval('ticket_seq')::text, 4, '0');
+  -- mã vé đã giữ chỗ trước (reserve_ticket) → dùng luôn
+  if p_ticket_no ~ '^GH26-[0-9]{4,}$' and not exists (select 1 from guests where ticket_no = p_ticket_no) then
+    v_ticket := p_ticket_no;
+  else
+    v_ticket := reserve_ticket();
+  end if;
+
   insert into guests (id, ticket_no, full_name, nickname, phone, cccd, gender,
                       email, dob, hobbies, description, photo_path)
   values (p_id, v_ticket, trim(p_full_name), nullif(trim(p_nickname),''), p_phone, p_cccd,
@@ -80,10 +105,12 @@ returns void language sql security definer set search_path = public as $$
   insert into wishes (guest_id, message) values (p_guest_id, trim(p_message));
 $$;
 
-revoke all on function public.register_guest(uuid,text,text,text,text,text,text,date,text,text,text) from public;
+revoke all on function public.register_guest(uuid,text,text,text,text,text,text,text,date,text,text,text) from public;
+revoke all on function public.reserve_ticket() from public;
 revoke all on function public.submit_rsvp(uuid,text) from public;
 revoke all on function public.submit_wish(uuid,text) from public;
-grant execute on function public.register_guest(uuid,text,text,text,text,text,text,date,text,text,text) to anon, authenticated;
+grant execute on function public.register_guest(uuid,text,text,text,text,text,text,text,date,text,text,text) to anon, authenticated;
+grant execute on function public.reserve_ticket() to anon, authenticated;
 grant execute on function public.submit_rsvp(uuid,text) to anon, authenticated;
 grant execute on function public.submit_wish(uuid,text) to anon, authenticated;
 

@@ -12,6 +12,7 @@ import { useSwipeAnswer } from '../../hooks/useSwipeAnswer'
 import { sendExperience, useExperience } from '../../state/experienceMachine'
 import { useGuest } from '../../state/guestStore'
 import { warmMap } from '../../utils/mapWarm'
+import { warmTicket } from '../../api/guestSync'
 import './CallScene.css'
 
 gsap.registerPlugin(useGSAP)
@@ -111,7 +112,7 @@ export default function CallScene() {
     ((state === 'TICKET_REVEAL' || state === 'TICKET_VIEW' || state === 'INVITATION_ENTER' || state === 'INVITATION_VIEW' || state === 'INVITATION_EXIT' || state === 'TICKET_STOW') && useGuest.getState().guest?.gender === 'nam')
   useEffect(() => { if (state === 'CALL_IDLE' || state === 'RSVP_CLOSING') { setWarm(false); warmKey.current = '' } }, [state])
   useLayoutEffect(() => {
-    if (state === 'RSVP_OPEN') { void loadMale(); void loadFemale(); warmMap() }
+    if (state === 'RSVP_OPEN') { void loadMale(); void loadFemale(); warmMap(); warmTicket() }
     if (state !== 'RSVP_OPEN' || !popup.current || openTl.current) return
     const origin = sliderRect.current ?? slider.current!.getBoundingClientRect()
     gsap.to(slider.current, { autoAlpha: 0, duration: 0.3, ease: 'power2.out' })
@@ -149,8 +150,8 @@ export default function CallScene() {
   const onSubmit = useCallback(async (data: GuestForm): Promise<string | null> => {
     if (!sendExperience('SUBMIT')) return null
     try {
-      // lưu hồ sơ khách trên máy (ảnh nén ~600px). Phase 6: đồng bộ Supabase + mã vé chính thức.
-      await useGuest.getState().saveFromForm(data)
+      // lưu hồ sơ khách trên máy (ảnh nén ~600px) + gửi toàn bộ thông tin lên Supabase ở nền (không chờ mạng)
+      await useGuest.getState().submit(data)
     } catch (e) {
       console.error('[RSVP] lưu thông tin lỗi', e)
       sendExperience('SUBMIT_FAIL')
