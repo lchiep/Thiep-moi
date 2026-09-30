@@ -45,16 +45,7 @@ export default function RsvpNote({ note, onClose }: { note: Note; onClose: () =>
     <div className="note" ref={root} role="dialog" aria-modal="true" aria-label="Lời nhắn nhỏ" onClick={close}>
       <div className="note__paper" ref={paper} onClick={(e) => e.stopPropagation()}>
         <svg className="note__clip" ref={clip} viewBox="0 0 30 76" aria-hidden="true">
-          <defs>
-            <linearGradient id="clipMetal" x1="0" y1="0" x2="1" y2="0">
-              <stop offset="0" stopColor="#8d9299" />
-              <stop offset="0.35" stopColor="#f4f6f8" />
-              <stop offset="0.6" stopColor="#b3b8be" />
-              <stop offset="1" stopColor="#7d838a" />
-            </linearGradient>
-          </defs>
-          <path d="M5 32V58A10 10 0 0 0 25 58V14A6.5 6.5 0 0 0 12 14V52A3 3 0 0 0 18 52V26" fill="none" stroke="#6f757c" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round" />
-          <path d="M5 32V58A10 10 0 0 0 25 58V14A6.5 6.5 0 0 0 12 14V52A3 3 0 0 0 18 52V26" fill="none" stroke="url(#clipMetal)" strokeWidth="1.9" strokeLinecap="round" strokeLinejoin="round" />
+          <path d="M5 32V58A10 10 0 0 0 25 58V14A6.5 6.5 0 0 0 12 14V52A3 3 0 0 0 18 52V26" fill="none" stroke="#7a2230" strokeWidth="2.8" strokeLinecap="round" strokeLinejoin="round" />
         </svg>
         <div className="note__scroll">
         <div className="note__text">
