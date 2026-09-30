@@ -1,6 +1,5 @@
 import CallScene from '../scenes/CallScene/CallScene'
 import DesignPreview from './DesignPreview'
-import SoundToggle from '../components/SoundToggle/SoundToggle'
 import { useExperienceAudio } from '../hooks/useExperienceAudio'
 
 /**
@@ -14,7 +13,6 @@ export default function App() {
     <div className="app">
       <div className="app__phone">
         <CallScene />
-        <SoundToggle />
       </div>
     </div>
   )
