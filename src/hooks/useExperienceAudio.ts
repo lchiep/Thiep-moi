@@ -25,11 +25,11 @@ export const trackFor = (s: ExperienceState, gender: 'nam' | 'nu' | undefined, e
     case 'CALL_ANSWERED':
     case 'RSVP_OPEN':
     case 'RSVP_SUBMITTING':
-      return { track: 'music', fade: 1.2 }
+      return { track: 'music', fade: 2.4 } // chuông nhỏ dần chậm, nhạc popup vào dần — không cắt cụt
     default:
       // popup biến hình → thư đóng phong bì → sang cảnh mới (nữ) / tập tài liệu mở (nam): VẪN nhạc popup chạy tiếp.
       // Khách chạm vào thư/phong bì/vé lần đầu → nhạc riêng của nhánh mới vào (crossfade), rồi giữ tới hết màn thiệp.
-      if (!engaged) return { track: 'music', fade: 1.2 }
+      if (!engaged) return { track: 'music', fade: 2.4 }
       return { track: gender === 'nu' ? 'female' : gender === 'nam' ? 'male' : null, fade: 2 }
   }
 }
