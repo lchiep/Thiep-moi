@@ -44,7 +44,7 @@ export default function DesignPreview() {
           <p className="t-script dp-hero">Graduation Party</p>
           <p className="t-script dp-name">{MOCK_GUEST.nickname}</p>
           <p className="t-script dp-name-sm">Hoàng Đức · Nguyễn Ngọc Ánh</p>
-          <p className="t-title dp-h1-ink">LỄ VINH DANH</p>
+          <p className="t-title dp-h1-ink">LỄ TỐT NGHIỆP</p>
           <p className="t-caps dp-gold">{h.guestLabel}</p>
           <p className="dp-body">{COPY.sections.letter.body[0]}</p>
           <p className="t-ui dp-ui">Inter — form, nút, đồng hồ 08:00</p>

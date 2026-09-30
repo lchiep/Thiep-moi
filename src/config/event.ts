@@ -17,13 +17,13 @@ export const EVENT = {
   dateLabel: read('VITE_EVENT_DATE_LABEL', 'OCTOBER 16, 2026'),
   timeLabel: read('VITE_EVENT_TIME_LABEL', '13:00 FRIDAY'),
   host: read('VITE_EVENT_HOST', 'CUNG HIỆP'),
-  contact: read('VITE_EVENT_CONTACT', '0985 000 000'), // TẠM
+  contact: read('VITE_EVENT_CONTACT', '0985 361 244'), // TẠM
   venue: read('VITE_EVENT_VENUE', 'HANOI UNIVERSITY OF BUSINESS AND TECHNOLOGY (HUBT)'),
   address: read('VITE_EVENT_ADDRESS', '29A NGÕ 124 PHỐ VĨNH TUY, VĨNH HƯNG, HÀ NỘI'),
   // bản tiếng Việt cho trang "Thời gian & địa điểm" của thiệp
   venueVi: read('VITE_EVENT_VENUE_VI', 'Trường Đại học Kinh doanh và Công nghệ Hà Nội (HUBT)'),
   addressVi: read('VITE_EVENT_ADDRESS_VI', '29A Ngõ 124 Phố Vĩnh Tuy, Vĩnh Hưng, Hà Nội'),
-  greeter: read('VITE_EVENT_GREETER', 'Cung Hiệp'),
+  greeter: read('VITE_EVENT_GREETER', 'Lưu Cung Hiệp'),
   /** toạ độ ghim trên bản đồ — vị trí ĐÚNG của trường do Hiệp gửi (27/09) */
   lat: Number(read('VITE_EVENT_LAT', '21.000064705312877')),
   lng: Number(read('VITE_EVENT_LNG', '105.87777846990927')),

@@ -77,7 +77,7 @@ export const COPY = {
 
   invitationHeader: {
     kicker: 'CHÂN THÀNH KÍNH MỜI',
-    title: 'LỄ VINH DANH',
+    title: 'LỄ TỐT NGHIỆP',
     subtitle: 'GRADUATION GALA 2026',
     // 3 dòng khách: TRÂN TRỌNG KÍNH MỜI → HỌ VÀ TÊN (in hoa) → "Anh/Chị + tên gọi thân mật" (thư pháp)
     guestLabel: 'TRÂN TRỌNG KÍNH MỜI',
@@ -133,7 +133,7 @@ export const COPY = {
           { name: 'Be', hex: '#d8c3a0' },
           { name: 'Trắng', hex: '#faf7f1' },
         ],
-        text: 'Ưu tiên sự thoải mái, gọn gàng và một chút “Lên hình thật đẹp”.',
+        text: 'Ưu tiên sự thoải mái, gọn gàng và một chiếc miệng chúm chím để “Lên hình thật đẹp”.',
       },
       photo: { label: 'CHỤP ẢNH', text: 'Mọi người có thể lên sớm để làm vài bức trước hoặc đợi sau khi trao bằng rồi mình sẽ dành thời gian cho nhau nhé' },
 
@@ -181,10 +181,10 @@ export const COPY = {
             'Và trong ngày đặc biệt ấy, anh muốn gửi riêng cho bé một lời mời. Bé không cần phải chuẩn bị gì đặc biệt, cũng chẳng cần phải làm gì cầu kỳ, chỉ cần có thể sắp xếp được thời gian và đến chung vui cùng anh trong ngày hôm ấy là đã đủ rồi.',
             'Anh biết ai cũng có công việc, lịch trình và những chuyện riêng của mình, nên nếu bé thu xếp được, anh rất mong sẽ được gặp bé ở đó. Anh hy vọng bé có thể dành một chút thời gian đến cùng anh, để ngày tốt nghiệp này có thêm một người mà anh thật sự muốn có mặt bên cạnh.',
           ],
-          note: 'Có bé, ngày này sẽ trở nên trọn vẹn hơn rất nhiều.',
+          note: 'Vậy nên, nhớ dành cho anh một buổi trong ngày hôm đó nhé.',
         },
-        timePlace: { note: 'Đừng đến quá muộn nhé — anh muốn có bé trong khoảnh khắc của ngày hôm ấy.' },
-        schedule: { note: 'Anh đang đếm từng ngày để được gặp bé.' },
+        timePlace: { note: ' Dịch vụ đón tận nơi luôn ở chế độ hoạt động nhé' },
+        schedule: { note: 'Rất mong có sự góp mặt của em.' },
         guide: {
           intro: 'Để ngày hôm đó thật thoải mái, bé hãy chuẩn bị 1 vài điều nho nhỏ trước khi gặp nhau nhé !!!',
           photo: { label: 'CHỤP ẢNH', text: 'Bé có thể lên sớm để chụp vài bức trước hoặc có thể lên sau để tránh mệt, khi đó anh sẽ có nhiều thời gian hơn.' },
@@ -192,11 +192,11 @@ export const COPY = {
         rsvp: {
           wishPlaceholder: 'Hãy để lại một lời nhắn/kỷ niệm đáng nhớ nhất của bé với anh nhé!',
           wishDone: 'Anh xin cảm ơn lời chúc của em',
-          intro: 'Anh đang háo hức chuẩn bị cho ngày này, và sẽ thật tuyệt nếu bé có thể xuất hiện ở đó.',
+          intro: 'Sự có mặt của bé sẽ là niềm vui to lớn trong ngày hôm đó. Anh rất mong em có thể thu xếp để đến chung vui với anh.',
           question: 'Bé sẽ đến chứ?',
           options: [
-            { value: 'attending', label: 'Sẽ tham dự cùng anh', reply: 'Hẹn gặp bé tại buổi lễ nhé.' },
-            { value: 'maybe', label: 'Sẽ thu xếp', reply: 'Anh sẽ giữ một chỗ thật đẹp cho bé.' },
+            { value: 'attending', label: 'Sẽ tham dự cùng anh', reply: 'Hẹn gặp em tại buổi lễ.' },
+            { value: 'maybe', label: 'Sẽ thu xếp', reply: 'Anh sẽ đợi.' },
             { value: 'not_attending', label: 'Không đi được', reply: 'Tiếc quá, vậy cảm ơn em đã trả lời lá thư này' },
           ],
           thanks: 'Cảm ơn bé nhé ♡',
