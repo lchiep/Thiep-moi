@@ -9,18 +9,17 @@ import { gsap } from 'gsap'
  *
  * File nằm ở public/assets/audio/ — muốn đổi bài chỉ cần thay file cùng tên (đổi `?v=` để khỏi dính cache).
  */
-export type Track = 'ring' | 'music' | 'male' | 'female'
+export type Track = 'ring' | 'male' | 'female'
 
 const SRC: Record<Track, string> = {
-  ring: '/assets/audio/ringtone.mp3?v=2', // chuông điện thoại — màn cuộc gọi
-  music: '/assets/audio/popup.mp3?v=2', // nhạc nền — popup nhập thông tin
+  ring: '/assets/audio/ringtone.mp3?v=3', // bài mở đầu: chạy từ màn cuộc gọi, nhỏ lại ở popup, to lại khi gửi xong, tới khi khách chạm thư/vé
   male: '/assets/audio/male.mp3?v=2', // nhánh Nam: tập tài liệu → vé → thiệp
   female: '/assets/audio/female.mp3?v=2', // nhánh Nữ: thư → phong bì → tulip → vé → thiệp
 }
-/** bài dài phát cả bài dạng luồng (thẻ <audio> qua GainNode) — bài ngắn (chuông, popup) giải mã sẵn để lặp liền mạch */
-const STREAM = new Set<Track>(['male', 'female'])
+/** bài dài phát cả bài dạng luồng (thẻ <audio> qua GainNode) — bài ngắn (không còn bài ngắn nào) */
+const STREAM = new Set<Track>(['ring', 'male', 'female'])
 /** độ to từng bài (0–1) */
-const LEVEL: Record<Track, number> = { ring: 0.75, music: 0.6, male: 0.55, female: 0.55 }
+const LEVEL: Record<Track, number> = { ring: 0.75, male: 0.55, female: 0.55 }
 
 type Voice = {
   bytes: ArrayBuffer | null
@@ -38,11 +37,11 @@ class AudioManager {
   private master: GainNode | null = null
   private voices: Record<Track, Voice> = {
     ring: { bytes: null, buffer: null, source: null, el: null, elNode: null, gain: null, vol: { v: 0 }, tween: null },
-    music: { bytes: null, buffer: null, source: null, el: null, elNode: null, gain: null, vol: { v: 0 }, tween: null },
     male: { bytes: null, buffer: null, source: null, el: null, elNode: null, gain: null, vol: { v: 0 }, tween: null },
     female: { bytes: null, buffer: null, source: null, el: null, elNode: null, gain: null, vol: { v: 0 }, tween: null },
   }
   private want: Track | null = null
+  private level = 1 // hệ số to/nhỏ của bài đang phát (popup: nhỏ lại)
   private fade = 0.8
   private unlocked = false
   private appliedUnlocked = false
@@ -132,10 +131,11 @@ class AudioManager {
   }
 
   /** đổi bài đang cần phát (null = im). `fade` = số giây nhỏ dần/to dần. */
-  setScene(track: Track | null, fade = 0.8) {
-    if (track === this.want && this.unlocked === this.appliedUnlocked) return // cùng bài → không làm lại (khỏi rút ngắn đường nhỏ dần đang chạy)
+  setScene(track: Track | null, fade = 0.8, level = 1) {
+    if (track === this.want && level === this.level && this.unlocked === this.appliedUnlocked) return // cùng bài → không làm lại (khỏi rút ngắn đường nhỏ dần đang chạy)
     this.appliedUnlocked = this.unlocked
     this.want = track
+    this.level = level
     this.fade = fade
     this.apply()
   }
@@ -171,7 +171,7 @@ class AudioManager {
       }
       v.tween?.kill()
       v.tween = gsap.to(v.vol, {
-        v: LEVEL[t], duration: this.fade, ease: 'sine.inOut',
+        v: LEVEL[t] * this.level, duration: this.fade, ease: 'sine.inOut',
         onUpdate: () => { if (v.gain) v.gain.gain.value = v.vol.v },
       })
       return
@@ -192,7 +192,7 @@ class AudioManager {
     }
     v.tween?.kill()
     v.tween = gsap.to(v.vol, {
-      v: LEVEL[t], duration: this.fade, ease: 'sine.inOut',
+      v: LEVEL[t] * this.level, duration: this.fade, ease: 'sine.inOut',
       onUpdate: () => { if (v.gain) v.gain.gain.value = v.vol.v },
     })
   }
@@ -229,7 +229,6 @@ class AudioManager {
     return {
       unlocked: this.unlocked, ctx: this.ctx?.state ?? null, want: this.want,
       ring: { decoded: !!v.ring.buffer, playing: !!v.ring.source, vol: +v.ring.vol.v.toFixed(2) },
-      music: { decoded: !!v.music.buffer, playing: !!v.music.source, vol: +v.music.vol.v.toFixed(2) },
       male: { decoded: !!v.male.el, playing: !!v.male.el && !v.male.el.paused, vol: +v.male.vol.v.toFixed(2) },
       female: { decoded: !!v.female.el, playing: !!v.female.el && !v.female.el.paused, vol: +v.female.vol.v.toFixed(2) },
     }
