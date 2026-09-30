@@ -5,6 +5,9 @@ import { animate } from 'animejs'
 import { nudgeShake } from '../../animations/anime/microInteractions'
 import { EVENT, eventStart } from '../../config/event'
 import MapPreview from './MapPreview'
+import RsvpNote from '../../components/RsvpNote/RsvpNote'
+import { rsvpNoteFor } from '../../config/rsvpNote'
+import { useGuest } from '../../state/guestStore'
 import { sectionsFor, type Sections } from '../../state/guestStore'
 import './InvitationScene.css'
 
@@ -252,8 +255,12 @@ function Countdown() {
 function RsvpAndWish({ S }: { S: Sections['rsvp'] }) {
   const [pick, setPick] = useState<string>('')
   const [sent, setSent] = useState(false)
+  const [noteOpen, setNoteOpen] = useState(false)
+  const guest = useGuest((g) => g.guest)
+  const note = rsvpNoteFor(guest)
   return (
     <>
+      {noteOpen && note && <RsvpNote note={note} onClose={() => setNoteOpen(false)} />}
       {sent ? (
         <div className="inv__thanks" role="status">
           <p className="inv__script">{S.thanks}</p>
@@ -267,6 +274,8 @@ function RsvpAndWish({ S }: { S: Sections['rsvp'] }) {
             if (!pick) return
             try { localStorage.setItem('gg26.rsvp', pick) } catch { /* bỏ qua */ }
             setSent(true)
+            // tham dự / sẽ thu xếp → hiện tờ giấy nhắn nhỏ (nhóm nào có bản riêng thì dùng bản đó); "không đi được" thì không
+            if (pick !== 'not_attending' && note) setNoteOpen(true)
           }}
         >
           <p className="inv__body">{S.intro}</p>
