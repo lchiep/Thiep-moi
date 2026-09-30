@@ -11,6 +11,7 @@ import { callMicroInteractions } from '../../animations/anime/microInteractions'
 import { useSwipeAnswer } from '../../hooks/useSwipeAnswer'
 import { sendExperience, useExperience } from '../../state/experienceMachine'
 import { useGuest } from '../../state/guestStore'
+import { warmMap } from '../../utils/mapWarm'
 import './CallScene.css'
 
 gsap.registerPlugin(useGSAP)
@@ -91,7 +92,7 @@ export default function CallScene() {
     state.startsWith('MALE_') ||
     ((state === 'TICKET_REVEAL' || state === 'TICKET_VIEW' || state === 'INVITATION_ENTER' || state === 'INVITATION_VIEW' || state === 'INVITATION_EXIT' || state === 'TICKET_STOW') && useGuest.getState().guest?.gender === 'nam')
   useLayoutEffect(() => {
-    if (state === 'RSVP_OPEN') { void loadMale(); void loadFemale() }
+    if (state === 'RSVP_OPEN') { void loadMale(); void loadFemale(); warmMap() }
     if (state !== 'RSVP_OPEN' || !popup.current || openTl.current) return
     const origin = sliderRect.current ?? slider.current!.getBoundingClientRect()
     gsap.to(slider.current, { autoAlpha: 0, duration: 0.3, ease: 'power2.out' })

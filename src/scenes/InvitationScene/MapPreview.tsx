@@ -1,6 +1,7 @@
 import { useEffect, useRef } from 'react'
 import type { Map as LMap } from 'leaflet'
 import { EVENT } from '../../config/event'
+import { MAP_ZOOM, TILE_URL } from '../../utils/mapWarm'
 import './MapPreview.css'
 
 /**
@@ -36,7 +37,7 @@ export default function MapPreview() {
       const at: [number, number] = [EVENT.lat, EVENT.lng]
       map = L.map(box.current, {
         center: at,
-        zoom: 16,
+        zoom: MAP_ZOOM,
         minZoom: 12,
         maxZoom: 19,
         zoomSnap: 0.5,
@@ -53,8 +54,12 @@ export default function MapPreview() {
         keyboard: false,
       })
       // nền OpenStreetMap chuẩn (CARTO nay đòi API key → hiện chữ "API KEY REQUIRED")
-      L.tileLayer('https://tile.openstreetmap.org/{z}/{x}/{y}.png', {
+      L.tileLayer(TILE_URL, {
         maxZoom: 19,
+        updateWhenIdle: false, // vẽ ô ngay khi kéo, không đợi dừng tay
+        updateWhenZooming: false, // đang chụm zoom thì không tải ô trung gian
+        keepBuffer: 1, // ít ô dự phòng → ít yêu cầu mạng
+        crossOrigin: false,
         attribution: '© OpenStreetMap',
       }).addTo(map)
       map.attributionControl.setPrefix(false)
@@ -72,7 +77,7 @@ export default function MapPreview() {
           L.DomEvent.disableClickPropagation(bar)
           L.DomEvent.on(a, 'click', (e) => {
             L.DomEvent.preventDefault(e)
-            map?.flyTo(at, 16, { duration: 0.8 })
+            map?.flyTo(at, MAP_ZOOM, { duration: 0.8 })
           })
           return bar
         },
