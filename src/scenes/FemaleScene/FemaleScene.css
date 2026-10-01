@@ -23,6 +23,19 @@
   z-index: 34;
   background: none;
 }
+.fem__edge {
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  left: 0;
+  width: 26cqw;
+  z-index: 35;
+  pointer-events: none;
+  visibility: hidden;
+  opacity: 0;
+  background: linear-gradient(90deg, rgba(14, 9, 9, 0) 0%, rgba(14, 9, 9, 0.35) 60%, rgba(14, 9, 9, 0.62) 100%);
+  will-change: transform;
+}
 .fem__flurry {
   position: absolute;
   inset: 0;

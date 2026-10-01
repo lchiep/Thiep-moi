@@ -1,4 +1,5 @@
 import { gsap } from 'gsap'
+import { calmGlass } from './calmGlass'
 import * as THREE from 'three'
 import { EASE } from '../motion'
 import { FOLDER, TICKET_POSES, TICKET_SHOW, type FolderHandle } from '../../components/DocumentFolder/Folder3D'
@@ -82,7 +83,8 @@ export function maleEnterTimeline({ popup, folder, camera, canvas, onComplete }:
     .to(air, { autoAlpha: 0, duration: 0.9, ease: 'power2.inOut' }, 'fold+=0.2')
     // kính co + bám bìa: bỏ backdrop-filter ngay từ đầu (iPhone phải tính lại lớp làm mờ MỖI khung hình
     // khi phóng/thu phần tử có backdrop-filter → giật). Kính vốn chỉ mờ ~1.5px nên mắt không thấy khác.
-    .set([shell, ...inner], { backdropFilter: 'none', webkitBackdropFilter: 'none', willChange: 'transform, opacity' }, 'fold')
+    .call(() => calmGlass(popup), [], 'fold')
+    .set(shell, { willChange: 'transform, opacity' }, 'fold')
     .set(shell, { transformOrigin: '0 0' }, 'fold')
     // 2. tập tài liệu có mặt ngay, trồi lên từ mép dưới (vật nặng: chậm, có quán tính)
     .set(root, { visible: true }, 'fold+=0.1') // tween 0s: tua/đảo ngược timeline vẫn đúng

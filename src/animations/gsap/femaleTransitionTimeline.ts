@@ -1,4 +1,5 @@
 import { gsap } from 'gsap'
+import { calmGlass } from './calmGlass'
 import { EASE } from '../motion'
 import { lightParticlesTween } from './lightParticles'
 import { ENVELOPE_TILT } from '../../scenes/FemaleScene/femaleAssets'
@@ -23,6 +24,7 @@ export type FemaleRefs = {
   sceneA: HTMLElement[] // nền cảnh cuộc gọi (ảnh + lớp tối) — bị gió cuốn đi
   sceneB: HTMLElement[] // 2 "tấm ảnh" của cảnh tulip (lớp sau + lớp bó hoa) — camera lùi nhẹ
   frontPlate: HTMLElement // lớp bó hoa (nằm trên phong bì) — lộ ra cùng mép gió
+  edge: HTMLElement // dải tối mờ chạy theo mép gió (làm mềm đường cắt)
   flurry: HTMLElement[] // cánh hoa bay trong cơn gió
   sparks: HTMLCanvasElement // canvas hạt sáng
   envGlow: HTMLElement // ánh sáng ấm trong túi phong bì
@@ -71,10 +73,11 @@ export function femaleTransitionTimeline(o: FemaleRefs, onStep: (step: FemaleSte
   // ---------- trạng thái đầu ----------
   gsap.set(o.sceneA, { zIndex: (i) => 2 + i })
   gsap.set(o.sceneB, { scale: 1.05, transformOrigin: '50% 55%' })
-  // mặt nạ mềm theo mép gió: cảnh cũ mất dần từ trái sang phải, lớp bó hoa hiện ra đúng theo mép đó
-  const WIPE = { '--wipe': '-20%' }
-  gsap.set(o.sceneA, { ...WIPE, maskImage: 'linear-gradient(90deg, transparent calc(var(--wipe) - 16%), #000 var(--wipe))', webkitMaskImage: 'linear-gradient(90deg, transparent calc(var(--wipe) - 16%), #000 var(--wipe))' })
-  gsap.set(o.frontPlate, { ...WIPE, maskImage: 'linear-gradient(90deg, #000 calc(var(--wipe) - 16%), transparent var(--wipe))', webkitMaskImage: 'linear-gradient(90deg, #000 calc(var(--wipe) - 16%), transparent var(--wipe))' })
+  // mép gió: cảnh cũ bị cắt dần từ trái sang phải, lớp bó hoa lộ ra đúng theo mép đó.
+  // Dùng clip-path (GPU cắt, không phải vẽ lại cả tấm ảnh mỗi khung như mask-image gradient → hết giật trên iPhone).
+  // Mép cắt thẳng được che bởi đợt cánh hoa bay ngang qua.
+  gsap.set(o.sceneA, { clipPath: 'inset(0% 0% 0% 0%)', webkitClipPath: 'inset(0% 0% 0% 0%)' })
+  gsap.set(o.frontPlate, { clipPath: 'inset(0% 100% 0% 0%)', webkitClipPath: 'inset(0% 100% 0% 0%)' })
   gsap.set(o.flurry, { autoAlpha: 0 })
   // dưới mép màn: cộng cả chiều cao nắp đang mở (nắp nằm trên thân) để không ló mũi nắp
   gsap.set(o.env, { y: stageR.bottom - E.top + flapH + 30, rotation: 4, transformOrigin: '50% 50%' })
@@ -89,13 +92,15 @@ export function femaleTransitionTimeline(o: FemaleRefs, onStep: (step: FemaleSte
   const SWEEP = 3.0 // đường tan quét hết popup trong 3s (Hiệp: chậm lại cho thấy rõ tan tới đâu mất tới đó)
   tl.addLabel('dissolve', 0)
   if (o.popup) {
-    const pr = o.popup.getBoundingClientRect()
-    const cut0 = popupR.top - pr.top - 24, cut1 = popupR.bottom - pr.top + 24
-    // phần phía trên đường tan trong suốt, mép tan mềm 28px
-    const MASK = 'linear-gradient(180deg, transparent var(--cut), #000 calc(var(--cut) + 28px))'
-    tl.set(o.popup, { '--cut': `${cut0}px`, maskImage: MASK, webkitMaskImage: MASK }, 'dissolve')
-      .to(o.popup, { '--cut': `${cut1}px`, duration: SWEEP, ease: 'none' }, 'dissolve')
-      .set(o.popup, { autoAlpha: 0 }, `dissolve+=${SWEEP}`)
+    const popup = o.popup
+    const pr = popup.getBoundingClientRect()
+    // đường tan = mép trên của vùng còn lại (clip-path, nhẹ hơn hẳn mặt nạ gradient); mép đi giữa đường tan mềm cũ
+    const cut0 = popupR.top - pr.top - 24 + 14, cut1 = popupR.bottom - pr.top + 24 + 14
+    calmGlass(popup) // bỏ lớp làm mờ của kính trước khi cắt dần → iPhone không phải tính lại mỗi khung
+    tl.fromTo(popup,
+      { clipPath: `inset(${cut0}px 0px 0px 0px)`, webkitClipPath: `inset(${cut0}px 0px 0px 0px)` },
+      { clipPath: `inset(${cut1}px 0px 0px 0px)`, webkitClipPath: `inset(${cut1}px 0px 0px 0px)`, duration: SWEEP, ease: 'none' }, 'dissolve')
+      .set(popup, { autoAlpha: 0 }, `dissolve+=${SWEEP}`)
   }
   tl.call(() => onStep('letter'), [], `dissolve+=${SWEEP}`) // → FEMALE_ENVELOPE_INSERT (popup đã tan hết)
 
@@ -153,7 +158,11 @@ export function femaleTransitionTimeline(o: FemaleRefs, onStep: (step: FemaleSte
   })
   tl
     // mép gió chạy qua màn hình, cảnh cũ bị cuốn đi, bàn tĩnh vật lộ ra (đã bày sẵn)
-    .to([...o.sceneA, o.frontPlate], { '--wipe': '130%', duration: 1.9, ease: 'power1.inOut' }, 'gust+=0.15')
+    .to(o.sceneA, { clipPath: 'inset(0% 0% 0% 100%)', webkitClipPath: 'inset(0% 0% 0% 100%)', duration: 1.55, ease: 'power1.inOut' }, 'gust+=0.35')
+    .to(o.frontPlate, { clipPath: 'inset(0% 0% 0% 0%)', webkitClipPath: 'inset(0% 0% 0% 0%)', duration: 1.55, ease: 'power1.inOut' }, 'gust+=0.35')
+    // dải mép mềm: mép phải của dải luôn trùng đường cắt (cùng thời lượng + easing) — chỉ transform, rất nhẹ
+    .fromTo(o.edge, { xPercent: -100, x: 0, autoAlpha: 1 }, { x: W, duration: 1.55, ease: 'power1.inOut' }, 'gust+=0.35')
+    .set(o.edge, { autoAlpha: 0 }, 'gust+=1.9')
     // phong bì chao theo gió
     .to(o.env, { rotation: 4, x: 10, y: -40, duration: 0.9, ease: 'sine.inOut' }, 'gust')
     .to(o.env, { rotation: -2, x: 0, y: -26, duration: 0.9, ease: 'sine.inOut' }, 'gust+=0.9')
@@ -162,7 +171,7 @@ export function femaleTransitionTimeline(o: FemaleRefs, onStep: (step: FemaleSte
     .call(() => onStep('ready'), [], 'gust+=2.1') // → FEMALE_SCENE_READY
     // gió qua hẳn: cảnh cũ đã khuất → ẩn hẳn rồi mới gỡ mặt nạ (khỏi tốn công vẽ mặt nạ mỗi khung)
     .set(o.sceneA, { autoAlpha: 0 }, 'gust+=2.2')
-    .set([...o.sceneA, o.frontPlate], { clearProps: 'maskImage,webkitMaskImage' }, 'gust+=2.2')
+    .set([...o.sceneA, o.frontPlate], { clearProps: 'clipPath,webkitClipPath' }, 'gust+=2.2')
 
   // ---------- 7. phong bì đáp xuống, luồn dưới bó hoa ----------
   tl.addLabel('land', 'gust+=1.5')

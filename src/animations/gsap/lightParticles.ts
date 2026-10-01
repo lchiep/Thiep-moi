@@ -79,7 +79,8 @@ export function lightParticlesTween(opts: {
   flight?: number // thời gian bay trung bình của 1 hạt (giây)
 }) {
   const { canvas, from, to, stage, sweep } = opts
-  const dpr = Math.min(window.devicePixelRatio || 1, 2)
+  // canvas toàn màn: giữ độ phân giải ≤ 1.5x (hạt sáng mềm, không cần nét 3x) → mỗi khung xoá/vẽ ít điểm ảnh hơn hẳn
+  const dpr = Math.min(window.devicePixelRatio || 1, 1.5)
   canvas.width = Math.round(stage.width * dpr)
   canvas.height = Math.round(stage.height * dpr)
   const ctx = canvas.getContext('2d')!
@@ -87,7 +88,7 @@ export function lightParticlesTween(opts: {
   const dot = dotSprite(), star = starSprite()
   const flight = opts.flight ?? 1.25
 
-  const n = opts.count ?? 850
+  const n = opts.count ?? 560
   const ps: P[] = []
   for (let i = 0; i < n; i++) {
     const fy = Math.random()

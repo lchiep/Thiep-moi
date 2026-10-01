@@ -51,6 +51,7 @@ export default function FemaleScene({ popup, sceneA }: Props) {
       sceneA: sceneA(),
       sceneB: [...el.querySelectorAll<HTMLElement>('.fem__b .fem__plate')],
       frontPlate: q('.fem__b--front'),
+      edge: q('.fem__edge'),
       flurry: [...el.querySelectorAll<HTMLElement>('.fem__flurry img')],
       sparks: q<HTMLCanvasElement>('.fem__sparks'),
       envGlow: q('.fem__env-glow'),
@@ -250,6 +251,8 @@ export default function FemaleScene({ popup, sceneA }: Props) {
       {/* vệt nắng ấm: hoà (soft-light) lên cả cảnh + phong bì */}
       <div className="fem__light" aria-hidden />
 
+      {/* mép gió mềm: dải tối mờ chạy theo đường cắt giữa cảnh cũ và cảnh tulip (thay mặt nạ gradient — nhẹ hơn) */}
+      <div className="fem__edge" aria-hidden />
       {/* cơn gió cánh hoa tulip: quét từ trái sang phải, cuốn cảnh cũ đi */}
       <div className="fem__flurry" aria-hidden>
         {FLURRY.map((f, i) => (
