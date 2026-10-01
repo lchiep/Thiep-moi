@@ -115,11 +115,25 @@ async function drawPhoto(ctx: Ctx, src: string | null, focus: { x: number; y: nu
     try {
       const img = await loadImage(src)
       const s = Math.max(w / img.width, h / img.height) // object-fit: cover, ưu tiên phần mặt (trên)
-      const sw = w / s
-      const sh = h / s
-      // cắt kiểu object-fit: cover nhưng đặt TÂM KHUÔN MẶT vào giữa khung (kẹp trong ảnh)
-      const sx = Math.min(Math.max(focus.x * img.width - sw / 2, 0), img.width - sw)
-      const sy = Math.min(Math.max(focus.y * img.height - sh / 2, 0), img.height - sh)
+      let sw = w / s
+      let sh = h / s
+      // khuôn mặt sát mép ảnh → PHÓNG TO (thu khung cắt quanh mặt) để mặt vào giữa khung và ảnh lấp kín khung,
+      // không đẩy mặt ra sát mép còn nửa khung là nền trống. Phóng tối đa 2.4 lần.
+      const fx = focus.x * img.width
+      const fy = focus.y * img.height
+      // mặt phải cách mép khung ≥ 35% bề ngang, ≥ 30% chiều cao trên / 45% dưới — ảnh bình thường không bị phóng
+      const room = Math.min(
+        Math.min(fx, img.width - fx) / (0.35 * sw),
+        fy / (0.3 * sh),
+        (img.height - fy) / (0.45 * sh),
+        1,
+      )
+      const k = Math.max(room, 1 / 2.4)
+      sw *= k
+      sh *= k
+      // đặt TÂM KHUÔN MẶT vào giữa khung (vẫn kẹp trong ảnh nếu đã chạm giới hạn phóng)
+      const sx = Math.min(Math.max(fx - sw / 2, 0), img.width - sw)
+      const sy = Math.min(Math.max(fy - sh / 2, 0), img.height - sh)
       ctx.drawImage(img, sx, sy, sw, sh, x, y, w, h)
       // ảnh in lên giấy: hơi ấm + tối mép cho khớp giấy vé
       ctx.globalCompositeOperation = 'multiply'
