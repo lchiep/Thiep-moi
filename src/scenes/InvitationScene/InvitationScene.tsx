@@ -8,6 +8,7 @@ import MapPreview from './MapPreview'
 import RsvpNote from '../../components/RsvpNote/RsvpNote'
 import { rsvpNoteFor } from '../../config/rsvpNote'
 import { useGuest } from '../../state/guestStore'
+import { sendRsvp, sendWish } from '../../api/guestSync'
 import { sectionsFor, type Sections } from '../../state/guestStore'
 import './InvitationScene.css'
 
@@ -254,7 +255,7 @@ function Countdown() {
   )
 }
 
-/* ---------- xác nhận tham dự + lời nhắn bên dưới (Phase 12: submit_rsvp / submit_wish; tạm lưu trên máy) ---------- */
+/* ---------- xác nhận tham dự + lời nhắn bên dưới: lưu trên máy + gửi Supabase (submit_rsvp / submit_wish) ---------- */
 function RsvpAndWish({ S }: { S: Sections['rsvp'] }) {
   const [pick, setPick] = useState<string>('')
   const [sent, setSent] = useState(false)
@@ -276,6 +277,7 @@ function RsvpAndWish({ S }: { S: Sections['rsvp'] }) {
             e.preventDefault()
             if (!pick) return
             try { localStorage.setItem('gg26.rsvp', pick) } catch { /* bỏ qua */ }
+            void sendRsvp(useGuest.getState().guest, pick as 'attending' | 'maybe' | 'not_attending') // → Supabase (bảng rsvps)
             setSent(true)
             // tham dự / sẽ thu xếp → hiện tờ giấy nhắn nhỏ (nhóm nào có bản riêng thì dùng bản đó); "không đi được" thì không
             if (pick !== 'not_attending' && note) setNoteOpen(true)
@@ -346,6 +348,7 @@ function Wish({ S, nudge }: { S: Sections['rsvp']; nudge: boolean }) {
         e.preventDefault()
         if (empty) return
         try { localStorage.setItem('gg26.wish', text.trim()) } catch { /* bỏ qua */ }
+        void sendWish(useGuest.getState().guest, text) // → Supabase (bảng wishes)
         setSent(true)
       }}
     >

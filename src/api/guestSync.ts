@@ -149,3 +149,41 @@ export function flushPending(onTicket: (t: string) => void) {
     .then((t) => { savePending(null); if (t && t !== row.ticketNo) onTicket(t) })
     .catch(() => { /* vẫn chờ */ })
 }
+
+/**
+ * Câu trả lời "… sẽ đến chứ?" và LỜI CHÚC → Supabase (bảng rsvps / wishes, gắn với khách qua id).
+ * Chạy nền, tự thử lại; khách chưa có hồ sơ trên server (mất mạng lúc đăng ký) thì đăng ký bù trước.
+ */
+async function ensureGuest(g: Guest) {
+  const { photo: _p, photoFocus: _f, ...rest } = g
+  await retry(() => register({ ...rest, photoPath: null }))
+}
+export async function sendRsvp(g: Guest | null, status: 'attending' | 'maybe' | 'not_attending') {
+  if (QA || !g) return
+  const sb = await supabase()
+  if (!sb) return
+  try {
+    await ensureGuest(g)
+    await retry(async () => {
+      const { error } = await sb.rpc('submit_rsvp', { p_guest_id: g.id, p_status: status })
+      if (error) throw error
+    })
+  } catch (e) {
+    console.warn('[supabase] gửi xác nhận tham dự lỗi', e)
+  }
+}
+export async function sendWish(g: Guest | null, message: string) {
+  const text = message.trim()
+  if (QA || !g || !text) return
+  const sb = await supabase()
+  if (!sb) return
+  try {
+    await ensureGuest(g)
+    await retry(async () => {
+      const { error } = await sb.rpc('submit_wish', { p_guest_id: g.id, p_message: text.slice(0, 1000) })
+      if (error) throw error
+    })
+  } catch (e) {
+    console.warn('[supabase] gửi lời chúc lỗi', e)
+  }
+}
