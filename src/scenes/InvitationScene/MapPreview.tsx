@@ -1,7 +1,7 @@
 import { useEffect, useRef } from 'react'
-import type { Map as LMap } from 'leaflet'
+import type { Map as LMap, TileErrorEvent } from 'leaflet'
 import { EVENT } from '../../config/event'
-import { MAP_ZOOM, TILE_URL } from '../../utils/mapWarm'
+import { MAP_ZOOM, OSM_URL, bestTile, osmTile } from '../../utils/mapTiles'
 import './MapPreview.css'
 
 /**
@@ -54,14 +54,27 @@ export default function MapPreview() {
         keyboard: false,
       })
       // nền OpenStreetMap chuẩn (CARTO nay đòi API key → hiện chữ "API KEY REQUIRED")
-      L.tileLayer(TILE_URL, {
+      // ô quanh trường lấy từ chính web (tải sẵn lúc build) → hiện ngay; ngoài vùng đó / ô lỗi → OpenStreetMap
+      const Tiles = L.TileLayer.extend({
+        getTileUrl(c: { x: number; y: number; z: number }) {
+          return bestTile(c.z, c.x, c.y)
+        },
+      }) as unknown as typeof L.TileLayer
+      const layer = new Tiles(OSM_URL, {
         maxZoom: 19,
         updateWhenIdle: false, // vẽ ô ngay khi kéo, không đợi dừng tay
         updateWhenZooming: false, // đang chụm zoom thì không tải ô trung gian
         keepBuffer: 1, // ít ô dự phòng → ít yêu cầu mạng
         crossOrigin: false,
         attribution: '© OpenStreetMap',
-      }).addTo(map)
+      })
+      layer.on('tileerror', (e: TileErrorEvent) => {
+        const img = e.tile as HTMLImageElement
+        const c = e.coords
+        const online = osmTile(c.z, c.x, c.y)
+        if (img.src !== online) img.src = online // ô sẵn chưa có (chưa chạy script) → lấy online
+      })
+      layer.addTo(map)
       map.attributionControl.setPrefix(false)
       L.control.zoom({ position: 'bottomright', zoomInTitle: 'Phóng to', zoomOutTitle: 'Thu nhỏ' }).addTo(map)
       // nút ◎ "Về vị trí trường": bay về ghim sau khi đã kéo/zoom đi chỗ khác

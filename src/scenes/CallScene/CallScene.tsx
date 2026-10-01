@@ -40,15 +40,19 @@ export default function CallScene() {
   // nhánh Nam: form đủ thông tin → dựng sẵn tập tài liệu 3D ở nền (ẩn) trong lúc khách còn đọc/bấm gửi → bấm gửi là chạy hiệu ứng liền
   const [warm, setWarm] = useState(false)
   const warmKey = useRef('')
+  const pendKey = useRef('')
   const warmCall = useRef<gsap.core.Tween | null>(null)
   const onWarm = useCallback((data: GuestForm | null) => {
-    warmCall.current?.kill()
-    if (!data) { warmKey.current = ''; setWarm(false); return }
+    if (!data) { warmCall.current?.kill(); warmKey.current = ''; pendKey.current = ''; setWarm(false); return }
     const key = [data.fullName, data.nickname, data.photo?.name, data.photo?.size].join('|')
-    if (key === warmKey.current) return // chỉ dựng lại khi tên / biệt danh / ảnh đổi
-    // đợi khách ngừng gõ ~0.8s rồi mới lưu hồ sơ + dựng (tránh dựng lại liên tục)
-    warmCall.current = gsap.delayedCall(0.8, () => {
+    // chỉ dựng lại khi tên / biệt danh / ảnh đổi (gõ email, SĐT… không huỷ lượt dựng đang chờ)
+    if (key === warmKey.current || key === pendKey.current) return
+    warmCall.current?.kill()
+    pendKey.current = key
+    // đợi khách ngừng gõ ~0.4s rồi mới lưu hồ sơ + dựng (tránh dựng lại liên tục)
+    warmCall.current = gsap.delayedCall(0.4, () => {
       warmKey.current = key
+      pendKey.current = ''
       void useGuest.getState().saveFromForm(data).then(() => setWarm(true)).catch(() => {})
     })
   }, [])
@@ -110,7 +114,7 @@ export default function CallScene() {
     state.startsWith('MALE_') ||
     (warm && isPopup) ||
     ((state === 'TICKET_REVEAL' || state === 'TICKET_VIEW' || state === 'INVITATION_ENTER' || state === 'INVITATION_VIEW' || state === 'INVITATION_EXIT' || state === 'TICKET_STOW') && useGuest.getState().guest?.gender === 'nam')
-  useEffect(() => { if (state === 'CALL_IDLE' || state === 'RSVP_CLOSING') { setWarm(false); warmKey.current = '' } }, [state])
+  useEffect(() => { if (state === 'CALL_IDLE' || state === 'RSVP_CLOSING') { setWarm(false); warmKey.current = ''; pendKey.current = ''; warmCall.current?.kill() } }, [state])
   useLayoutEffect(() => {
     if (state === 'RSVP_OPEN') { void loadMale(); void loadFemale(); warmMap(); warmTicket() }
     if (state !== 'RSVP_OPEN' || !popup.current || openTl.current) return

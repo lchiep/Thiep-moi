@@ -1,11 +1,11 @@
 import { supabase, PHOTO_BUCKET } from './supabase'
-import { compressImage } from '../utils/image'
+import { gsap } from 'gsap'
 import type { Guest } from '../state/guestStore'
 
 /**
  * Lưu MỌI thông tin khách điền ở popup lên Supabase (chạy nền, không làm chậm hiệu ứng):
  *  1. mở popup → giữ chỗ 1 mã vé chính thức (GH26-0001, 0002…) để vé khách thấy khớp với dữ liệu
- *  2. bấm GỬI → tải ảnh (1200px) lên bucket riêng tư → gọi register_guest với toàn bộ thông tin
+ *  2. bấm GỬI → gọi register_guest với toàn bộ thông tin chữ ngay, rồi tải ảnh (1200px) lên bucket riêng tư và cập nhật đường dẫn ảnh
  *  3. mất mạng → giữ bản chờ trên máy, gửi lại khi có mạng / lần mở sau
  * Chế độ kiểm thử (?qa) không gửi gì lên server.
  */
@@ -45,12 +45,42 @@ type Row = Omit<Guest, 'photo' | 'photoFocus'> & { photoPath: string | null }
 async function uploadPhoto(id: string, file: File): Promise<string | null> {
   const sb = await supabase()
   if (!sb) return null
-  const dataUrl = await compressImage(file, 1200, 0.86)
-  const blob = await (await fetch(dataUrl)).blob()
-  const path = `${id}/${Date.now()}.jpg`
-  const { error } = await sb.storage.from(PHOTO_BUCKET).upload(path, blob, { contentType: 'image/jpeg', upsert: false })
+  // nén về 1200px JPEG; trình duyệt không nén được (hiếm) mà ảnh gốc là JPG/PNG/WebP thì gửi ảnh gốc
+  const blob = (await toJpeg(file, 1200).catch(() => null)) ?? (/^image\/(jpeg|png|webp)$/.test(file.type) ? file : null)
+  if (!blob) return null
+  const ext = blob.type === 'image/png' ? 'png' : blob.type === 'image/webp' ? 'webp' : 'jpg'
+  const path = `${id}/${Date.now()}.${ext}`
+  const { error } = await sb.storage.from(PHOTO_BUCKET).upload(path, blob, { contentType: blob.type || 'image/jpeg', upsert: false })
   if (error) throw error
   return path
+}
+
+/** Ảnh → JPEG cạnh dài ≤ max (canvas.toBlob, không qua dataURL cho nhẹ bộ nhớ). */
+async function toJpeg(file: File, max: number): Promise<Blob> {
+  const bmp = await createImageBitmap(file)
+  const k = Math.min(1, max / Math.max(bmp.width, bmp.height))
+  const c = document.createElement('canvas')
+  c.width = Math.round(bmp.width * k)
+  c.height = Math.round(bmp.height * k)
+  c.getContext('2d')!.drawImage(bmp, 0, 0, c.width, c.height)
+  bmp.close()
+  return new Promise((ok, fail) => c.toBlob((b) => (b ? ok(b) : fail(new Error('toBlob'))), 'image/jpeg', 0.86))
+}
+
+const wait = (s: number) => new Promise<void>((r) => gsap.delayedCall(s, r))
+
+/** Gọi lại tối đa 3 lần (mạng 4G chập chờn): 0s → 2s → 5s. */
+async function retry<T>(fn: () => Promise<T>): Promise<T> {
+  let err: unknown
+  for (const d of [0, 2, 5]) {
+    if (d) await wait(d)
+    try {
+      return await fn()
+    } catch (e) {
+      err = e
+    }
+  }
+  throw err
 }
 
 async function register(r: Row): Promise<string | null> {
@@ -88,19 +118,23 @@ export async function syncGuest(g: Guest, photo: File | null, onTicket: (t: stri
   if (QA) return
   const { photo: _p, photoFocus: _f, ...rest } = g
   const row: Row = { ...rest, photoPath: null }
+  // 1. lưu thông tin chữ NGAY (nhẹ, vài trăm byte) — không đợi ảnh
+  savePending(row)
   try {
-    if (photo) {
-      row.photoPath = await uploadPhoto(g.id, photo).catch((e) => {
-        console.warn('[supabase] tải ảnh lỗi', e)
-        return null
-      })
-    }
-    const t = await register(row)
+    const t = await retry(() => register(row))
     savePending(null)
     if (t && t !== g.ticketNo) onTicket(t)
   } catch (e) {
     console.warn('[supabase] lưu khách lỗi — sẽ gửi lại khi có mạng', e)
-    savePending(row)
+    return
+  }
+  // 2. ảnh tải sau, xong thì cập nhật đường dẫn ảnh vào đúng khách đó
+  if (!photo) return
+  try {
+    const path = await retry(() => uploadPhoto(g.id, photo))
+    if (path) await retry(() => register({ ...row, photoPath: path }))
+  } catch (e) {
+    console.warn('[supabase] tải ảnh lỗi', e)
   }
 }
 

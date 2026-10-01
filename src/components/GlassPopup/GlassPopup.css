@@ -8,14 +8,16 @@
   /* kính TRONG trên nền tối → chữ sáng */
   --ink: #fbf6ee;
   --ph: rgba(255, 248, 238, 0.66);
-  --field-h: clamp(34px, 4.3cqh, 42px);
+  --field-h: clamp(34px, 4.6cqh, 40px);
   position: absolute;
   inset: 0;
   z-index: var(--z-ui);
   display: flex;
   flex-direction: column;
-  gap: 12px;
-  padding: calc(var(--safe-top) + 14px) 12px calc(var(--safe-bottom) + 28px);
+  align-items: center;
+  justify-content: center;
+  /* chừa khoảng thở trên/dưới + 2 bên: popup là một tấm kính nằm GIỮA màn hình, không dàn kín mép */
+  padding: max(calc(var(--safe-top) + 18px), 4.5cqh) 20px max(calc(var(--safe-bottom) + 18px), 4.5cqh);
   pointer-events: auto;
 }
 
@@ -33,13 +35,14 @@
 .gp__shell {
   position: relative;
   isolation: isolate;
-  flex: 1;
+  flex: 0 1 auto;
+  width: min(100%, 350px);
   min-height: 0;
   display: flex;
   flex-direction: column;
-  gap: 10px;
-  padding: 10px;
-  border-radius: 30px;
+  gap: 8px;
+  padding: 8px;
+  border-radius: 26px;
   border: 1px solid rgba(255, 255, 255, 0.28);
   /* kính TRONG: gần như không phủ màu, chỉ mờ rất nhẹ — nền thấy rõ */
   background: linear-gradient(160deg, rgba(255, 255, 255, 0.08) 0%, rgba(255, 255, 255, 0.015) 40%, rgba(255, 255, 255, 0.015) 65%, rgba(255, 255, 255, 0.05) 100%);
@@ -94,10 +97,10 @@
 .gp__title {
   position: relative;
   flex: none;
-  height: 58px;
+  height: 48px;
   display: grid;
   place-items: center;
-  padding: 0 14px;
+  padding: 0 12px;
   border-radius: 16px;
   border: 1px solid rgba(255, 255, 255, 0.26);
   background: linear-gradient(180deg, rgba(255, 255, 255, 0.1) 0%, rgba(255, 255, 255, 0.02) 50%, rgba(255, 255, 255, 0.04) 100%);
@@ -123,7 +126,7 @@
   margin: 0;
   /* sans hơi hẹp, đậm vừa — giống chữ hệ thống iOS */
   font-family: 'Inter Tight', var(--font-ui);
-  font-size: clamp(16px, 5cqw, 19.5px);
+  font-size: clamp(15px, 4.4cqw, 17.5px);
   font-weight: 600;
   letter-spacing: 0.01em;
   color: #f7f0e4;
@@ -140,7 +143,7 @@
 /* ---------- panel kính trắng trong ---------- */
 .gp__card {
   position: relative;
-  flex: 1;
+  flex: 0 1 auto;
   min-height: 0;
   margin: 0;
   display: flex;
@@ -163,10 +166,10 @@
   overflow-y: auto;
   overscroll-behavior: contain;
   -webkit-overflow-scrolling: touch;
-  padding: 16px 18px 8px;
+  padding: 14px 14px 6px;
   display: flex;
   flex-direction: column;
-  gap: clamp(8px, 1.1cqh, 13px);
+  gap: clamp(7px, 1cqh, 11px);
   scrollbar-width: none;
   /* mép dưới mờ dần: báo còn nội dung để cuộn */
   -webkit-mask-image: linear-gradient(#000 calc(100% - 16px), transparent);
@@ -177,7 +180,7 @@
 .gp__row2 {
   display: grid;
   grid-template-columns: repeat(2, minmax(0, 1fr));
-  gap: 12px;
+  gap: 10px;
 }
 .gp__row2 .gp__input { padding: 0 10px; gap: 8px; }
 
@@ -207,7 +210,7 @@
 /* nhãn: serif đậm, micro text-shadow */
 .gp__label {
   font-family: var(--font-display);
-  font-size: clamp(16px, 2.05cqh, 18.5px);
+  font-size: clamp(14.5px, 1.9cqh, 16.5px);
   font-weight: 700;
   line-height: 1.25;
   color: var(--ink);
@@ -589,8 +592,8 @@
   flex: none;
   display: grid;
   grid-template-columns: 1.3fr 1fr;
-  gap: 16px;
-  padding: 10px 18px 16px;
+  gap: 12px;
+  padding: 8px 14px 12px;
 }
 .gp__btn {
   height: 42px;

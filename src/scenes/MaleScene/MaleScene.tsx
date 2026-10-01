@@ -121,8 +121,16 @@ export default function MaleScene({ popup, warm = false }: { popup: React.RefObj
   }, [state])
   const reduce = useRef(window.matchMedia('(prefers-reduced-motion: reduce)').matches)
 
-  // 1. vẽ sẵn thiệp + vé từ dữ liệu khách (đợi font, ảnh)
+  // 1. vẽ sẵn thiệp + vé từ dữ liệu khách (đợi font, ảnh).
+  //    Chỉ vẽ lại khi phần HIỆN TRÊN vé/thiệp đổi (tên, biệt danh, ảnh, mã vé) — bấm GỬI lưu lại hồ sơ
+  //    (email, ngày sinh…) không làm vẽ lại texture giữa lúc hiệu ứng popup → tập tài liệu đang chạy.
+  const visKey = guest
+    ? [guest.fullName, guest.nickname, guest.gender, guest.ticketNo, guest.photo?.length ?? 0, guest.photo?.slice(-32), guest.photoFocus?.x, guest.photoFocus?.y].join('|')
+    : ''
+  const guestRef = useRef(guest)
+  guestRef.current = guest
   useEffect(() => {
+    const guest = guestRef.current
     if (!guest) return
     let alive = true
     let built: FolderAssets | null = null
@@ -136,7 +144,7 @@ export default function MaleScene({ popup, warm = false }: { popup: React.RefObj
       alive = false
       if (built) disposeFolderAssets(built)
     }
-  }, [guest])
+  }, [visKey])
 
   // 2. khung hình đầu đã vẽ → chạy "popup hoá thành tập tài liệu".
   //    Cảnh được dựng SẴN từ lúc form đủ thông tin (warm): khi khách bấm gửi (state = MALE_DOCUMENT_ENTER) chạy ngay, không đợi dựng.

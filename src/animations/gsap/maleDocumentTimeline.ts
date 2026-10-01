@@ -185,10 +185,11 @@ export function ticketFocusTimeline({ folder, camera, canvas, stage, card, veil 
   const box = stage.getBoundingClientRect()
     const ratio = 635 / 1608
   // vé TO: gần kín chiều cao, chừa ĐỈNH cho "↓ Vuốt xuống để cất vé" và ĐÁY cho lời nhắc vuốt phải
-  const h = Math.min(box.height * 0.82, (box.width * 0.94) / ratio)
+  // chừa khoảng thở rộng hơn ở 2 đầu (màn thấp như trình duyệt trong Messenger/Facebook không bị chật)
+  const h = Math.min(box.height * 0.74, (box.width * 0.86) / ratio)
   const w = h * ratio
   const left = (box.width - w) / 2
-  const top = Math.max(box.height * 0.055, box.height * 0.455 - h / 2)
+  const top = Math.max(box.height * 0.09, box.height * 0.47 - h / 2)
   gsap.set(card, { left, top, width: w, height: h, x: 0, y: 0, scale: 1, transformOrigin: '0 0' })
   const sx = from.width / w
   return gsap

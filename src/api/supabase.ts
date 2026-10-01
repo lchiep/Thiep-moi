@@ -15,7 +15,17 @@ export function supabase() {
     client = !URL_ || !KEY
       ? Promise.resolve(null)
       : import('@supabase/supabase-js').then(({ createClient }) =>
-          createClient(URL_, KEY, { auth: { persistSession: false, autoRefreshToken: false } }))
+          createClient(URL_, KEY, {
+            auth: { persistSession: false, autoRefreshToken: false },
+            // gọi hàm (JSON nhỏ) với keepalive: khách đóng/chuyển trang ngay sau khi bấm gửi thì yêu cầu vẫn đi tới server
+            global: {
+              fetch: (input, init) => {
+                const rpc = String(input).includes('/rest/v1/rpc/')
+                const timeout = typeof AbortSignal.timeout === 'function' ? AbortSignal.timeout(rpc ? 15_000 : 60_000) : undefined
+                return fetch(input, { ...init, ...(rpc ? { keepalive: true } : {}), signal: init?.signal ?? timeout })
+              },
+            },
+          }))
   }
   return client
 }

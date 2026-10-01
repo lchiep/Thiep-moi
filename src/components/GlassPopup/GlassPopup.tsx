@@ -92,7 +92,8 @@ const GlassPopup = forwardRef<HTMLDivElement, Props>(function GlassPopup({ onCan
   useEffect(() => () => { if (photoUrl) URL.revokeObjectURL(photoUrl) }, [photoUrl])
 
   const miss = missing(f)
-  const toMale = miss.length === 0 && f.gender === 'nam' && specialGuest(f.fullName)?.lockGender !== 'nu'
+  // dựng sẵn cảnh Nam SỚM: chỉ cần những gì hiện trên vé/thiệp (tên + ảnh + chọn Nam), không đợi điền hết form
+  const toMale = !!f.fullName.trim() && !!f.photo && f.gender === 'nam' && specialGuest(f.fullName)?.lockGender !== 'nu'
   useEffect(() => { onWarm?.(toMale ? f : null) }, [f, toMale, onWarm])
   const ready = miss.length === 0
   // KHÔNG hiện lời nhắc hàng loạt dưới các ô (Hiệp chê rối) — ô thiếu chỉ được
