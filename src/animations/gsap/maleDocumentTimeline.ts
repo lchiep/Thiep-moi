@@ -80,6 +80,9 @@ export function maleEnterTimeline({ popup, folder, camera, canvas, onComplete }:
     .to(items, { autoAlpha: 0, y: 8, duration: 0.32, stagger: { each: 0.012, from: 'end' }, ease: 'power2.in' }, 'fold')
     .to(inner, { autoAlpha: 0, duration: 0.4, ease: 'power2.in' }, 'fold+=0.15')
     .to(air, { autoAlpha: 0, duration: 0.9, ease: 'power2.inOut' }, 'fold+=0.2')
+    // kính co + bám bìa: bỏ backdrop-filter ngay từ đầu (iPhone phải tính lại lớp làm mờ MỖI khung hình
+    // khi phóng/thu phần tử có backdrop-filter → giật). Kính vốn chỉ mờ ~1.5px nên mắt không thấy khác.
+    .set([shell, ...inner], { backdropFilter: 'none', webkitBackdropFilter: 'none', willChange: 'transform, opacity' }, 'fold')
     .set(shell, { transformOrigin: '0 0' }, 'fold')
     // 2. tập tài liệu có mặt ngay, trồi lên từ mép dưới (vật nặng: chậm, có quán tính)
     .set(root, { visible: true }, 'fold+=0.1') // tween 0s: tua/đảo ngược timeline vẫn đúng
@@ -112,6 +115,8 @@ export function maleOpenTimeline(folder: FolderHandle, rig: CameraRigState, onCo
       .to(t.rotation, { y: out.rot, duration: 1.1, ease: EASE.paper }, at)
   })
   tl.to(rig, { drift: 0.012, duration: 1.2, ease: 'sine.out' }, '>-0.4')
+  // mở bìa CHẬM hơn (Hiệp: "mở tệp tài liệu hơi nhanh") — giữ nguyên nhịp các bước, kéo dài cả đoạn ~1.4 lần
+  tl.timeScale(0.72)
   return tl
 }
 
