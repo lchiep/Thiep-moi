@@ -1,5 +1,6 @@
 import { forwardRef, useEffect, useMemo, useState, type ReactNode } from 'react'
-import { IFemale, IHome, IIdCard, IMail, IMale, IPen, IPhone, IUser } from './formIcons'
+import { IFemale, IHeart, IHome, IMail, IMale, IPen, IPhone, IUser } from './formIcons'
+import { RELATIONSHIPS, type Relationship } from '../../config/relationship'
 // IStar (icon Sở thích) bỏ import vì ô Sở thích đang tắt — bật lại ô thì thêm IStar vào dòng trên
 import FormTour from './FormTour'
 import PhotoPicker from './PhotoPicker'
@@ -13,7 +14,8 @@ export type GuestForm = {
   fullName: string
   nickname: string
   phone: string
-  cccd: string
+  /** quan hệ với Hiệp → xưng hô trong thư ('' = chưa chọn) */
+  relationship: Relationship | ''
   gender: Gender | ''
   email: string
   dob: string
@@ -29,13 +31,13 @@ export type GuestForm = {
  */
 const MOCK_ON = import.meta.env.DEV && !new URLSearchParams(location.search).has('nomock')
 const MOCK_FORM = (): GuestForm => ({
-  fullName: 'Nguyễn Thị Bích Hằng', nickname: 'Hằng', phone: '0912345678', cccd: '',
+  fullName: 'Nguyễn Thị Bích Hằng', nickname: 'Hằng', phone: '0912345678', relationship: 'ban',
   gender: new URLSearchParams(location.search).get('mock') === 'nu' ? 'nu' : 'nam',
   email: 'bichhang@gmail.com', dob: '2003-05-14', hobbies: '', description: 'Thích chụp ảnh ✨', photo: null,
 })
 
 const EMPTY: GuestForm = {
-  fullName: '', nickname: '', phone: '', cccd: '', gender: '',
+  fullName: '', nickname: '', phone: '', relationship: '', gender: '',
   email: '', dob: '', hobbies: '', description: '', photo: null,
 }
 
@@ -52,6 +54,7 @@ function missing(f: GuestForm) {
   if (!f.fullName.trim()) m.push('fullName')
   if (!f.nickname.trim()) m.push('nickname')
   if (!/^0\d{9}$/.test(f.phone.replace(/\s/g, ''))) m.push('phone')
+  if (!f.relationship) m.push('relationship')
   if (!f.gender) m.push('gender')
   if (!/^[^\s@]+@gmail\.com$/i.test(f.email.trim())) m.push('email')
   if (!f.photo) m.push('photo')
@@ -64,15 +67,17 @@ type Props = {
   onSubmit: (data: GuestForm) => Promise<string | null>
   /** form đã đủ thông tin và đi nhánh Nam → cho cảnh 3D dựng sẵn ở nền (null = chưa đủ / không phải nhánh Nam) */
   onWarm?: (data: GuestForm | null) => void
+  /** khách đã đăng ký: không hiện form, chỉ lời chào (tấm kính vẫn mọc ra rồi biến thành tài liệu / thư như thường) */
+  returning?: { address: string; line: string } | null
 }
 
-const GlassPopup = forwardRef<HTMLDivElement, Props>(function GlassPopup({ onCancel, onSubmit, onWarm }, ref) {
+const GlassPopup = forwardRef<HTMLDivElement, Props>(function GlassPopup({ onCancel, onSubmit, onWarm, returning }, ref) {
   const [f, setF] = useState<GuestForm>(() => (MOCK_ON ? MOCK_FORM() : EMPTY))
   const [busy, setBusy] = useState(false)
   const [note, setNote] = useState<string | null>(null)
   // lời nhắn trước khi điền: mỗi phiên chỉ hiện 1 lần
   // lời nhắn + hướng dẫn: hiện MỖI LẦN mở popup (khách tự bỏ qua nếu không muốn xem)
-  const [intro, setIntro] = useState(!MOCK_ON)
+  const [intro, setIntro] = useState(!MOCK_ON && !returning)
   // bấm GỬI khi còn thiếu → hướng dẫn lần lượt từng ô còn thiếu/sai
   const [fix, setFix] = useState<string[] | null>(null)
   const endIntro = () => {
@@ -94,7 +99,7 @@ const GlassPopup = forwardRef<HTMLDivElement, Props>(function GlassPopup({ onCan
   const miss = missing(f)
   // dựng sẵn cảnh Nam SỚM: chỉ cần những gì hiện trên vé/thiệp (tên + ảnh + chọn Nam), không đợi điền hết form
   const toMale = !!f.fullName.trim() && !!f.photo && f.gender === 'nam' && specialGuest(f.fullName)?.lockGender !== 'nu'
-  useEffect(() => { onWarm?.(toMale ? f : null) }, [f, toMale, onWarm])
+  useEffect(() => { if (!returning) onWarm?.(toMale ? f : null) }, [f, toMale, onWarm, returning])
   const ready = miss.length === 0
   // KHÔNG hiện lời nhắc hàng loạt dưới các ô (Hiệp chê rối) — ô thiếu chỉ được
   // hướng dẫn bằng thẻ FormTour khi khách bấm GỬI THÔNG TIN mà còn thiếu/sai.
@@ -114,8 +119,16 @@ const GlassPopup = forwardRef<HTMLDivElement, Props>(function GlassPopup({ onCan
       {/* khung liquid glass bọc cả tiêu đề + form */}
       <div className="gp__shell">
       <div className="gp__title" data-gp-item>
-        <h2>NHẬP THÔNG TIN CỦA BẠN</h2>
+        <h2>{returning ? COPY.rsvpReturn.title : 'NHẬP THÔNG TIN CỦA BẠN'}</h2>
       </div>
+
+      {returning ? (
+        <div className="gp__card gp__card--back">
+          <p className="gp__back-name" data-gp-item>{returning.address}</p>
+          <p className="gp__back-line" data-gp-item>{returning.line}</p>
+        </div>
+      ) : (
+      <>
 
       <form
         className="gp__card"
@@ -150,8 +163,15 @@ const GlassPopup = forwardRef<HTMLDivElement, Props>(function GlassPopup({ onCan
             <Input icon={<IPhone />} placeholder="Số điện thoại" value={f.phone} onChange={(v) => set('phone', v.replace(/\D/g, '').slice(0, 10))} type="tel" inputMode="tel" autoComplete="tel" />
           </Field>
 
-          <Field tour="cccd" label="CCCD">
-            <Input icon={<IIdCard />} placeholder="ID Number" value={f.cccd} onChange={(v) => set('cccd', v)} inputMode="numeric" />
+          <Field {...fp('relationship')} label="Relationship" req>
+            <label className={`gp__input gp__select ${f.relationship ? '' : 'is-empty'}`}>
+              <IHeart />
+              <select value={f.relationship} onChange={(e) => set('relationship', e.target.value as Relationship)} aria-label="Relationship">
+                <option value="" disabled>Anh/chị là gì của em?</option>
+                {RELATIONSHIPS.map((r) => <option key={r.value} value={r.value}>{r.label}</option>)}
+              </select>
+              <svg className="gp__caret" viewBox="0 0 24 24" width="16" height="16" aria-hidden><path d="M6 9l6 6 6-6" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" /></svg>
+            </label>
           </Field>
 
           <Field {...fp('gender')} label="Giới tính" req>
@@ -209,10 +229,12 @@ const GlassPopup = forwardRef<HTMLDivElement, Props>(function GlassPopup({ onCan
         </div>
         <span className="gp-orb gp-orb--sm" aria-hidden />
       </form>
+      </>
+      )}
       </div>
 
-      {intro && <FormTour delay={1.35} onDone={endIntro} />}
-      {!intro && fix && <FormTour key={fix.join()} delay={0} only={fix} onDone={() => setFix(null)} />}
+      {!returning && intro && <FormTour delay={1.35} onDone={endIntro} />}
+      {!returning && !intro && fix && <FormTour key={fix.join()} delay={0} only={fix} onDone={() => setFix(null)} />}
 
       <svg className="gp__sparkle" viewBox="0 0 24 24" aria-hidden>
         <path fill="currentColor" d="M12 1c.6 5.6 2.9 9.4 11 11-8.1 1.6-10.4 5.4-11 11-.6-5.6-2.9-9.4-11-11 8.1-1.6 10.4-5.4 11-11z" />

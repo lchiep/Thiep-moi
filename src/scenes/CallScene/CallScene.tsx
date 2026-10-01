@@ -10,7 +10,8 @@ import { callAnsweredTimeline, popupCloseTimeline, popupOpenTimeline } from '../
 import { callMicroInteractions } from '../../animations/anime/microInteractions'
 import { useSwipeAnswer } from '../../hooks/useSwipeAnswer'
 import { sendExperience, useExperience } from '../../state/experienceMachine'
-import { useGuest } from '../../state/guestStore'
+import { guestAddress, returningGuest, useGuest } from '../../state/guestStore'
+import { fillPronouns } from '../../config/relationship'
 import { warmMap } from '../../utils/mapWarm'
 import { warmTicket } from '../../api/guestSync'
 import './CallScene.css'
@@ -39,6 +40,11 @@ export default function CallScene() {
   const state = useExperience((s) => s.state)
   // nhánh Nam: form đủ thông tin → dựng sẵn tập tài liệu 3D ở nền (ẩn) trong lúc khách còn đọc/bấm gửi → bấm gửi là chạy hiệu ứng liền
   const [warm, setWarm] = useState(false)
+  // khách đã đăng ký trên máy này (mở lại link): bỏ qua form, tấm kính chào lại rồi vào thẳng nhánh Nam/Nữ
+  const [back] = useState(() => {
+    const g = returningGuest()
+    return g ? { guest: g, popup: { address: guestAddress(g), line: fillPronouns(COPY.rsvpReturn.line, g.relationship) } } : null
+  })
   const warmKey = useRef('')
   const pendKey = useRef('')
   const warmCall = useRef<gsap.core.Tween | null>(null)
@@ -116,11 +122,14 @@ export default function CallScene() {
     ((state === 'TICKET_REVEAL' || state === 'TICKET_VIEW' || state === 'INVITATION_ENTER' || state === 'INVITATION_VIEW' || state === 'INVITATION_EXIT' || state === 'TICKET_STOW') && useGuest.getState().guest?.gender === 'nam')
   useEffect(() => { if (state === 'CALL_IDLE' || state === 'RSVP_CLOSING') { setWarm(false); warmKey.current = ''; pendKey.current = ''; warmCall.current?.kill() } }, [state])
   useLayoutEffect(() => {
-    if (state === 'RSVP_OPEN') { void loadMale(); void loadFemale(); warmMap(); warmTicket() }
+    if (state === 'RSVP_OPEN') { void loadMale(); void loadFemale(); warmMap(); if (!back) warmTicket() }
+    // khách quay lại đi nhánh Nam: dựng sẵn tập tài liệu 3D ngay trong lúc tấm kính đang chào
+    if (state === 'RSVP_OPEN' && back?.guest.gender === 'nam') setWarm(true)
     if (state !== 'RSVP_OPEN' || !popup.current || openTl.current) return
     const origin = sliderRect.current ?? slider.current!.getBoundingClientRect()
     gsap.to(slider.current, { autoAlpha: 0, duration: 0.3, ease: 'power2.out' })
-    openTl.current = popupOpenTimeline(popup.current, origin, () => {})
+    // khách quay lại: kính mở xong, để khách đọc lời chào ~1.2s rồi tự đi tiếp (không cần bấm gì)
+    openTl.current = popupOpenTimeline(popup.current, origin, () => { if (back) gsap.delayedCall(1.2, () => void goBack()) })
   }, [state])
 
   // --- huỷ: popup thu lại vào thanh trượt, cuộc gọi hiện lại ---
@@ -151,18 +160,10 @@ export default function CallScene() {
     if (new URLSearchParams(location.search).has('qa')) (window as unknown as { __popupClose: unknown }).__popupClose = back
   }, [])
 
-  const onSubmit = useCallback(async (data: GuestForm): Promise<string | null> => {
-    if (!sendExperience('SUBMIT')) return null
+  /** tải cảnh của nhánh rồi cho popup biến hình (dùng chung: bấm GỬI và khách quay lại) */
+  const toBranch = useCallback(async (gender: 'nam' | 'nu'): Promise<string | null> => {
     try {
-      // lưu hồ sơ khách trên máy (ảnh nén ~600px) + gửi toàn bộ thông tin lên Supabase ở nền (không chờ mạng)
-      await useGuest.getState().submit(data)
-    } catch (e) {
-      console.error('[RSVP] lưu thông tin lỗi', e)
-      sendExperience('SUBMIT_FAIL')
-      return 'Không đọc được ảnh này (có thể là ảnh HEIC). Bạn chọn ảnh JPG/PNG khác nhé.'
-    }
-    try {
-      if (data.gender === 'nu') {
+      if (gender === 'nu') {
         // nhánh Nữ: tải code + giải mã sẵn toàn bộ ảnh (thư, phong bì, cảnh tulip) rồi mới biến hình
         const m = await loadFemale()
         // ảnh cảnh + vẽ sẵn vé và thiệp (nội dung chung với nhánh Nam) để lúc mở phong bì có ngay
@@ -179,6 +180,26 @@ export default function CallScene() {
     sendExperience('GO_MALE')
     return null
   }, [])
+
+  const onSubmit = useCallback(async (data: GuestForm): Promise<string | null> => {
+    if (!sendExperience('SUBMIT')) return null
+    try {
+      // lưu hồ sơ khách trên máy (ảnh nén ~600px) + gửi toàn bộ thông tin lên Supabase ở nền (không chờ mạng)
+      await useGuest.getState().submit(data)
+    } catch (e) {
+      console.error('[RSVP] lưu thông tin lỗi', e)
+      sendExperience('SUBMIT_FAIL')
+      return 'Không đọc được ảnh này (có thể là ảnh HEIC). Bạn chọn ảnh JPG/PNG khác nhé.'
+    }
+    return toBranch(data.gender === 'nu' ? 'nu' : 'nam')
+  }, [toBranch])
+
+  // khách quay lại: hồ sơ đã có sẵn (ảnh, mã vé) → không lưu lại, đi thẳng vào nhánh
+  const goBack = useCallback(async () => {
+    if (!back || !sendExperience('SUBMIT')) return
+    const err = await toBranch(useGuest.getState().guest?.gender === 'nu' ? 'nu' : 'nam')
+    if (err) console.error('[RSVP] khách quay lại: ', err)
+  }, [back, toBranch])
 
   return (
     <section className="call" data-scene="call" ref={root} aria-label="Cuộc gọi đến">
@@ -211,7 +232,7 @@ export default function CallScene() {
           <FemaleScene popup={popup} sceneA={sceneA} />
         </Suspense>
       )}
-      {showPopup && <GlassPopup ref={popup} onCancel={onCancelPopup} onSubmit={onSubmit} onWarm={onWarm} />}
+      {showPopup && <GlassPopup ref={popup} onCancel={onCancelPopup} onSubmit={onSubmit} onWarm={onWarm} returning={back?.popup} />}
     </section>
   )
 }

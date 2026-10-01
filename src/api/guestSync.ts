@@ -92,7 +92,7 @@ async function register(r: Row): Promise<string | null> {
     p_full_name: r.fullName,
     p_nickname: r.nickname,
     p_phone: r.phone,
-    p_cccd: r.cccd,
+    p_cccd: r.relationship ?? 'ban', // tên tham số cũ — server lưu vào cột relationship (xem supabase/schema.sql)
     p_gender: r.gender,
     p_email: r.email,
     p_dob: r.dob || null,

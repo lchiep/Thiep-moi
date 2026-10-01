@@ -1,4 +1,4 @@
-import { forwardRef, useEffect, useRef, useState, type CSSProperties, type ReactNode } from 'react'
+import { forwardRef, useEffect, useMemo, useRef, useState, type CSSProperties, type ReactNode } from 'react'
 import { HEAD, HEAD_COLOR, fitFs } from './inviteHeader'
 import { COPY } from '../../config/copy'
 import { animate } from 'animejs'
@@ -30,7 +30,8 @@ type Props = {
 
 const InvitationScene = forwardRef<HTMLDivElement, Props>(function InvitationScene({ fullName, address, active, onBack }, ref) {
   // chữ trong thư theo khách (luật riêng: họ tên có "Hằng" → xưng anh – bé)
-  const S = sectionsFor(fullName)
+  const relationship = useGuest((g) => g.guest?.relationship)
+  const S = useMemo(() => sectionsFor({ fullName, relationship }), [fullName, relationship])
   const scroller = useRef<HTMLDivElement>(null)
   useCardFocus(scroller)
 

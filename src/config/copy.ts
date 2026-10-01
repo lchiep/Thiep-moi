@@ -12,6 +12,13 @@ export const COPY = {
     slide: 'slide to answer',
   },
 
+  // khách ĐÃ đăng ký trên máy này mở lại link: không hiện form, tấm kính chào lại rồi đi thẳng vào nhánh Nam/Nữ
+  // ({g} = xưng hô theo Relationship, xem sections bên dưới)
+  rsvpReturn: {
+    title: 'CHÀO MỪNG TRỞ LẠI',
+    line: 'Lời mời dành cho {g} vẫn đang chờ ở đây ✨',
+  },
+
   // lời nhắn + hướng dẫn từng ô, hiện khi popup vừa mở (nút × để bỏ qua)
   rsvpIntro: {
     welcome: [
@@ -39,7 +46,7 @@ export const COPY = {
       { key: 'fullName', title: 'Họ và tên', body: 'Họ tên đầy đủ của anh/chị — đây sẽ được dùng cho mục đích chính ✨' },
       { key: 'nickname', title: 'Tên gọi thân mật', body: 'Đây sẽ là item đặc biệt dành riêng cho anh/chị ✨' },
       { key: 'phone', title: 'Số điện thoại', body: 'SĐT là item quan trọng cho tương lai ✨ ' },
-      { key: 'cccd', title: 'CCCD', body: 'Không bắt buộc — anh/chị có thể để trống.' },
+      { key: 'relationship', title: 'Relationship', body: 'Anh/chị là gì của em? Lời mời sẽ xưng hô đúng theo lựa chọn này ✨' },
       { key: 'gender', title: 'Giới tính', body: 'Mỗi lựa chọn sẽ mở ra một hành trình khác nhau đó ✨' },
       { key: 'email', title: 'Email', body: 'Item này vô cùng cần thiết cho vài ngày tới đó ạ ✨ ' },
       { key: 'dob', title: 'Ngày sinh', body: 'Không bắt buộc — biết đâu lại có một bất ngờ nho nhỏ.' },
@@ -87,6 +94,8 @@ export const COPY = {
   },
 
   // 5 "trang" nội dung thiệp — mỗi lần chỉ hiện 1 trang trong vùng cuộn, cuộn xuống mới sang trang sau
+  // XƯNG HÔ theo ô Relationship (src/config/relationship.ts): {g} = gọi khách (bạn/anh/chị/bố/chú…), {s} = Hiệp tự xưng
+  // (mình/em/con/cháu/anh); viết hoa đầu câu dùng {G} / {S}. Chữ không có mã thì giữ nguyên cho mọi khách.
   sections: {
     letter: {
       no: '01',
@@ -94,11 +103,11 @@ export const COPY = {
       title: 'LỜI MỜI THÂN MẬT',
       heading: 'Lời Mời Thân Mật',
       body: [
-        'Sau một chặng đường học tập và trưởng thành, mình sắp bước đến một cột mốc thật đặc biệt.',
-        'Trong hành trình ấy, mình may mắn được gặp gỡ, đồng hành và nhận được rất nhiều sự quan tâm từ những người bạn, người thân và những anh chị đã từng ở bên mình trong những chặng đường khác nhau.',
-        'Vì vậy, mình rất mong có thể cùng mọi người chia sẻ niềm vui trong ngày đặc biệt này và lưu lại thêm một kỷ niệm đẹp trước khi bước sang một hành trình mới.',
+        'Sau một chặng đường học tập và trưởng thành, {s} sắp bước đến một cột mốc thật đặc biệt.',
+        'Trong hành trình ấy, {s} may mắn được gặp gỡ, đồng hành và nhận được rất nhiều sự quan tâm từ những người bạn, người thân và những anh chị đã từng ở bên {s} trong những chặng đường khác nhau.',
+        'Vì vậy, {s} rất mong có thể cùng mọi người chia sẻ niềm vui trong ngày đặc biệt này và lưu lại thêm một kỷ niệm đẹp trước khi bước sang một hành trình mới.',
       ],
-      note: 'Có bạn, ngày này sẽ trở nên trọn vẹn hơn rất nhiều.',
+      note: 'Có {g}, ngày này sẽ trở nên trọn vẹn hơn rất nhiều.',
     },
     timePlace: {
       no: '02',
@@ -109,7 +118,7 @@ export const COPY = {
       time: '1:00 PM · Friday, October 16, 2026', // Hiệp: viết kiểu tiếng Anh
       placeLabel: 'ĐỊA ĐIỂM',
       greeterLabel: 'LỄ TÂN_PHỤC VỤ',
-      note: 'Đừng đến quá muộn nhé — mình muốn có bạn trong khoảnh khắc của ngày hôm ấy.',
+      note: 'Đừng đến quá muộn nhé — {s} muốn có {g} trong khoảnh khắc của ngày hôm ấy.',
     },
     schedule: {
       no: '03',
@@ -118,7 +127,7 @@ export const COPY = {
       heading: 'Chờ đón khoảnh khắc',
       units: ['THÁNG', 'NGÀY', 'GIỜ', 'PHÚT', 'GIÂY'],
       mapButton: 'XEM BẢN ĐỒ',
-      note: 'Mình đang đếm từng ngày để được gặp bạn.',
+      note: '{S} đang đếm từng ngày để được gặp {g}.',
     },
     guide: {
       no: '04',
@@ -135,7 +144,7 @@ export const COPY = {
         ],
         text: 'Ưu tiên sự thoải mái, gọn gàng và một chiếc miệng chúm chím để “Lên hình thật đẹp”.',
       },
-      photo: { label: 'CHỤP ẢNH', text: 'Mọi người có thể lên sớm để làm vài bức trước hoặc đợi sau khi trao bằng rồi mình sẽ dành thời gian cho nhau nhé' },
+      photo: { label: 'CHỤP ẢNH', text: 'Mọi người có thể lên sớm để làm vài bức trước hoặc đợi sau khi trao bằng rồi {s} sẽ dành thời gian cho nhau nhé' },
 
       note: 'Đừng quên lựa chọn một trang phục phù hợp với thời tiết để có một sức khỏe tốt nhé!',
     },
@@ -144,21 +153,21 @@ export const COPY = {
       icon: '📝',
       title: 'XÁC NHẬN THAM DỰ',
       wishButton: 'GỬI LỜI CHÚC',
-      wishPlaceholder: 'Hãy để lại một lời nhắn/kỷ niệm đáng nhớ nhất của bạn với mình nhé!',
+      wishPlaceholder: 'Hãy để lại một lời nhắn/kỷ niệm đáng nhớ nhất của {g} với {s} nhé!',
       wishSend: 'GỬI',
-      wishDone: 'Đã nhận lời chúc — cảm ơn bạn ♡',
+      wishDone: 'Đã nhận lời chúc — cảm ơn {g} ♡',
       heading: 'Xác Nhận Tham Dự',
-      intro: 'Mình đang háo hức chuẩn bị cho ngày này, và sẽ thật tuyệt nếu bạn có thể xuất hiện ở đó.',
-      question: 'Bạn sẽ đến chứ?',
+      intro: '{S} đang háo hức chuẩn bị cho ngày này, và sẽ thật tuyệt nếu {g} có thể xuất hiện ở đó.',
+      question: '{G} sẽ đến chứ?',
       options: [
-        { value: 'attending', label: 'Sẽ tham dự cùng bạn', reply: 'Hẹn gặp nhau tại buổi lễ nhé.' },
-        { value: 'maybe', label: 'Sẽ thu xếp', reply: 'Mình sé giữ một slot thật đẹp cho bạn.' },
-        { value: 'not_attending', label: 'Không đi được', reply: 'Tiếc quá, vậy cảm ơn bạn đã kết nối với tôi nhé' },
+        { value: 'attending', label: 'Sẽ tham dự cùng {s}', reply: 'Hẹn gặp nhau tại buổi lễ nhé.' },
+        { value: 'maybe', label: 'Sẽ thu xếp', reply: '{S} sé giữ một slot thật đẹp cho {g}.' },
+        { value: 'not_attending', label: 'Không đi được', reply: 'Tiếc quá, vậy cảm ơn {g} đã kết nối với {s} nhé' },
       ],
       button: 'GỬI XÁC NHẬN',
-      thanks: 'Cảm ơn bạn nhé ♡',
-      thanksSub: 'Mình đã nhận được câu trả lời của bạn rồi.',
-      end: '— Hẹn gặp bạn —',
+      thanks: 'Cảm ơn {g} nhé ♡',
+      thanksSub: '{S} đã nhận được câu trả lời của {g} rồi.',
+      end: '— Hẹn gặp {g} —',
     },
   },
 

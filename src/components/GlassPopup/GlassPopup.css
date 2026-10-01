@@ -141,6 +141,29 @@
 }
 
 /* ---------- panel kính trắng trong ---------- */
+/* khách quay lại: thay form bằng lời chào ngắn */
+.gp__card--back {
+  padding: 26px 18px 28px;
+  align-items: center;
+  gap: 10px;
+  text-align: center;
+}
+.gp__back-name {
+  margin: 0;
+  font-family: var(--font-script);
+  font-size: 40px;
+  line-height: 1.15;
+  color: #fbf3e2;
+  text-shadow: 0 0 10px rgba(255, 214, 150, 0.55), 0 1px 3px rgba(0, 0, 0, 0.5);
+}
+.gp__back-line {
+  margin: 0;
+  font-family: var(--font-serif);
+  font-size: 17px;
+  line-height: 1.45;
+  color: var(--ink);
+  text-shadow: 0 1px 3px rgba(0, 0, 0, 0.55);
+}
 .gp__card {
   position: relative;
   flex: 0 1 auto;
@@ -289,6 +312,24 @@
   opacity: 1;
   text-shadow: 0 1px 0 rgba(255, 255, 255, 0.3);
 }
+/* ô chọn Relationship: <select> gốc (iPhone mở bánh xe chọn) mặc áo giống ô nhập */
+.gp__select select {
+  flex: 1;
+  min-width: 0;
+  height: 100%;
+  border: 0;
+  outline: none;
+  background: transparent;
+  font-family: var(--font-ui);
+  font-size: 16px; /* ≥16px: iPhone không tự zoom */
+  color: var(--ink);
+  -webkit-appearance: none;
+  appearance: none;
+  cursor: pointer;
+}
+.gp__select.is-empty select { color: var(--ph); }
+.gp__select option { color: #1f1915; }
+.gp__caret { flex: none; opacity: 0.75; pointer-events: none; }
 .gp__input input[type='date'] { position: relative; z-index: 1; }
 .gp__input.is-empty input[type='date'] { color: transparent; }
 /* ẩn icon lịch mặc định nhưng cả ô vẫn mở được bộ chọn ngày */

@@ -16,7 +16,8 @@ create table if not exists public.guests (
   full_name    text not null check (char_length(full_name) between 1 and 120),
   nickname     text check (char_length(nickname) <= 60),
   phone        text check (char_length(phone) <= 20),
-  cccd         text check (char_length(cccd) <= 20),
+  cccd         text check (char_length(cccd) <= 20),     -- không dùng nữa (ô CCCD đã thay bằng Relationship)
+  relationship text check (relationship in ('anh','chi','em_trai','em_gai','bo','me','chu','di','bac','ban')), -- xưng hô trong thư
   gender       text not null check (gender in ('nam','nu')),
   email        text check (char_length(email) <= 160),
   dob          date,
@@ -50,6 +51,10 @@ alter table public.rsvps  enable row level security;
 alter table public.wishes enable row level security;
 
 -- ---------- Hàm ghi dữ liệu (chạy với quyền owner, anon chỉ được gọi hàm) ----------
+
+-- register_guest: tham số p_cccd giữ TÊN CŨ (đổi tên phải xoá/tạo lại hàm) nhưng nay mang giá trị Relationship
+-- (anh/chi/em_trai/em_gai/bo/me/chu/di/bac/ban) và được lưu vào cột relationship. Bản đang chạy trên Supabase:
+-- xem hàm public.register_guest trong Dashboard → Database → Functions.
 
 -- Giữ chỗ 1 mã vé chính thức lúc khách mở popup → vé khách thấy khớp với dữ liệu lưu
 create or replace function public.reserve_ticket() returns text

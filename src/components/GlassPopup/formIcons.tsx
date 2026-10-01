@@ -18,6 +18,11 @@ export const IPhone = () => (
     <path d="M7 3.5 9.4 7 8 8.8c1 2.2 2.9 4.1 5.2 5.2l1.8-1.4 3.5 2.4-1 2.6c-.3.8-1.2 1.2-2 1-6.2-1.6-10.6-6-12.1-12.2-.2-.8.2-1.7 1-2z" />
   </svg>
 )
+export const IHeart = () => (
+  <svg viewBox="0 0 24 24" width="18" height="18" aria-hidden {...S}>
+    <path d="M12 19.5s-7.5-4.4-7.5-9.6A4.1 4.1 0 0 1 12 7.4a4.1 4.1 0 0 1 7.5 2.5c0 5.2-7.5 9.6-7.5 9.6z" />
+  </svg>
+)
 export const IIdCard = () => (
   <svg viewBox="0 0 24 24" width="18" height="18" aria-hidden {...S}>
     <rect x="3" y="5.5" width="18" height="13" rx="2.2" />
