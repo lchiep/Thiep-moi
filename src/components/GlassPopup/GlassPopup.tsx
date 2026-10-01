@@ -169,7 +169,7 @@ const GlassPopup = forwardRef<HTMLDivElement, Props>(function GlassPopup({ onCan
           </Field>
 
           <Field {...fp('email')} label="Email" req>
-            <Input icon={<IMail />} placeholder="tenban@gmail.com" value={f.email} onChange={(v) => set('email', v)} type="email" inputMode="email" autoComplete="email" />
+            <Input icon={<IMail />} placeholder="....@gmail.com" value={f.email} onChange={(v) => set('email', v)} type="email" inputMode="email" autoComplete="email" />
           </Field>
 
           <Field tour="dob" label="DATE OF BIRTH">
