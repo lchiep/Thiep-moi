@@ -4,7 +4,7 @@ import { openApp, openPopup, pickPhoto, snap, swipeOn, tapFolder, waitState } fr
 /**
  * Nhánh Nam từ đầu tới thiệp, kèm các lỗi cũ đã từng gặp (regression):
  *  - vé "trôi dần lên" sau mỗi lần cất vé / Quay lại → so cùng 1 ảnh gốc '10-folder-open' 3 lần
- *  - chạm thiệp → vào thẳng thiệp; chạm vé → rút vé
+ *  - chạm thiệp → vào thẳng thiệp; chạm vé → rút vé; xem vé chỉ vuốt xuống để cất (không vuốt phải sang thiệp)
  */
 test('nhánh Nam: tập hồ sơ → vé → cất vé → thiệp → quay lại', async ({ page }) => {
   test.slow() // 3D chạy bằng phần mềm, lâu hơn máy thật
@@ -27,10 +27,15 @@ test('nhánh Nam: tập hồ sơ → vé → cất vé → thiệp → quay lạ
   await waitState(page, 'MALE_WAITING_TAP', 30_000)
   await snap(page, '10-folder-open')
 
-  // rút vé lần 2 → vuốt phải → vào thiệp
+  // xem vé chỉ cất được bằng vuốt xuống (vuốt phải KHÔNG sang thiệp nữa) → chạm thiệp để vào thiệp
   await tapFolder(page, 'ticket')
   await waitState(page, 'TICKET_VIEW', 30_000)
   await swipeOn(page, page.locator('.male__cta'), 180, 0)
+  await page.waitForTimeout(600)
+  await expect(page.locator('html')).toHaveAttribute('data-exp', 'TICKET_VIEW')
+  await swipeOn(page, page.locator('.male__cta'), 0, 160)
+  await waitState(page, 'MALE_WAITING_TAP', 30_000)
+  await tapFolder(page, 'card')
   await waitState(page, 'INVITATION_VIEW', 60_000)
   await snap(page, '20-invite-p1')
 

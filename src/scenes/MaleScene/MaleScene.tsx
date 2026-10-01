@@ -51,7 +51,7 @@ export default function MaleScene({ popup, warm = false }: { popup: React.RefObj
   const [phone, setPhone] = useState<HTMLElement | null>(null)
   useEffect(() => setPhone(stage.current?.closest<HTMLElement>('.app__phone') ?? null), [])
 
-  // xem vé: VUỐT PHẢI (≥ 50px, chủ yếu theo chiều ngang) → sang màn thiệp
+  // xem vé: chỉ VUỐT XUỐNG (≥ 50px, chủ yếu theo chiều dọc) → cất vé. Sang thiệp bằng cách chạm thiệp trong tập hồ sơ.
   useEffect(() => {
     if (state !== 'TICKET_VIEW' || !cta.current) return
     const el = cta.current
@@ -61,8 +61,7 @@ export default function MaleScene({ popup, warm = false }: { popup: React.RefObj
     const up = (e: PointerEvent) => {
       const dx = e.clientX - x0
       const dy = e.clientY - y0
-      if (dx > 50 && Math.abs(dx) > Math.abs(dy) * 1.3) sendExperience('SWIPE')
-      else if (dy > 50 && Math.abs(dy) > Math.abs(dx) * 1.3) sendExperience('SWIPE_DOWN') // cất vé
+      if (dy > 50 && Math.abs(dy) > Math.abs(dx) * 1.3) sendExperience('SWIPE_DOWN') // cất vé
     }
     el.addEventListener('pointerdown', down)
     el.addEventListener('pointerup', up)
@@ -303,11 +302,10 @@ export default function MaleScene({ popup, warm = false }: { popup: React.RefObj
         className={`male__cta ${state === 'TICKET_VIEW' ? 'is-ticket' : ''}`}
         onClick={onTap}
         disabled={state !== 'MALE_WAITING_TAP' && state !== 'TICKET_VIEW'}
-        aria-label={state === 'TICKET_VIEW' ? COPY.male.ctaInvite : COPY.male.cta}
+        aria-label={state === 'TICKET_VIEW' ? COPY.male.stowHint : COPY.male.cta}
       >
         <span>
-          {state === 'TICKET_VIEW' ? COPY.male.ctaInvite : COPY.male.cta}
-          {state === 'TICKET_VIEW' && <i className="male__chev" aria-hidden>›››</i>}
+          {state === 'TICKET_VIEW' ? '' : COPY.male.cta}
         </span>
       </button>
 
