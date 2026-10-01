@@ -312,24 +312,70 @@
   opacity: 1;
   text-shadow: 0 1px 0 rgba(255, 255, 255, 0.3);
 }
-/* ô chọn Relationship: <select> gốc (iPhone mở bánh xe chọn) mặc áo giống ô nhập */
-.gp__select select {
-  flex: 1;
-  min-width: 0;
-  height: 100%;
-  border: 0;
-  outline: none;
-  background: transparent;
-  font-family: var(--font-ui);
-  font-size: 16px; /* ≥16px: iPhone không tự zoom */
-  color: var(--ink);
-  -webkit-appearance: none;
-  appearance: none;
-  cursor: pointer;
+/* ô chọn Relationship: các viên kính nhỏ, chọn 1 chạm (cùng chất liệu ô nhập) */
+.gp__rels {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 7px;
 }
-.gp__select.is-empty select { color: var(--ph); }
-.gp__select option { color: #1f1915; }
-.gp__caret { flex: none; opacity: 0.75; pointer-events: none; }
+.gp__rel {
+  /* LIQUID GLASS: viên kính trong, mép trên bắt sáng, viền sáng loang (cùng họ với nút Nữ/Nam) */
+  --tint: 236, 240, 248;
+  --a: 0.16;
+  --edge: 0.55;
+  position: relative;
+  isolation: isolate;
+  flex: 1 0 auto;
+  min-width: 58px;
+  height: 36px;
+  padding: 0 13px;
+  border: 0;
+  border-radius: 999px;
+  font-family: var(--font-ui);
+  font-size: 15px;
+  color: var(--ink);
+  white-space: nowrap;
+  cursor: pointer;
+  background:
+    radial-gradient(120% 140% at 50% -20%, rgba(255, 255, 255, 0.28), rgba(255, 255, 255, 0) 55%),
+    linear-gradient(180deg, rgba(var(--tint), var(--a)), rgba(var(--tint), calc(var(--a) * 0.35)));
+  box-shadow:
+    inset 0 1px 1px rgba(255, 255, 255, 0.75),
+    inset 0 -1px 1px rgba(255, 255, 255, 0.18),
+    inset 0 0 10px rgba(var(--tint), calc(var(--edge) * 0.35)),
+    0 4px 10px rgba(10, 6, 2, 0.22);
+  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.35);
+  transition: transform 0.18s ease, box-shadow 0.3s ease, background 0.3s ease, color 0.3s ease;
+}
+/* viền kính dày: sáng ở trên, mờ dần xuống dưới */
+.gp__rel::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  padding: 1.2px;
+  background: linear-gradient(180deg, rgba(255, 255, 255, 0.85), rgba(var(--tint), var(--edge)) 45%, rgba(255, 255, 255, 0.22));
+  -webkit-mask: linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0);
+  -webkit-mask-composite: xor;
+  mask-composite: exclude;
+  pointer-events: none;
+}
+@media (hover: hover) { .gp__rel:hover { transform: translateY(-1px); --a: 0.24; } }
+.gp__rel:active { transform: scale(0.96); }
+/* đang chọn: kính ánh vàng champagne, toả sáng nhẹ ra ngoài */
+.gp__rel.is-on {
+  --tint: 255, 214, 150;
+  --a: 0.42;
+  --edge: 0.95;
+  font-weight: 600;
+  color: #fff8ec;
+  box-shadow:
+    inset 0 1px 1px rgba(255, 255, 255, 0.9),
+    inset 0 0 12px rgba(255, 220, 160, 0.5),
+    0 0 4px rgba(255, 210, 140, 0.55),
+    0 0 16px rgba(255, 200, 125, 0.4),
+    0 4px 12px rgba(10, 6, 2, 0.25);
+}
 .gp__input input[type='date'] { position: relative; z-index: 1; }
 .gp__input.is-empty input[type='date'] { color: transparent; }
 /* ẩn icon lịch mặc định nhưng cả ô vẫn mở được bộ chọn ngày */

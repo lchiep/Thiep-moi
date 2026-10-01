@@ -1,5 +1,5 @@
 import { forwardRef, useEffect, useMemo, useState, type ReactNode } from 'react'
-import { IFemale, IHeart, IHome, IMail, IMale, IPen, IPhone, IUser } from './formIcons'
+import { IFemale, IHome, IMail, IMale, IPen, IPhone, IUser } from './formIcons'
 import { RELATIONSHIPS, type Relationship } from '../../config/relationship'
 // IStar (icon Sở thích) bỏ import vì ô Sở thích đang tắt — bật lại ô thì thêm IStar vào dòng trên
 import FormTour from './FormTour'
@@ -164,14 +164,15 @@ const GlassPopup = forwardRef<HTMLDivElement, Props>(function GlassPopup({ onCan
           </Field>
 
           <Field {...fp('relationship')} label="Relationship" req>
-            <label className={`gp__input gp__select ${f.relationship ? '' : 'is-empty'}`}>
-              <IHeart />
-              <select value={f.relationship} onChange={(e) => set('relationship', e.target.value as Relationship)} aria-label="Relationship">
-                <option value="" disabled>Anh/chị là gì của em?</option>
-                {RELATIONSHIPS.map((r) => <option key={r.value} value={r.value}>{r.label}</option>)}
-              </select>
-              <svg className="gp__caret" viewBox="0 0 24 24" width="16" height="16" aria-hidden><path d="M6 9l6 6 6-6" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" /></svg>
-            </label>
+            {/* chọn 1 chạm: các viên kính nhỏ (thay danh sách thả xuống — trên máy tính trình duyệt mở danh sách trắng xấu) */}
+            <div className="gp__rels" role="radiogroup" aria-label="Relationship">
+              {RELATIONSHIPS.map((r) => (
+                <button key={r.value} type="button" role="radio" aria-checked={f.relationship === r.value}
+                  className={`gp__rel ${f.relationship === r.value ? 'is-on' : ''}`} onClick={() => set('relationship', r.value)}>
+                  {r.label}
+                </button>
+              ))}
+            </div>
           </Field>
 
           <Field {...fp('gender')} label="Giới tính" req>

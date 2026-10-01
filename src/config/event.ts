@@ -17,7 +17,8 @@ export const EVENT = {
   dateLabel: read('VITE_EVENT_DATE_LABEL', 'OCTOBER 16, 2026'),
   timeLabel: read('VITE_EVENT_TIME_LABEL', '13:00 FRIDAY'),
   host: read('VITE_EVENT_HOST', 'CUNG HIỆP'),
-  contact: read('VITE_EVENT_CONTACT', '0985 361 244'), // TẠM
+  // SĐT thật của Hiệp. Bỏ qua giá trị còn để chấm (vd. "0985......." trong biến môi trường cũ trên Vercel)
+  contact: (() => { const v = read('VITE_EVENT_CONTACT', ''); return /\d{9,}/.test(v.replace(/\D/g, '')) ? v : '0985 361 244' })(),
   venue: read('VITE_EVENT_VENUE', 'HANOI UNIVERSITY OF BUSINESS AND TECHNOLOGY (HUBT)'),
   address: read('VITE_EVENT_ADDRESS', '29A NGÕ 124 PHỐ VĨNH TUY, VĨNH HƯNG, HÀ NỘI'),
   // bản tiếng Việt cho trang "Thời gian & địa điểm" của thiệp
