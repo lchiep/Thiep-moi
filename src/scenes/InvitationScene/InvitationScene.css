@@ -110,7 +110,7 @@
   overflow-y: auto;
   overscroll-behavior: contain;
   -webkit-overflow-scrolling: touch;
-  scroll-snap-type: y mandatory;
+  scroll-snap-type: y proximity; /* trang dài hơn khung vẫn cuộn đọc tự do, gần mép trang mới hít vào */
   scrollbar-width: none;
   text-align: left;
   /* Cormorant mặc định dùng SỐ KIỂU CŨ (29A, 14, 2026 nhấp nhô) → ép số thẳng hàng */
@@ -140,6 +140,17 @@
   will-change: transform, opacity;
 }
 .inv__sec > * { margin: 0; }
+/* điểm dừng thứ 2 của trang (mép dưới). Trang vừa khung: trùng điểm đầu nên không đổi gì */
+.inv__sec { position: relative; }
+.inv__sec > .inv__snapend {
+  position: absolute;
+  left: 0;
+  bottom: 0; /* đúng mép dưới trang, không ảnh hưởng căn giữa nội dung */
+  width: 1px;
+  height: 1px;
+  scroll-snap-align: end;
+  pointer-events: none;
+}
 /* tiêu đề thư pháp của trang */
 .inv__script {
   margin: 2px 0 12px !important;

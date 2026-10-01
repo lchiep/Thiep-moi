@@ -191,6 +191,8 @@ function Page({ no, title, heading, note, end, hint, children }: {
       {note && <p className="inv__note"><span aria-hidden>❦</span>{note}</p>}
       {end && <p className="inv__end">{end}</p>}
       {hint && <p className="inv__swipe"><span ref={arrow} aria-hidden>↑</span>{SWIPE_HINT}</p>}
+      {/* điểm dừng ở ĐÁY trang: trang dài hơn khung (vd. Hướng dẫn khách mời) đọc được tới dòng cuối, không bị bật lên đầu trang */}
+      <i className="inv__snapend" aria-hidden />
     </section>
   )
 }
