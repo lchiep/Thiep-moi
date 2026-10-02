@@ -232,6 +232,13 @@ export default function CallScene() {
           <FemaleScene popup={popup} sceneA={sceneA} />
         </Suspense>
       )}
+      {/* màn chờ chạm (tập tài liệu / phong bì): quay lại popup để sửa thông tin đã điền.
+          Tải lại trang với ?sua → popup mở với thông tin cũ điền sẵn; gửi lại cập nhật đúng hồ sơ cũ (giữ mã vé). */}
+      {(state === 'MALE_WAITING_TAP' || state === 'FEMALE_WAITING_TAP') && (
+        <button type="button" className="call__edit" onClick={() => { const q = new URLSearchParams(location.search); q.delete('back'); q.set('sua', ''); location.replace(`${location.pathname}?${q.toString().replace('sua=', 'sua')}`) }}>
+          {COPY.editInfo}
+        </button>
+      )}
       {showPopup && <GlassPopup ref={popup} onCancel={onCancelPopup} onSubmit={onSubmit} onWarm={onWarm} returning={back?.popup} />}
     </section>
   )

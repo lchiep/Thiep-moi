@@ -129,7 +129,8 @@ export async function syncGuest(g: Guest, photo: File | null, onTicket: (t: stri
     return
   }
   // 2. ảnh tải sau, xong thì cập nhật đường dẫn ảnh vào đúng khách đó
-  if (!photo) return
+  // sửa thông tin mà không đổi ảnh: ảnh cũ đã có trên server → không tải lại (bản điền sẵn chỉ là ảnh nhỏ 600px)
+  if (!photo || photo.name === 'anh-cua-ban.jpg') return
   try {
     const path = await retry(() => uploadPhoto(g.id, photo))
     if (path) await retry(() => register({ ...row, photoPath: path }))

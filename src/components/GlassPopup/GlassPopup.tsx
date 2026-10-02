@@ -6,7 +6,7 @@ import FormTour from './FormTour'
 import PhotoPicker from './PhotoPicker'
 import DateField from './DateField'
 import { COPY } from '../../config/copy'
-import { prepPhoto, specialGuest } from '../../state/guestStore'
+import { prepPhoto, specialGuest, editingGuest, photoFile } from '../../state/guestStore'
 import './GlassPopup.css'
 
 export type Gender = 'nu' | 'nam'
@@ -72,12 +72,21 @@ type Props = {
 }
 
 const GlassPopup = forwardRef<HTMLDivElement, Props>(function GlassPopup({ onCancel, onSubmit, onWarm, returning }, ref) {
-  const [f, setF] = useState<GuestForm>(() => (MOCK_ON ? MOCK_FORM() : EMPTY))
+  // "← Sửa thông tin": điền sẵn thông tin cũ (kể cả ảnh) để khách chỉ sửa chỗ sai
+  const [editing] = useState(() => editingGuest())
+  const [f, setF] = useState<GuestForm>(() => {
+    const g = editing
+    if (g) return {
+      fullName: g.fullName, nickname: g.nickname, phone: g.phone, relationship: g.relationship ?? '',
+      gender: g.gender, email: g.email, dob: g.dob, hobbies: g.hobbies, description: g.description, photo: photoFile(g.photo),
+    }
+    return MOCK_ON ? MOCK_FORM() : EMPTY
+  })
   const [busy, setBusy] = useState(false)
   const [note, setNote] = useState<string | null>(null)
   // lời nhắn trước khi điền: mỗi phiên chỉ hiện 1 lần
   // lời nhắn + hướng dẫn: hiện MỖI LẦN mở popup (khách tự bỏ qua nếu không muốn xem)
-  const [intro, setIntro] = useState(!MOCK_ON && !returning)
+  const [intro, setIntro] = useState(!MOCK_ON && !returning && !editing)
   // bấm GỬI khi còn thiếu → hướng dẫn lần lượt từng ô còn thiếu/sai
   const [fix, setFix] = useState<string[] | null>(null)
   const endIntro = () => {

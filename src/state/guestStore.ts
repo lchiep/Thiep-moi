@@ -130,9 +130,28 @@ if (typeof window !== 'undefined') {
  */
 export function returningGuest(): Guest | null {
   const q = new URLSearchParams(location.search)
-  if (q.has('moi') || (q.has('qa') && !q.has('back'))) return null // test khách quay lại: ?qa&back
+  if (q.has('moi') || q.has('sua') || (q.has('qa') && !q.has('back'))) return null // test khách quay lại: ?qa&back
   const g = useGuest.getState().guest
   return g && g.fullName && g.photo && (g.gender === 'nam' || g.gender === 'nu') ? g : null
+}
+
+/** Khách bấm "← Sửa thông tin" (link có ?sua): popup mở với thông tin cũ điền sẵn, gửi lại thì cập nhật đúng hồ sơ cũ (giữ mã vé). */
+export const editingGuest = (): Guest | null =>
+  new URLSearchParams(location.search).has('sua') ? useGuest.getState().guest : null
+
+/** Ảnh đã lưu (dataURL) → File để ô ảnh của popup hiện lại và gửi lại được. */
+export function photoFile(dataUrl: string | null): File | null {
+  if (!dataUrl?.startsWith('data:')) return null
+  try {
+    const [head, b64] = dataUrl.split(',')
+    const type = /data:([^;]+)/.exec(head)?.[1] ?? 'image/jpeg'
+    const bin = atob(b64)
+    const buf = new Uint8Array(bin.length)
+    for (let i = 0; i < bin.length; i++) buf[i] = bin.charCodeAt(i)
+    return new File([buf], 'anh-cua-ban.jpg', { type })
+  } catch {
+    return null
+  }
 }
 
 /** Họ và tên có chứa ĐÚNG 1 chữ (so cả chữ, không phân biệt hoa/thường, chuẩn hoá dấu tiếng Việt)? */

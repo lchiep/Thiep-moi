@@ -14,6 +14,9 @@ export const COPY = {
 
   // khách ĐÃ đăng ký trên máy này mở lại link: không hiện form, tấm kính chào lại rồi đi thẳng vào nhánh Nam/Nữ
   // ({g} = xưng hô theo Relationship, xem sections bên dưới)
+  /** nút nhỏ ở màn tập tài liệu / cảnh tulip: quay lại popup để sửa thông tin đã điền */
+  editInfo: '← Sửa thông tin',
+
   rsvpReturn: {
     title: 'CHÀO MỪNG TRỞ LẠI',
     line: 'Lời mời dành cho {g} vẫn đang chờ ở đây ✨',
